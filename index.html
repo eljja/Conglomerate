@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>대한민국 대기업 네트워크 & 지배구조·혼맥 시각화 플랫폼</title>
+  <meta name="description" content="대한민국 주요 30대 대기업 집단(재벌 및 빅테크)의 인맥, 혈연/혼맥, 순환출자 및 지분 소유 구조를 한눈에 볼 수 있는 인터랙티브 시각화 플랫폼">
+  
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <!-- D3.js v7 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  
+  <!-- Application CSS -->
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/components.css">
+</head>
+<body>
+  <div id="app-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="logo-section">
+        <button id="toggle-filter-btn" class="sidebar-toggle-btn" title="필터 사이드바 열기/닫기">
+          ⚙️ 필터
+        </button>
+        <div class="logo-badge">🇰🇷</div>
+        <div class="logo-text">
+          <h1>대한민국 대기업 네트워크</h1>
+          <span>지배구조 · 순환출자 · 혼맥 · 인맥 거시 탐색기</span>
+        </div>
+      </div>
+
+      <!-- View Switcher Tabs -->
+      <nav class="view-tabs">
+        <button class="tab-btn active" data-view-mode="holistic">
+          <span>🌐</span> 전체 통합 우주
+        </button>
+        <button class="tab-btn" data-view-mode="circular">
+          <span>🔄</span> 순환출자 & 지배구조
+        </button>
+        <button class="tab-btn" data-view-mode="dynasty">
+          <span>💍</span> 정·재계 혼맥 & 혈연
+        </button>
+        <button class="tab-btn" data-view-mode="cluster">
+          <span>🏢</span> 그룹별 클러스터
+        </button>
+        <button class="tab-btn" data-view-mode="path">
+          <span>🔍</span> 6단계 인맥 탐색
+        </button>
+        <button class="tab-btn" data-view-mode="matrix">
+          <span>📊</span> 데이터 매트릭스
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="export-png-btn" class="sidebar-toggle-btn" title="그래프 PNG 이미지 저장">
+          📷 캡처
+        </button>
+        <button id="theme-toggle-btn" class="sidebar-toggle-btn" style="padding: 6px 10px;" title="다크/라이트 테마 전환">
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Workspace -->
+    <main class="main-workspace">
+      
+      <!-- Left Filter Sidebar -->
+      <aside id="filter-sidebar" class="filter-sidebar">
+        <div class="filter-header">
+          <span style="font-weight: 700; font-size: 0.95rem;">🎛️ 네트워크 필터</span>
+        </div>
+
+        <!-- Group Selector -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <span>대기업 그룹 선택</span>
+            <div>
+              <button id="select-all-groups-btn" class="filter-btn-mini">전체</button>
+              <span style="color: var(--text-muted);">|</span>
+              <button id="clear-all-groups-btn" class="filter-btn-mini">해제</button>
+            </div>
+          </div>
+          <div id="group-pill-container" class="group-pill-grid">
+            <!-- Dynamic Group Pills -->
+          </div>
+        </div>
+
+        <!-- Node Type Selector -->
+        <div class="filter-section">
+          <div class="filter-title">노드 유형 (Nodes)</div>
+          <label class="checkbox-row">
+            <span>👤 총수 / 오너 일가 / 인물</span>
+            <input type="checkbox" id="filter-node-person" checked onchange="window.app?.filterManager.setNodeType('person', this.checked)">
+          </label>
+          <label class="checkbox-row">
+            <span>👑 그룹 지주회사 (Holdings)</span>
+            <input type="checkbox" id="filter-node-holding" checked onchange="window.app?.filterManager.setNodeType('holding', this.checked)">
+          </label>
+          <label class="checkbox-row">
+            <span>🏢 일반 상장/주요 계열사</span>
+            <input type="checkbox" id="filter-node-company" checked onchange="window.app?.filterManager.setNodeType('company', this.checked)">
+          </label>
+        </div>
+
+        <!-- Link Type Selector -->
+        <div class="filter-section">
+          <div class="filter-title">연결 관계 (Relationships)</div>
+          <label class="checkbox-row">
+            <span style="color: #60a5fa;">🏢 소유 지분 (Ownership)</span>
+            <input type="checkbox" id="filter-link-ownership" checked onchange="window.app?.filterManager.setLinkType('ownership', this.checked)">
+          </label>
+          <label class="checkbox-row">
+            <span style="color: #fb7185;">🔄 순환출자 고리 (Circular)</span>
+            <input type="checkbox" id="filter-link-circular" checked onchange="window.app?.filterManager.setLinkType('circular', this.checked)">
+          </label>
+          <label class="checkbox-row">
+            <span style="color: #c084fc;">👨‍👩‍👧‍👦 혈연 / 가족 (Family)</span>
+            <input type="checkbox" id="filter-link-family" checked onchange="window.app?.filterManager.setLinkType('family', this.checked)">
+          </label>
+          <label class="checkbox-row">
+            <span style="color: #f472b6;">💍 정·재계 혼맥 (Marriage)</span>
+            <input type="checkbox" id="filter-link-marriage" checked onchange="window.app?.filterManager.setLinkType('marriage', this.checked)">
+          </label>
+        </div>
+
+        <!-- Minimum Stake Slider -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <span>최소 지분율 필터</span>
+            <span id="stake-value-display" style="color: var(--accent-blue); font-weight: 700;">0% 이상</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="stake-slider" class="custom-range" min="0" max="50" step="1" value="0">
+            <div class="slider-labels">
+              <span>0%</span>
+              <span>25%</span>
+              <span>50%+</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Graph Canvas Area -->
+      <div id="graph-canvas-container">
+        <!-- SVG Canvas rendered by D3 -->
+      </div>
+
+      <!-- Floating Path Finder Banner -->
+      <div id="path-finder-banner" class="path-finder-banner" style="display: none;">
+        <span style="font-weight: 700; font-size: 0.85rem; color: var(--accent-amber);">🔍 인맥 경로:</span>
+        <select id="path-start-select" class="path-select"></select>
+        <span style="color: var(--text-muted);">➔</span>
+        <select id="path-end-select" class="path-select"></select>
+        <button id="run-path-btn" class="path-btn">경로 탐색</button>
+        <button id="clear-path-btn" class="sidebar-toggle-btn" style="padding: 4px 8px; font-size: 0.75rem;">초기화</button>
+        <div id="path-steps-container" class="path-result-steps"></div>
+      </div>
+
+      <!-- Floating Search Box (Top Left) -->
+      <div class="floating-controls">
+        <div class="search-box-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="인물, 기업, 그룹 검색...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+        </div>
+      </div>
+
+      <!-- Floating Bottom Legend Bar -->
+      <div id="graph-legend-bar" class="graph-legend-bar">
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #3b82f6;"></span>
+          <span>지분 출자</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-line circular-flow-edge" style="background: #f43f5e; height: 3px;"></span>
+          <span style="color: #fb7185; font-weight: 700;">순환출자 고리</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #a855f7;"></span>
+          <span>혈연(직계/방계)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #ec4899;"></span>
+          <span>정·재계 혼맥</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color-dot" style="background: #f59e0b; border-radius: 2px;"></span>
+          <span>지주회사</span>
+        </div>
+      </div>
+
+      <!-- Floating Action Buttons (Bottom Right) -->
+      <div class="canvas-action-buttons">
+        <button id="zoom-in-btn" class="canvas-btn" title="확대">+</button>
+        <button id="zoom-out-btn" class="canvas-btn" title="축소">-</button>
+        <button id="zoom-reset-btn" class="canvas-btn" title="화면 맞춤" style="font-size: 0.8rem;">⟲</button>
+      </div>
+
+      <!-- Right Side Inspector Drawer -->
+      <aside id="inspector-drawer" class="inspector-drawer closed">
+        <div class="inspector-header">
+          <span style="font-weight: 700; font-size: 0.95rem;">📋 상세 인스펙터</span>
+          <button id="close-inspector-btn" class="inspector-close-btn">✕</button>
+        </div>
+        <div id="inspector-dynamic-content" class="inspector-content">
+          <!-- Dynamic Content rendered by UIController -->
+        </div>
+      </aside>
+
+      <!-- Analytics Matrix View Overlay -->
+      <div id="matrix-view-container">
+        <!-- Rendered by UIController when in Matrix View Mode -->
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Main Application Script -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

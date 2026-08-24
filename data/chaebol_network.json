@@ -1,0 +1,2517 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "title": "대한민국 대기업 네트워크 & 지배구조·혼맥 종합 데이터베이스",
+    "description": "30대 대기업 집단 및 빅테크의 인맥, 혈연/혼맥, 순환출자 및 지분율 데이터",
+    "last_updated": "2026-08"
+  },
+  "nodes": [
+    {
+      "id": "p_lee_byung_chul",
+      "name": "故 이병철",
+      "type": "person",
+      "group": "samsung",
+      "role": "창업주",
+      "title": "삼성그룹 창업주 / 호암",
+      "generation": "1세대",
+      "desc": "1938년 삼성상회(현 삼성물산)를 창업하여 삼성·CJ·신세계·한솔·중앙그룹의 뿌리가 됨."
+    },
+    {
+      "id": "p_lee_kun_hee",
+      "name": "故 이건희",
+      "type": "person",
+      "group": "samsung",
+      "role": "선대회장",
+      "title": "삼성그룹 제2대 회장",
+      "generation": "2세대",
+      "desc": "이병철의 3남. '신경영 선언'을 통해 삼성을 글로벌 일류 IT/반도체 기업으로 도약시킴."
+    },
+    {
+      "id": "p_hong_ra_hee",
+      "name": "홍라희",
+      "type": "person",
+      "group": "samsung",
+      "role": "원로",
+      "title": "전 리움미술관 관장",
+      "generation": "2세대",
+      "desc": "홍진기 전 법무부장관의 장녀이자 이건희 회장의 부인. 삼성전자 지분 다수 보유.",
+      "wealth_est": "약 7조 원"
+    },
+    {
+      "id": "p_lee_jae_yong",
+      "name": "이재용",
+      "type": "person",
+      "group": "samsung",
+      "role": "총수 / 회장",
+      "title": "삼성전자 회장",
+      "generation": "3세대",
+      "desc": "이건희의 장남. 삼성물산 최대주주로서 삼성생명-삼성전자로 이어지는 지배구조의 정점에 위치.",
+      "wealth_est": "약 14조 원"
+    },
+    {
+      "id": "p_lee_boo_jin",
+      "name": "이부진",
+      "type": "person",
+      "group": "samsung",
+      "role": "경영진",
+      "title": "호텔신라 대표이사 사장",
+      "generation": "3세대",
+      "desc": "이건희의 장녀. 호텔신라 경영을 총괄하며 삼성물산 주요 주주.",
+      "wealth_est": "약 3.8조 원"
+    },
+    {
+      "id": "p_lee_seo_hyun",
+      "name": "이서현",
+      "type": "person",
+      "group": "samsung",
+      "role": "경영진",
+      "title": "삼성물산 전략기획담당 사장",
+      "generation": "3세대",
+      "desc": "이건희의 차녀. 삼성복지재단 이사장 겸 삼성물산 패션/전략 총괄.",
+      "wealth_est": "약 3.5조 원"
+    },
+    {
+      "id": "p_kim_jae_yeol",
+      "name": "김재열",
+      "type": "person",
+      "group": "samsung",
+      "role": "경영진/친인척",
+      "title": "삼성글로벌리서치 사장 / IOC 위원",
+      "generation": "3세대",
+      "desc": "동아일보 김병관 전 명예회장의 차남이자 이서현 사장의 남편. 국제빙상경기연맹 회장."
+    },
+    {
+      "id": "c_samsung_cnt",
+      "name": "삼성물산",
+      "type": "company",
+      "is_holding": true,
+      "group": "samsung",
+      "industry": "건설/상사/바이오지주",
+      "market_cap": "약 26조 원",
+      "desc": "삼성그룹의 사실상 지주회사. 이재용 회장이 18.26% 지분을 보유한 그룹 지배의 핵심 축."
+    },
+    {
+      "id": "c_samsung_elec",
+      "name": "삼성전자",
+      "type": "company",
+      "group": "samsung",
+      "industry": "반도체/모바일/가전",
+      "market_cap": "약 450조 원",
+      "desc": "대한민국 시가총액 1위 기업. 글로벌 메모리 반도체 및 스마트폰 선도 기업."
+    },
+    {
+      "id": "c_samsung_life",
+      "name": "삼성생명",
+      "type": "company",
+      "group": "samsung",
+      "industry": "생명보험/금융",
+      "market_cap": "약 18조 원",
+      "desc": "삼성물산이 19.34% 지분을 가진 1대 주주이며, 삼성전자 지분 8.51%를 보유한 금융-제조 연결고리."
+    },
+    {
+      "id": "c_samsung_bio",
+      "name": "삼성바이오로직스",
+      "type": "company",
+      "group": "samsung",
+      "industry": "바이오의약품 CDMO",
+      "market_cap": "약 65조 원",
+      "desc": "삼성물산(43.06%)과 삼성전자(31.22%)가 합작 지배하는 글로벌 최대 바이오 CDMO."
+    },
+    {
+      "id": "c_samsung_sdi",
+      "name": "삼성SDI",
+      "type": "company",
+      "group": "samsung",
+      "industry": "2차전지/전자재료",
+      "market_cap": "약 25조 원",
+      "desc": "전기차 배터리 및 에너지 저장장치(ESS) 제조 기업. 삼성전자가 19.58% 보유."
+    },
+    {
+      "id": "c_samsung_sds",
+      "name": "삼성SDS",
+      "type": "company",
+      "group": "samsung",
+      "industry": "IT서비스/클라우드/물류",
+      "market_cap": "약 12조 원",
+      "desc": "삼성전자(22.58%), 삼성물산(17.08%), 이재용(9.2%) 등 오너 일가 직보유 지분이 높은 IT서비스사."
+    },
+    {
+      "id": "c_hotel_shilla",
+      "name": "호텔신라",
+      "type": "company",
+      "group": "samsung",
+      "industry": "호텔/면세유통",
+      "market_cap": "약 3조 원",
+      "desc": "이부진 사장이 경영을 총괄. 삼성생명(7.3%), 삼성전자(5.1%) 등이 주요 주주."
+    },
+
+    {
+      "id": "p_chey_jong_gun",
+      "name": "故 최종건",
+      "type": "person",
+      "group": "sk",
+      "role": "창업주",
+      "title": "SK그룹 창업회장",
+      "generation": "1세대",
+      "desc": "1953년 선경직물을 창업하여 SK그룹의 초석을 놓음."
+    },
+    {
+      "id": "p_chey_jong_hyon",
+      "name": "故 최종현",
+      "type": "person",
+      "group": "sk",
+      "role": "선대회장",
+      "title": "SK그룹 제2대 회장",
+      "generation": "1세대",
+      "desc": "최종건 창업주의 동생. 유공(현 SK이노베이션) 및 한국이동통신(현 SK텔레콤)을 인수하여 에너지·통신 그룹으로 도약."
+    },
+    {
+      "id": "p_chey_tae_won",
+      "name": "최태원",
+      "type": "person",
+      "group": "sk",
+      "role": "총수 / 회장",
+      "title": "SK그룹 회장 / 대한상공회의소 회장",
+      "generation": "2세대",
+      "desc": "최종현 선대회장의 장남. 하이닉스 인수를 주도해 반도체 거인으로 육성. SK(주) 최대주주(17.73%).",
+      "wealth_est": "약 3.5조 원"
+    },
+    {
+      "id": "p_chey_jae_won",
+      "name": "최재원",
+      "type": "person",
+      "group": "sk",
+      "role": "경영진",
+      "title": "SK이노베이션 수석부회장 / SK온 대표",
+      "generation": "2세대",
+      "desc": "최태원 회장의 남동생. SK 배터리 사업(SK온) 및 에너지 사업 총괄."
+    },
+    {
+      "id": "p_chey_chang_won",
+      "name": "최창원",
+      "type": "person",
+      "group": "sk",
+      "role": "경영진",
+      "title": "SK수펙스추구협의회 의장 / SK디스커버리 부회장",
+      "generation": "2세대",
+      "desc": "최종건 창업주의 3남(최태원의 사촌). SK디스커버리 소그룹을 이끌며 그룹 최고 협의체 의장 역임."
+    },
+    {
+      "id": "p_noh_soh_yeong",
+      "name": "노소영",
+      "type": "person",
+      "group": "sk",
+      "role": "문화예술/전 배우자",
+      "title": "아트센터 나비 관장",
+      "generation": "2세대",
+      "desc": "노태우 전 대통령의 장녀이자 최태원 회장의 전 부인. 세기의 재산분할 소송 당사자."
+    },
+    {
+      "id": "p_noh_tae_woo",
+      "name": "故 노태우",
+      "type": "person",
+      "group": "inlaw_alliances",
+      "role": "정계 원로",
+      "title": "대한민국 제13대 대통령",
+      "generation": "1세대",
+      "desc": "노소영 관장의 부친. SK그룹과 정계 최고 권력층 혼맥의 중심 인물."
+    },
+    {
+      "id": "c_sk_inc",
+      "name": "SK(주)",
+      "type": "company",
+      "is_holding": true,
+      "group": "sk",
+      "industry": "지주회사/투자",
+      "market_cap": "약 11조 원",
+      "desc": "SK그룹의 순수 지주회사. 최태원 회장(17.73%)이 지배하며 이노베이션, 텔레콤, 스퀘어 등을 종속."
+    },
+    {
+      "id": "c_sk_hynix",
+      "name": "SK하이닉스",
+      "type": "company",
+      "group": "sk",
+      "industry": "HBM/메모리반도체",
+      "market_cap": "약 140조 원",
+      "desc": "글로벌 HBM(고대역폭메모리) 1위 반도체 기업. SK스퀘어가 20.07% 지분을 보유한 손자회사(중간지주 체제)."
+    },
+    {
+      "id": "c_sk_square",
+      "name": "SK스퀘어",
+      "type": "company",
+      "group": "sk",
+      "industry": "ICT 투자전문 지주",
+      "market_cap": "약 11조 원",
+      "desc": "SK텔레콤에서 인적분할된 ICT 투자지주사. SK하이닉스(20.07%), 11번가, 티맵모빌리티 지배."
+    },
+    {
+      "id": "c_sk_telecom",
+      "name": "SK텔레콤",
+      "type": "company",
+      "group": "sk",
+      "industry": "통신/AI",
+      "market_cap": "약 12조 원",
+      "desc": "국내 1위 무선통신 사업자 및 글로벌 AI 컴퍼니 도약 중. SK(주)가 30.01% 보유."
+    },
+    {
+      "id": "c_sk_innovation",
+      "name": "SK이노베이션",
+      "type": "company",
+      "group": "sk",
+      "industry": "정유/에너지/배터리",
+      "market_cap": "약 10조 원",
+      "desc": "SK E&S와의 합병으로 초대형 에너지 복합기업 탄생. SK온(배터리)의 모회사."
+    },
+    {
+      "id": "c_sk_on",
+      "name": "SK온",
+      "type": "company",
+      "group": "sk",
+      "industry": "전기차 배터리",
+      "market_cap": "비상장 (가치 약 25조 원)",
+      "desc": "SK이노베이션의 배터리 자회사. 글로벌 주요 완성차(포드, 현대차 등)에 배터리 공급."
+    },
+
+    {
+      "id": "p_chung_ju_yung",
+      "name": "故 정주영",
+      "type": "person",
+      "group": "hyundai_motor",
+      "role": "창업주",
+      "title": "현대그룹 창업주 / 아산",
+      "generation": "1세대",
+      "desc": "현대건설, 현대자동차, 현대중공업을 일구어낸 한국 산업화의 상징적 인물."
+    },
+    {
+      "id": "p_chung_mong_koo",
+      "name": "정몽구",
+      "type": "person",
+      "group": "hyundai_motor",
+      "role": "명예회장",
+      "title": "현대자동차그룹 명예회장 / MK",
+      "generation": "2세대",
+      "desc": "정주영의 차남. 품질경영으로 현대·기아차를 글로벌 3위 완성차 그룹으로 성장시킴."
+    },
+    {
+      "id": "p_chung_euisun",
+      "name": "정의선",
+      "type": "person",
+      "group": "hyundai_motor",
+      "role": "총수 / 회장",
+      "title": "현대자동차그룹 회장",
+      "generation": "3세대",
+      "desc": "정몽구의 장남. 미래 모빌리티, 수소, 로보틱스(보스턴다이내믹스), AAM 전환 주도. 현대글로비스 20% 보유.",
+      "wealth_est": "약 4.2조 원"
+    },
+    {
+      "id": "c_hyundai_mobis",
+      "name": "현대모비스",
+      "type": "company",
+      "is_holding": true,
+      "group": "hyundai_motor",
+      "industry": "자동차 모듈/핵심부품",
+      "market_cap": "약 23조 원",
+      "desc": "현대차 지분 21.64%를 보유한 실질적 지주사이자 기아(17.55%)가 주주인 순환출자의 핵심 고리."
+    },
+    {
+      "id": "c_hyundai_motor",
+      "name": "현대자동차",
+      "type": "company",
+      "group": "hyundai_motor",
+      "industry": "완성차/모빌리티",
+      "market_cap": "약 55조 원",
+      "desc": "글로벌 3위 완성차 메이커. 기아 지분 34.25%를 보유."
+    },
+    {
+      "id": "c_kia_corp",
+      "name": "기아 (Kia)",
+      "type": "company",
+      "group": "hyundai_motor",
+      "industry": "완성차/모빌리티",
+      "market_cap": "약 42조 원",
+      "desc": "현대차가 34.25% 지분을 보유하고 있으며, 현대모비스 지분 17.55%를 보유하여 순환출자를 완성."
+    },
+    {
+      "id": "c_hyundai_glovis",
+      "name": "현대글로비스",
+      "type": "company",
+      "group": "hyundai_motor",
+      "industry": "종합물류/해운/유통",
+      "market_cap": "약 8.5조 원",
+      "desc": "정의선 회장이 20.00%, 정몽구 명예회장이 6.71%를 보유한 오너 일가의 핵심 승계 자금줄 지분."
+    },
+    {
+      "id": "c_hyundai_steel",
+      "name": "현대제철",
+      "type": "company",
+      "group": "hyundai_motor",
+      "industry": "철강/일관제철",
+      "market_cap": "약 4.5조 원",
+      "desc": "기아(17.27%), 현대차(6.87%) 등이 지배하는 자동차 강판 중심 철강사."
+    },
+    {
+      "id": "c_hyundai_autoever",
+      "name": "현대오토에버",
+      "type": "company",
+      "group": "hyundai_motor",
+      "industry": "차량SW/IT서비스",
+      "market_cap": "약 4조 원",
+      "desc": "현대차(28.96%), 정의선(7.33%), 현대모비스(19.36%)가 보유한 차량용 SW 플랫폼 기업."
+    },
+
+    {
+      "id": "p_chung_mong_joon",
+      "name": "정몽준",
+      "type": "person",
+      "group": "hd_hyundai",
+      "role": "대주주",
+      "title": "아산재단 이사장 / 전 국회의원",
+      "generation": "2세대",
+      "desc": "정주영의 6남. HD현대(구 현대중공업그룹) 최대주주(26.60%)."
+    },
+    {
+      "id": "p_chung_ki_sun",
+      "name": "정기선",
+      "type": "person",
+      "group": "hd_hyundai",
+      "role": "총수 / 부회장",
+      "title": "HD현대 수석부회장",
+      "generation": "3세대",
+      "desc": "정몽준 이사장의 장남. HD현대 지분 5.26% 보유 및 친환경 선박/로봇/스마트에너지 승계 완성 단계.",
+      "wealth_est": "약 1조 원"
+    },
+    {
+      "id": "c_hd_hyundai",
+      "name": "HD현대",
+      "type": "company",
+      "is_holding": true,
+      "group": "hd_hyundai",
+      "industry": "지주회사/조선·에너지",
+      "market_cap": "약 6.5조 원",
+      "desc": "정몽준(26.6%), 정기선(5.26%) 등이 지배하는 HD현대그룹 지주사."
+    },
+    {
+      "id": "c_hd_ksoe",
+      "name": "HD한국조선해양",
+      "type": "company",
+      "group": "hd_hyundai",
+      "industry": "조선중간지주",
+      "market_cap": "약 14조 원",
+      "desc": "HD현대가 35.05% 보유. HD현대중공업, 현대삼호중공업, 현대미포조선 지배."
+    },
+    {
+      "id": "c_hd_hyundai_heavy",
+      "name": "HD현대중공업",
+      "type": "company",
+      "group": "hd_hyundai",
+      "industry": "조선/해양플랜트/엔진",
+      "market_cap": "약 16조 원",
+      "desc": "세계 1위 조선사. HD한국조선해양이 75.02% 보유."
+    },
+
+    {
+      "id": "p_koo_in_hwoi",
+      "name": "故 구인회",
+      "type": "person",
+      "group": "lg",
+      "role": "창업주",
+      "title": "LG그룹 창업주 / 연암",
+      "generation": "1세대",
+      "desc": "1947년 락희화학공업(현 LG화학), 1958년 금성사(현 LG전자)를 설립. 허만정 공창업주와 57년간 아름다운 동업 전통 수립."
+    },
+    {
+      "id": "p_huh_man_jung",
+      "name": "故 허만정",
+      "type": "person",
+      "group": "gs",
+      "role": "공동창업주",
+      "title": "LG 공동창업주 / GS그룹 효시",
+      "generation": "1세대",
+      "desc": "구인회 창업주에게 창업 자금을 출자하고 아들들을 동업에 참여시켜 구-허 양대 가문의 기반을 마련."
+    },
+    {
+      "id": "p_koo_cha_kyung",
+      "name": "故 구자경",
+      "type": "person",
+      "group": "lg",
+      "role": "선대회장",
+      "title": "LG그룹 제2대 회장 / 상남",
+      "generation": "2세대",
+      "desc": "구인회의 장남. 전자·화학 연구개발(R&D)을 전폭 추진해 럭키금성을 글로벌 기업으로 육성."
+    },
+    {
+      "id": "p_koo_bon_moo",
+      "name": "故 구본무",
+      "type": "person",
+      "group": "lg",
+      "role": "선대회장",
+      "title": "LG그룹 제3대 회장 / 화담",
+      "generation": "3세대",
+      "desc": "구자경의 장남. 럭키금성을 'LG'로 브랜딩하고 2차전지, OLED, 통신 사업을 개척."
+    },
+    {
+      "id": "p_koo_kwang_mo",
+      "name": "구광모",
+      "type": "person",
+      "group": "lg",
+      "role": "총수 / 회장",
+      "title": "(주)LG 대표이사 회장",
+      "generation": "4세대",
+      "desc": "구본무 회장의 양자(친부: 구본능 희성그룹 회장). (주)LG 지분 15.95% 보유하며 전장(ABC: AI·바이오·클린테크) 집중 육성.",
+      "wealth_est": "약 2.4조 원"
+    },
+    {
+      "id": "p_koo_bon_joon",
+      "name": "구본준",
+      "type": "person",
+      "group": "lg",
+      "role": "분가 총수 / 회장",
+      "title": "LX그룹 회장",
+      "generation": "3세대",
+      "desc": "구자경 회장의 3남. LG그룹에서 LX세미콘, LX인터내셔널 등을 분리 독립하여 LX그룹 창업."
+    },
+    {
+      "id": "c_lg_corp",
+      "name": "(주)LG",
+      "type": "company",
+      "is_holding": true,
+      "group": "lg",
+      "industry": "순수지주회사",
+      "market_cap": "약 12.5조 원",
+      "desc": "구광모 회장 및 오너 일가가 약 41% 지분을 보유한 한국 최초의 모범적 순수 지주회사."
+    },
+    {
+      "id": "c_lg_energy_solution",
+      "name": "LG에너지솔루션",
+      "type": "company",
+      "group": "lg",
+      "industry": "2차전지/배터리",
+      "market_cap": "약 90조 원",
+      "desc": "글로벌 탑티어 전기차 배터리 제조사. LG화학이 81.84% 지분을 보유한 핵심 자회사."
+    },
+    {
+      "id": "c_lg_chem",
+      "name": "LG화학",
+      "type": "company",
+      "group": "lg",
+      "industry": "석유화학/양극재/바이오",
+      "market_cap": "약 24조 원",
+      "desc": "(주)LG가 33.34% 지분을 가진 국내 최대 종합화학/첨단소재 기업."
+    },
+    {
+      "id": "c_lg_elec",
+      "name": "LG전자",
+      "type": "company",
+      "group": "lg",
+      "industry": "프리미엄가전/전장/TV",
+      "market_cap": "약 16조 원",
+      "desc": "글로벌 생활가전 1위 및 VS(전장부품) 고성장 기업. (주)LG가 33.67% 보유."
+    },
+    {
+      "id": "c_lg_uplus",
+      "name": "LG유플러스",
+      "type": "company",
+      "group": "lg",
+      "industry": "통신/미디어",
+      "market_cap": "약 4.2조 원",
+      "desc": "(주)LG가 37.7% 지분을 보유한 통신 계열사."
+    },
+    {
+      "id": "c_lx_holdings",
+      "name": "LX홀딩스",
+      "type": "company",
+      "is_holding": true,
+      "group": "lg",
+      "industry": "지주회사/반도체·상사",
+      "market_cap": "약 6천억 원",
+      "desc": "구본준 회장(40.04%)이 지배하는 LX그룹 지주사. LX세미콘, LX인터내셔널 보유."
+    },
+
+    {
+      "id": "p_huh_chang_soo",
+      "name": "허창수",
+      "type": "person",
+      "group": "gs",
+      "role": "명예회장",
+      "title": "GS그룹 명예회장 / GS건설 회장",
+      "generation": "2세대",
+      "desc": "허준구(허만정의 장남)의 장남. 2004년 LG그룹과의 아름다운 계열 분리를 성공적으로 이끔."
+    },
+    {
+      "id": "p_huh_tae_soo",
+      "name": "허태수",
+      "type": "person",
+      "group": "gs",
+      "role": "총수 / 회장",
+      "title": "GS그룹 회장",
+      "generation": "2세대",
+      "desc": "허창수 명예회장의 막내동생. GS홈쇼핑을 성장시킨 디지털 혁신가로서 GS그룹 총괄."
+    },
+    {
+      "id": "p_huh_sae_hong",
+      "name": "허세홍",
+      "type": "person",
+      "group": "gs",
+      "role": "경영진/후계",
+      "title": "GS칼텍스 대표이사 사장",
+      "generation": "3세대",
+      "desc": "허동수 GS칼텍스 명예회장의 장남. GS그룹의 차세대 핵심 주자."
+    },
+    {
+      "id": "c_gs_holdings",
+      "name": "(주)GS",
+      "type": "company",
+      "is_holding": true,
+      "group": "gs",
+      "industry": "순수지주회사",
+      "market_cap": "약 4.3조 원",
+      "desc": "허창수, 허태수 등 허씨 일가 50여 명이 약 50%의 지분을 분산 보유한 지주회사."
+    },
+    {
+      "id": "c_gs_caltex",
+      "name": "GS칼텍스",
+      "type": "company",
+      "group": "gs",
+      "industry": "정유/석유화학/윤활유",
+      "market_cap": "비상장 (가치 약 12조 원)",
+      "desc": "GS에너지(50%)와 미국 셰브론(50%)의 합작사로 그룹 매출과 이익의 핵심 기둥."
+    },
+    {
+      "id": "c_gs_retail",
+      "name": "GS리테일",
+      "type": "company",
+      "group": "gs",
+      "industry": "편의점(GS25)/홈쇼핑/슈퍼",
+      "market_cap": "약 2.1조 원",
+      "desc": "(주)GS가 65.75%를 보유한 유통 주력 계열사."
+    },
+
+    {
+      "id": "p_koo_tae_hwoi",
+      "name": "故 구태회",
+      "type": "person",
+      "group": "ls",
+      "role": "창업 3형제",
+      "title": "LS전선 명예회장",
+      "generation": "1세대",
+      "desc": "구인회 창업주의 셋째 동생. 동생들(구평회, 구두회)과 함께 LG에서 분가하여 LS그룹 창립."
+    },
+    {
+      "id": "p_koo_cha_eun",
+      "name": "구자은",
+      "type": "person",
+      "group": "ls",
+      "role": "총수 / 회장",
+      "title": "LS그룹 회장",
+      "generation": "2세대",
+      "desc": "구두회 예스코 명예회장의 아들. 3개 가문(태·평·두)이 돌아가며 경영하는 룰에 따라 LS 3대 회장 취임."
+    },
+    {
+      "id": "c_ls_corp",
+      "name": "(주)LS",
+      "type": "company",
+      "is_holding": true,
+      "group": "ls",
+      "industry": "지주회사/전력·소재",
+      "market_cap": "약 4.2조 원",
+      "desc": "구씨 3형제 가문이 지분을 공동 보유하며 LS전선, LS일렉트릭, LS MnM을 거느림."
+    },
+    {
+      "id": "c_ls_electric",
+      "name": "LS ELECTRIC",
+      "type": "company",
+      "group": "ls",
+      "industry": "스마트전력/변압기/자동화",
+      "market_cap": "약 6.5조 원",
+      "desc": "글로벌 AI 데이터센터 전력망 슈퍼사이클 수혜주. (주)LS가 47.47% 보유."
+    },
+
+    {
+      "id": "p_shin_kyuk_ho",
+      "name": "故 신격호",
+      "type": "person",
+      "group": "lotte",
+      "role": "창업주",
+      "title": "롯데그룹 총괄회장",
+      "generation": "1세대",
+      "desc": "1948년 일본에서 껌 사업으로 시작해 1967년 롯데제과 설립, 한일 양국에 걸친 거대 유통/화학 그룹 건설."
+    },
+    {
+      "id": "p_shin_dong_bin",
+      "name": "신동빈",
+      "type": "person",
+      "group": "lotte",
+      "role": "총수 / 회장",
+      "title": "롯데그룹 회장",
+      "generation": "2세대",
+      "desc": "신격호의 차남. 형 신동주와의 경영권 분쟁에서 승리하여 롯데지주를 출범시키고 그룹 경영 장악.",
+      "wealth_est": "약 1.6조 원"
+    },
+    {
+      "id": "p_shin_dong_joo",
+      "name": "신동주",
+      "type": "person",
+      "group": "lotte",
+      "role": "친인척/전 부회장",
+      "title": "SDJ코퍼레이션 회장 / 전 일본 롯데 부회장",
+      "generation": "2세대",
+      "desc": "신격호의 장남. 일본 광윤사 지분 50%+1주를 보유하며 롯데 경영권 소송을 지속."
+    },
+    {
+      "id": "p_shin_yu_yeol",
+      "name": "신유열",
+      "type": "person",
+      "group": "lotte",
+      "role": "경영진/3세",
+      "title": "롯데지주 미래성장실장 전무 / 롯데바이오로직스 글로벌전략실장",
+      "generation": "3세대",
+      "desc": "신동빈 회장의 장남. 바이오/신사업을 중심으로 롯데 3세 승계 진행 중."
+    },
+    {
+      "id": "c_koyunsa",
+      "name": "광윤사 (일본)",
+      "type": "company",
+      "is_holding": true,
+      "group": "lotte",
+      "industry": "포장재/롯데 최상위 지배회사",
+      "market_cap": "비상장",
+      "desc": "호텔롯데의 지분 99%를 쥐고 있는 일본 롯데홀딩스의 28.1% 단일 최대주주. 롯데 지배구조의 최종 베일."
+    },
+    {
+      "id": "c_hotel_lotte",
+      "name": "호텔롯데",
+      "type": "company",
+      "is_holding": true,
+      "group": "lotte",
+      "industry": "호텔/면세/국내 롯데 지배",
+      "market_cap": "비상장 (가치 약 10조 원)",
+      "desc": "일본 롯데홀딩스(19.07%) 및 L투자회사들이 지분 99% 보유. 롯데쇼핑, 롯데물산, 롯데지주의 핵심 주주."
+    },
+    {
+      "id": "c_lotte_holdings",
+      "name": "롯데지주",
+      "type": "company",
+      "is_holding": true,
+      "group": "lotte",
+      "industry": "지주회사",
+      "market_cap": "약 3조 원",
+      "desc": "신동빈 회장(13.04%), 호텔롯데(11.10%) 등이 지배하며 롯데쇼핑, 롯데케미칼, 롯데칠성 등을 자회사로 둠."
+    },
+    {
+      "id": "c_lotte_shopping",
+      "name": "롯데쇼핑",
+      "type": "company",
+      "group": "lotte",
+      "industry": "백화점/마트/이커머스/시네마",
+      "market_cap": "약 2조 원",
+      "desc": "롯데지주(40.0%), 호텔롯데(8.86%), 신동빈(10.23%)이 지배하는 유통 거인."
+    },
+    {
+      "id": "c_lotte_chem",
+      "name": "롯데케미칼",
+      "type": "company",
+      "group": "lotte",
+      "industry": "기초소재/첨단소재/2차전지소재",
+      "market_cap": "약 4조 원",
+      "desc": "롯데지주가 25.59%, 롯데물산이 20.00%를 보유한 국내 대표 석유화학사."
+    },
+
+    {
+      "id": "p_kim_jong_hee",
+      "name": "故 김종희",
+      "type": "person",
+      "group": "hanwha",
+      "role": "창업주",
+      "title": "한화그룹 창업주 / 현암",
+      "generation": "1세대",
+      "desc": "1952년 한국화약(현 한화)을 설립. 다이너마이트 국산화로 한국 기간산업 발전에 기여."
+    },
+    {
+      "id": "p_kim_seung_youn",
+      "name": "김승연",
+      "type": "person",
+      "group": "hanwha",
+      "role": "총수 / 회장",
+      "title": "한화그룹 회장",
+      "generation": "2세대",
+      "desc": "29세에 회장 취임 후 대한생명(한화생명), 삼성 화학/방산 빅딜(에어로스페이스), 대우조선(한화오션)을 인수하며 재계 7위로 도약.",
+      "wealth_est": "약 2조 원"
+    },
+    {
+      "id": "p_kim_dong_kwan",
+      "name": "김동관",
+      "type": "person",
+      "group": "hanwha",
+      "role": "경영진/후계",
+      "title": "한화그룹 부회장",
+      "generation": "3세대",
+      "desc": "김승연 회장의 장남. 방산(에어로스페이스/오션) 및 태양광·에너지(한화솔루션)를 총괄하며 그룹의 주력 승계자."
+    },
+    {
+      "id": "p_kim_dong_won",
+      "name": "김동원",
+      "type": "person",
+      "group": "hanwha",
+      "role": "경영진/차남",
+      "title": "한화생명 사장 (최고글로벌책임자)",
+      "generation": "3세대",
+      "desc": "김승연 회장의 차남. 한화생명 등 금융 부문 승계 라인 총괄."
+    },
+    {
+      "id": "p_kim_dong_sun",
+      "name": "김동선",
+      "type": "person",
+      "group": "hanwha",
+      "role": "경영진/3남",
+      "title": "한화갤러리아 / 한화로보틱스 부사장",
+      "generation": "3세대",
+      "desc": "김승연 회장의 3남. 유통(갤러리아), 외식(파이브가이즈), 로봇/건설기계 부문 총괄."
+    },
+    {
+      "id": "c_hanwha_corp",
+      "name": "(주)한화",
+      "type": "company",
+      "is_holding": true,
+      "group": "hanwha",
+      "industry": "자체사업/지주회사",
+      "market_cap": "약 2.4조 원",
+      "desc": "김승연 회장(22.65%), 김동관(4.91%) 및 한화에너지(14.9%)가 지배하는 그룹 최상위 지주사."
+    },
+    {
+      "id": "c_hanwha_aerospace",
+      "name": "한화에어로스페이스",
+      "type": "company",
+      "group": "hanwha",
+      "industry": "방산/우주항공/K9자주포",
+      "market_cap": "약 16조 원",
+      "desc": "K-방산의 선두주자. (주)한화가 33.95% 보유하며 한화오션(23.14%), 한화시스템(46.73%) 지배."
+    },
+    {
+      "id": "c_hanwha_ocean",
+      "name": "한화오션",
+      "type": "company",
+      "group": "hanwha",
+      "industry": "특수선/잠수함/LNG선",
+      "market_cap": "약 10조 원",
+      "desc": "구 대우조선해양. 한화에어로스페이스, 한화시스템 등이 지분 47%를 인수하여 정상화."
+    },
+    {
+      "id": "c_hanwha_solutions",
+      "name": "한화솔루션",
+      "type": "company",
+      "group": "hanwha",
+      "industry": "태양광(큐셀)/석유화학",
+      "market_cap": "약 4.5조 원",
+      "desc": "(주)한화가 36.35%를 보유한 북미 1위 태양광 모듈 제조사."
+    },
+
+    {
+      "id": "p_lee_myung_hee",
+      "name": "이명희",
+      "type": "person",
+      "group": "shinsegae",
+      "role": "총괄회장",
+      "title": "신세계그룹 총괄회장",
+      "generation": "2세대",
+      "desc": "이병철 창업주의 막내딸이자 이건희 회장의 여동생. 신세계를 국내 최고 유통 그룹으로 성장시킴."
+    },
+    {
+      "id": "p_chung_yong_jin",
+      "name": "정용진",
+      "type": "person",
+      "group": "shinsegae",
+      "role": "총수 / 회장",
+      "title": "신세계그룹 회장",
+      "generation": "3세대",
+      "desc": "이명희 총괄회장의 장남. 이마트, 스타벅스코리아(SCK컴퍼니), SSG닷컴 등 대형마트·이커머스 부문 지배.",
+      "wealth_est": "약 1.5조 원"
+    },
+    {
+      "id": "p_chung_yoo_kyung",
+      "name": "정유경",
+      "type": "person",
+      "group": "shinsegae",
+      "role": "총수 / 회장",
+      "title": "(주)신세계 회장",
+      "generation": "3세대",
+      "desc": "이명희 총괄회장의 딸. 백화점, 면세점, 인터내셔날(패션/뷰티) 부문 회장으로 승진하며 남매 분리 지배구조 완성."
+    },
+    {
+      "id": "c_emart",
+      "name": "이마트 (E-Mart)",
+      "type": "company",
+      "is_holding": true,
+      "group": "shinsegae",
+      "industry": "대형마트/이커머스/스타벅스",
+      "market_cap": "약 1.8조 원",
+      "desc": "정용진 회장(18.56%), 이명희(10.0%) 지배. 스타벅스코리아(SCK), SSG닷컴, SCK컴퍼니 모회사."
+    },
+    {
+      "id": "c_shinsegae_corp",
+      "name": "(주)신세계",
+      "type": "company",
+      "is_holding": true,
+      "group": "shinsegae",
+      "industry": "백화점/면세점/패션",
+      "market_cap": "약 1.5조 원",
+      "desc": "정유경 회장(18.56%), 이명희(10.0%) 지배. 신세계백화점 및 신세계인터내셔날 지배."
+    },
+
+    {
+      "id": "p_lee_maeng_hee",
+      "name": "故 이맹희",
+      "type": "person",
+      "group": "cj",
+      "role": "선대 명예회장",
+      "title": "CJ그룹 명예회장",
+      "generation": "2세대",
+      "desc": "이병철 창업주의 장남. 삼성을 승계하지 못하고 분가하여 아들 이재현과 함께 CJ(제일제당)를 일굼."
+    },
+    {
+      "id": "p_lee_jay_hyun",
+      "name": "이재현",
+      "type": "person",
+      "group": "cj",
+      "role": "총수 / 회장",
+      "title": "CJ그룹 회장",
+      "generation": "3세대",
+      "desc": "이맹희의 장남이자 이재용 삼성 회장의 사촌형. 설탕/식품 기업 제일제당을 엔터/물류/바이오 복합 대기업으로 성장시킴.",
+      "wealth_est": "약 2.5조 원"
+    },
+    {
+      "id": "p_lee_mie_kyung",
+      "name": "이미경",
+      "type": "person",
+      "group": "cj",
+      "role": "부회장",
+      "title": "CJ그룹 부회장 (Miky Lee)",
+      "generation": "3세대",
+      "desc": "이재현 회장의 누나. 드림웍스 투자, 영화 '기생충' 총괄제작 등 글로벌 K-컬처를 개척한 대모."
+    },
+    {
+      "id": "p_lee_sun_ho",
+      "name": "이선호",
+      "type": "person",
+      "group": "cj",
+      "role": "경영진/4세",
+      "title": "CJ제일제당 경영리더 (식품성장추진실장)",
+      "generation": "4세대",
+      "desc": "이재현 회장의 장남. CJ올리브영 지분(11.04%)을 바탕으로 CJ(주) 지분 승계 작업 진행 중."
+    },
+    {
+      "id": "c_cj_corp",
+      "name": "CJ(주)",
+      "type": "company",
+      "is_holding": true,
+      "group": "cj",
+      "industry": "지주회사",
+      "market_cap": "약 3.4조 원",
+      "desc": "이재현 회장(42.07%)이 지배하는 순수 지주회사. 제일제당, ENM, 대한통운, 올리브영 보유."
+    },
+    {
+      "id": "c_cj_cheiljedang",
+      "name": "CJ제일제당",
+      "type": "company",
+      "group": "cj",
+      "industry": "K-푸드(비비고)/바이오/사료",
+      "market_cap": "약 4.5조 원",
+      "desc": "CJ(주)가 40.94% 보유. 대한통운 지분 40.16%를 보유한 중간 사업지주."
+    },
+    {
+      "id": "c_cj_enm",
+      "name": "CJ ENM",
+      "type": "company",
+      "group": "cj",
+      "industry": "미디어/콘텐츠/티빙/음악",
+      "market_cap": "약 1.6조 원",
+      "desc": "tvN, 스튜디오드래곤, 피프스시즌 등을 거느린 K-콘텐츠 선도기업. CJ(주) 40.07% 보유."
+    },
+    {
+      "id": "c_cj_oliveyoung",
+      "name": "CJ올리브영",
+      "type": "company",
+      "group": "cj",
+      "industry": "H&B 스토어/글로벌 뷰티",
+      "market_cap": "비상장 (기업가치 약 4~5조 원)",
+      "desc": "CJ(주) 51.15%, 이선호 11.04%, 이경후 4.21% 보유. 압도적 H&B 점유율을 자랑하는 승계 핵심 캐시카우."
+    },
+
+    {
+      "id": "p_hong_jin_ki",
+      "name": "故 홍진기",
+      "type": "person",
+      "group": "inlaw_alliances",
+      "role": "원로/창업",
+      "title": "전 법무부/내무부 장관 / 중앙일보 회장",
+      "generation": "1세대",
+      "desc": "홍라희(삼성), 홍석현(중앙), 홍석조(BGF), 홍석준(보광)의 부친. 정계-언론계-재계를 잇는 최고 혼맥의 축."
+    },
+    {
+      "id": "p_hong_seok_hyun",
+      "name": "홍석현",
+      "type": "person",
+      "group": "inlaw_alliances",
+      "role": "언론계 거물",
+      "title": "중앙홀딩스 회장 / 한반도평화만들기 이사장",
+      "generation": "2세대",
+      "desc": "홍진기의 장남, 홍라희의 남동생(이재용 회장의 외삼촌). 전 주미대사."
+    },
+    {
+      "id": "p_hong_seok_joh",
+      "name": "홍석조",
+      "type": "person",
+      "group": "inlaw_alliances",
+      "role": "기업인",
+      "title": "BGF그룹 회장 (CU 편의점)",
+      "generation": "2세대",
+      "desc": "홍진기의 차남(이재용의 외삼촌). 전 광주고검장 출신으로 BGF리테일 창업 및 지배."
+    },
+    {
+      "id": "p_lim_chang_wook",
+      "name": "임창욱",
+      "type": "person",
+      "group": "inlaw_alliances",
+      "role": "총수 / 명예회장",
+      "title": "대상그룹 명예회장",
+      "generation": "2세대",
+      "desc": "대상그룹 창업주 임대홍의 장남. 대상홀딩스 지배."
+    },
+    {
+      "id": "p_lim_se_ryung",
+      "name": "임세령",
+      "type": "person",
+      "group": "inlaw_alliances",
+      "role": "경영진",
+      "title": "대상그룹 부회장",
+      "generation": "3세대",
+      "desc": "임창욱 명예회장의 장녀. 이재용 삼성 회장의 전 부인(슬하에 이원주, 이지호)이자 대상홀딩스 2대 주주."
+    },
+    {
+      "id": "c_joongang_holdings",
+      "name": "중앙홀딩스",
+      "type": "company",
+      "is_holding": true,
+      "group": "inlaw_alliances",
+      "industry": "미디어/신문/방송(JTBC)",
+      "market_cap": "비상장",
+      "desc": "홍석현 일가가 지배하는 중앙일보·JTBC·메가박스의 지주회사."
+    },
+    {
+      "id": "c_daesang_holdings",
+      "name": "대상홀딩스",
+      "type": "company",
+      "is_holding": true,
+      "group": "inlaw_alliances",
+      "industry": "지주회사/식품·바이오",
+      "market_cap": "약 3천억 원",
+      "desc": "임세령(20.41%), 임상민(36.71%) 자매가 지배하는 대상그룹 지주사."
+    },
+    {
+      "id": "c_bgf_retail",
+      "name": "BGF리테일 (CU)",
+      "type": "company",
+      "group": "inlaw_alliances",
+      "industry": "편의점/유통",
+      "market_cap": "약 2.2조 원",
+      "desc": "국내 1위 점포수 편의점 CU 운영. 홍석조 회장이 이끄는 BGF가 지배."
+    },
+
+    {
+      "id": "p_cho_jung_hoon",
+      "name": "故 조중훈",
+      "type": "person",
+      "group": "hanjin",
+      "role": "창업주",
+      "title": "한진그룹 창업회장",
+      "generation": "1세대",
+      "desc": "1945년 한진상사를 창업하여 대한항공을 인수, 수송보국을 실현한 '수송왕'."
+    },
+    {
+      "id": "p_cho_yang_ho",
+      "name": "故 조양호",
+      "type": "person",
+      "group": "hanjin",
+      "role": "선대회장",
+      "title": "한진그룹 제2대 회장",
+      "generation": "2세대",
+      "desc": "조중훈 창업주의 장남. 글로벌 항공 동맹체 스카이팀 창설 및 평창동계올림픽 유치 기여."
+    },
+    {
+      "id": "p_cho_won_tae",
+      "name": "조원태",
+      "type": "person",
+      "group": "hanjin",
+      "role": "총수 / 회장",
+      "title": "한진그룹 회장 / 대한항공 회장",
+      "generation": "3세대",
+      "desc": "조양호 회장의 장남. 3자 연합 경영권 분쟁을 극복하고 아시아나항공 메가 합병을 완수.",
+      "wealth_est": "약 8천억 원"
+    },
+    {
+      "id": "c_hanjin_kal",
+      "name": "한진칼",
+      "type": "company",
+      "is_holding": true,
+      "group": "hanjin",
+      "industry": "지주회사/항공·물류",
+      "market_cap": "약 5.2조 원",
+      "desc": "조원태 회장 일가 및 델타항공(14.9%), 산업은행(10.58%)이 주주인 항공 지주사."
+    },
+    {
+      "id": "c_korean_air",
+      "name": "대한항공",
+      "type": "company",
+      "group": "hanjin",
+      "industry": "대형항공사(FSC)/항공우주",
+      "market_cap": "약 8.5조 원",
+      "desc": "한진칼이 26.13% 보유. 아시아나항공을 자회사로 편입하여 초대형 메가캐리어 출범."
+    },
+
+    {
+      "id": "p_park_jeong_won",
+      "name": "박정원",
+      "type": "person",
+      "group": "doosan",
+      "role": "총수 / 회장",
+      "title": "두산그룹 회장",
+      "generation": "4세대",
+      "desc": "박용곤 명예회장의 장남(두산 4세). 원전, 가스터빈, SMR, 협동로봇 중심 체질개선 성공."
+    },
+    {
+      "id": "p_park_ji_won",
+      "name": "박지원",
+      "type": "person",
+      "group": "doosan",
+      "role": "경영진",
+      "title": "두산에너빌리티 회장 / 그룹 부회장",
+      "generation": "4세대",
+      "desc": "박정원 회장의 남동생. 원전 및 친환경 에너지 부문 총괄."
+    },
+    {
+      "id": "c_doosan_corp",
+      "name": "(주)두산",
+      "type": "company",
+      "is_holding": true,
+      "group": "doosan",
+      "industry": "자체사업(전자소재)/지주사",
+      "market_cap": "약 3.5조 원",
+      "desc": "박정원 회장 등 박씨 일가 30여 명이 약 38% 지분을 보유한 지주사."
+    },
+    {
+      "id": "c_doosan_enerbility",
+      "name": "두산에너빌리티",
+      "type": "company",
+      "group": "doosan",
+      "industry": "원자력 주기기/가스터빈/SMR",
+      "market_cap": "약 13조 원",
+      "desc": "글로벌 원전 부흥의 최대 수혜주. (주)두산이 30.39% 보유."
+    },
+    {
+      "id": "c_doosan_robotics",
+      "name": "두산로보틱스",
+      "type": "company",
+      "group": "doosan",
+      "industry": "협동로봇/스마트팩토리",
+      "market_cap": "약 5.2조 원",
+      "desc": "국내 1위 협동로봇 제조사. (주)두산이 68% 지분 보유."
+    },
+
+    {
+      "id": "p_cho_hong_je",
+      "name": "故 조홍제",
+      "type": "person",
+      "group": "hyosung",
+      "role": "창업주",
+      "title": "효성그룹 창업주 / 만우",
+      "generation": "1세대",
+      "desc": "이병철 삼성 창업주와 삼성물산 초기 공동투자 동업 후 1962년 효성물산 창업 분가."
+    },
+    {
+      "id": "p_cho_hyun_joon",
+      "name": "조현준",
+      "type": "person",
+      "group": "hyosung",
+      "role": "총수 / 회장",
+      "title": "효성그룹 회장",
+      "generation": "3세대",
+      "desc": "조석래 명예회장의 장남. (주)효성, 효성티앤씨, 효성중공업 중심 그룹 경영 총괄.",
+      "wealth_est": "약 1.5조 원"
+    },
+    {
+      "id": "p_cho_hyun_sang",
+      "name": "조현상",
+      "type": "person",
+      "group": "hyosung",
+      "role": "총수 / 부회장",
+      "title": "HS효성 부회장",
+      "generation": "3세대",
+      "desc": "조석래 명예회장의 3남. 효성첨단소재 등을 중심으로 신설 지주 'HS효성'을 설립하여 계열 분리 완성.",
+      "wealth_est": "약 1.2조 원"
+    },
+    {
+      "id": "c_hyosung_corp",
+      "name": "(주)효성",
+      "type": "company",
+      "is_holding": true,
+      "group": "hyosung",
+      "industry": "지주회사/섬유·중공업",
+      "market_cap": "약 1.2조 원",
+      "desc": "조현준 회장(33.03%) 중심의 존속 지주회사."
+    },
+    {
+      "id": "c_hs_hyosung",
+      "name": "HS효성",
+      "type": "company",
+      "is_holding": true,
+      "group": "hyosung",
+      "industry": "지주회사/첨단소재",
+      "market_cap": "약 8천억 원",
+      "desc": "조현상 부회장(55%) 중심의 신설 지주회사."
+    },
+
+    {
+      "id": "p_seo_jung_jin",
+      "name": "서정진",
+      "type": "person",
+      "group": "celltrion",
+      "role": "창업주 / 회장",
+      "title": "셀트리온그룹 회장",
+      "generation": "1세대",
+      "desc": "대우자동차 출신으로 자본금 5천만원으로 셀트리온을 창업해 글로벌 바이오시밀러 1위로 키운 흙수저 신화.",
+      "wealth_est": "약 11조 원"
+    },
+    {
+      "id": "c_celltrion_holdings",
+      "name": "셀트리온홀딩스",
+      "type": "company",
+      "is_holding": true,
+      "group": "celltrion",
+      "industry": "지주회사/바이오",
+      "market_cap": "비상장",
+      "desc": "서정진 회장이 98.5% 지분을 독점 보유한 그룹 최상위 지주사."
+    },
+    {
+      "id": "c_celltrion",
+      "name": "셀트리온",
+      "type": "company",
+      "group": "celltrion",
+      "industry": "바이오시밀러/신약개발",
+      "market_cap": "약 42조 원",
+      "desc": "셀트리온헬스케어와 합병 완료. 셀트리온홀딩스가 21.5% 보유."
+    },
+
+    {
+      "id": "p_lee_hae_jin",
+      "name": "이해진",
+      "type": "person",
+      "group": "naver",
+      "role": "창업주 / GIO",
+      "title": "네이버 글로벌투자책임자(GIO) / 창업자",
+      "generation": "1세대",
+      "desc": "삼성SDS 사내벤처로 네이버를 창업. 라인(LINE)을 일본 국민 메신저로 성장시킴.",
+      "wealth_est": "약 1.8조 원"
+    },
+    {
+      "id": "c_naver",
+      "name": "네이버 (NAVER)",
+      "type": "company",
+      "is_holding": true,
+      "group": "naver",
+      "industry": "검색포털/클라우드/커머스/AI",
+      "market_cap": "약 32조 원",
+      "desc": "이해진 GIO 지분은 3.73%에 불과하나 국민연금(8.3%), 블랙록 등 글로벌 펀드가 주주인 분산소유 빅테크."
+    },
+    {
+      "id": "c_line_yahoo",
+      "name": "LY주식회사 (라인야후)",
+      "type": "company",
+      "group": "naver",
+      "industry": "포털/메신저(LINE, Yahoo Japan)",
+      "market_cap": "약 30조 원",
+      "desc": "네이버와 일본 소프트뱅크가 50:50으로 출자한 A홀딩스가 지배하는 일본 최대 인터넷 기업."
+    },
+
+    {
+      "id": "p_kim_beom_su",
+      "name": "김범수",
+      "type": "person",
+      "group": "kakao",
+      "role": "창업주 / CA협의체 위원장",
+      "title": "카카오 창업자 / 브라이언",
+      "generation": "1세대",
+      "desc": "한게임 창업 후 네이버와 합병(NHN), 이후 카카오톡을 개발해 대한민국 모바일 혁명을 주도.",
+      "wealth_est": "약 4.5조 원"
+    },
+    {
+      "id": "c_kcube_holdings",
+      "name": "케이큐브홀딩스",
+      "type": "company",
+      "is_holding": true,
+      "group": "kakao",
+      "industry": "개인투자회사",
+      "market_cap": "비상장",
+      "desc": "김범수 위원장이 100% 지분을 가진 개인 가족 회사. 카카오 지분 10.41% 보유."
+    },
+    {
+      "id": "c_kakao",
+      "name": "카카오 (Kakao)",
+      "type": "company",
+      "is_holding": true,
+      "group": "kakao",
+      "industry": "모바일플랫폼/메신저",
+      "market_cap": "약 19조 원",
+      "desc": "김범수(13.27%)와 케이큐브(10.41%)가 23.68%로 지배. 카카오뱅크, 카카오페이, 모빌리티, 엔터 등 수많은 자회사 거느림."
+    },
+    {
+      "id": "c_kakao_bank",
+      "name": "카카오뱅크",
+      "type": "company",
+      "group": "kakao",
+      "industry": "인터넷전문은행",
+      "market_cap": "약 11조 원",
+      "desc": "카카오가 27.16%, 한국투자밸류자산운용이 23.17%, 국민연금 등이 주주인 디지털 은행 1위."
+    },
+    {
+      "id": "c_kakao_pay",
+      "name": "카카오페이",
+      "type": "company",
+      "group": "kakao",
+      "industry": "핀테크/결제/증권",
+      "market_cap": "약 3.8조 원",
+      "desc": "카카오가 46.5%, 중국 알리페이(앤트그룹)가 34.2% 지분을 보유한 합작 핀테크."
+    },
+    {
+      "id": "c_kakao_ent",
+      "name": "카카오엔터테인먼트",
+      "type": "company",
+      "group": "kakao",
+      "industry": "K-웹툰/음원(멜론)/SM엔터/영상",
+      "market_cap": "비상장 (가치 약 10조 원)",
+      "desc": "카카오가 67.5% 보유. SM엔터테인먼트 경영권을 인수하여 K-POP 거인으로 도약."
+    },
+
+    {
+      "id": "p_bang_si_hyuk",
+      "name": "방시혁",
+      "type": "person",
+      "group": "tech_giants",
+      "role": "창업주 / 의장",
+      "title": "하이브(HYBE) 이사회 의장 / 프로듀서",
+      "generation": "1세대",
+      "desc": "BTS를 탄생시킨 K-POP 글로벌화의 주역. 넷마블 방준혁 의장과 친척(사촌) 관계.",
+      "wealth_est": "약 3.2조 원"
+    },
+    {
+      "id": "p_bang_jun_hyuk",
+      "name": "방준혁",
+      "type": "person",
+      "group": "tech_giants",
+      "role": "창업주 / 의장",
+      "title": "넷마블 / 코웨이 이사회 의장",
+      "generation": "1세대",
+      "desc": "넷마블을 창업하여 한국 1위 모바일 게임사로 키움. 방시혁 하이브 의장의 사촌 형.",
+      "wealth_est": "약 1.5조 원"
+    },
+    {
+      "id": "p_bom_kim",
+      "name": "김범석",
+      "type": "person",
+      "group": "tech_giants",
+      "role": "창업주 / CEO",
+      "title": "쿠팡(Coupang, Inc.) 이사회 의장 겸 CEO",
+      "generation": "1세대",
+      "desc": "로켓배송 혁신으로 한국 유통 시장을 재편하고 뉴욕증시(NYSE)에 직상장시킨 혁신가.",
+      "wealth_est": "약 6조 원"
+    },
+    {
+      "id": "p_song_chi_hyung",
+      "name": "송치형",
+      "type": "person",
+      "group": "tech_giants",
+      "role": "창업주 / 의장",
+      "title": "두나무(업비트) 회장",
+      "generation": "1세대",
+      "desc": "국내 최대 가상자산 거래소 업비트 운영사 두나무 창업. 하이브와 상호 지분 교환 혈맹.",
+      "wealth_est": "약 3조 원"
+    },
+    {
+      "id": "c_hybe",
+      "name": "하이브 (HYBE)",
+      "type": "company",
+      "is_holding": true,
+      "group": "tech_giants",
+      "industry": "글로벌 엔터테인먼트/레이블/플랫폼",
+      "market_cap": "약 8.2조 원",
+      "desc": "방시혁 의장이 31.57%, 넷마블이 12.08%를 보유한 글로벌 K-POP 플랫폼 기업."
+    },
+    {
+      "id": "c_netmarble",
+      "name": "넷마블 (Netmarble)",
+      "type": "company",
+      "group": "tech_giants",
+      "industry": "게임/투자/코웨이 지배",
+      "market_cap": "약 4.5조 원",
+      "desc": "방준혁 의장(24.12%), CJ ENM(21.78%), 중국 텐센트(17.52%)가 주주인 지분 동맹의 허브."
+    },
+    {
+      "id": "c_dunamu",
+      "name": "두나무 (Dunamu - 업비트)",
+      "type": "company",
+      "group": "tech_giants",
+      "industry": "가상자산/핀테크",
+      "market_cap": "비상장 (가치 약 5조 원)",
+      "desc": "송치형(25.5%), 김형년(13.1%), 카카오(10.6%), 하이브(2.5%)가 지분을 나눠가진 크립토 거인."
+    },
+    {
+      "id": "c_coupang_inc",
+      "name": "쿠팡 (Coupang, Inc.)",
+      "type": "company",
+      "is_holding": true,
+      "group": "tech_giants",
+      "industry": "이커머스/로켓배송/스트리밍",
+      "market_cap": "약 55조 원 (NYSE: CPNG)",
+      "desc": "김범석 의장이 차등의결권(Class B 29배)을 통해 의결권 70% 이상을 쥐고 있는 뉴욕 상장 지주사."
+    }
+  ],
+  "links": [
+    {
+      "source": "p_lee_byung_chul",
+      "target": "p_lee_kun_hee",
+      "type": "family",
+      "label": "부자 관계 (3남)",
+      "desc": "이병철 창업주의 3남 이건희가 삼성그룹 총수 계승"
+    },
+    {
+      "source": "p_lee_byung_chul",
+      "target": "p_lee_maeng_hee",
+      "type": "family",
+      "label": "부자 관계 (장남)",
+      "desc": "이병철의 장남 이맹희가 CJ그룹(제일제당)으로 분가"
+    },
+    {
+      "source": "p_lee_byung_chul",
+      "target": "p_lee_myung_hee",
+      "type": "family",
+      "label": "부녀 관계 (막내딸)",
+      "desc": "이병철의 막내딸 이명희가 신세계백화점·이마트로 분가"
+    },
+    {
+      "source": "p_lee_kun_hee",
+      "target": "p_hong_ra_hee",
+      "type": "marriage",
+      "label": "부부 (삼성-중앙 혼맥)",
+      "desc": "이건희 회장과 홍진기 전 장관의 장녀 홍라희 여사의 결혼으로 삼성-중앙일보 혈맹 형성"
+    },
+    {
+      "source": "p_lee_kun_hee",
+      "target": "p_lee_jae_yong",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "이건희 회장의 장남 이재용이 삼성전자 회장 및 총수 지위 승계"
+    },
+    {
+      "source": "p_lee_kun_hee",
+      "target": "p_lee_boo_jin",
+      "type": "family",
+      "label": "부녀 관계 (장녀)",
+      "desc": "이건희 회장의 장녀 이부진 사장 (호텔신라 경영)"
+    },
+    {
+      "source": "p_lee_kun_hee",
+      "target": "p_lee_seo_hyun",
+      "type": "family",
+      "label": "부녀 관계 (차녀)",
+      "desc": "이건희 회장의 차녀 이서현 사장 (삼성물산 전략기획)"
+    },
+    {
+      "source": "p_lee_seo_hyun",
+      "target": "p_kim_jae_yeol",
+      "type": "marriage",
+      "label": "부부 (삼성-동아일보 혼맥)",
+      "desc": "이서현 사장과 동아일보 김병관 전 명예회장의 차남 김재열 사장의 결혼"
+    },
+    {
+      "source": "p_hong_jin_ki",
+      "target": "p_hong_ra_hee",
+      "type": "family",
+      "label": "부녀 관계 (장녀)",
+      "desc": "홍진기 전 장관의 장녀 홍라희 여사"
+    },
+    {
+      "source": "p_hong_jin_ki",
+      "target": "p_hong_seok_hyun",
+      "type": "family",
+      "label": "부자 관계 (장남)",
+      "desc": "중앙홀딩스 홍석현 회장"
+    },
+    {
+      "source": "p_hong_jin_ki",
+      "target": "p_hong_seok_joh",
+      "type": "family",
+      "label": "부자 관계 (차남)",
+      "desc": "BGF그룹(CU 편의점) 홍석조 회장"
+    },
+    {
+      "source": "p_hong_seok_hyun",
+      "target": "c_joongang_holdings",
+      "type": "ownership_person",
+      "stake": 65.0,
+      "label": "지분 65.0%",
+      "desc": "중앙홀딩스 최대주주로서 JTBC 및 중앙일보 지배"
+    },
+    {
+      "source": "p_hong_seok_joh",
+      "target": "c_bgf_retail",
+      "type": "ownership_person",
+      "stake": 32.4,
+      "label": "지분 32.4%",
+      "desc": "BGF그룹 최대주주로서 CU 편의점 네트워크 지배"
+    },
+
+    {
+      "source": "p_lee_jae_yong",
+      "target": "p_lim_se_ryung",
+      "type": "marriage_past",
+      "label": "혼맥(이혼) - 삼성-대상",
+      "desc": "1998년 이재용과 대상그룹 임창욱 회장의 장녀 임세령의 결혼으로 삼성-대상 혼맥 형성 (2009년 합의 이혼)"
+    },
+    {
+      "source": "p_lim_chang_wook",
+      "target": "p_lim_se_ryung",
+      "type": "family",
+      "label": "부녀 관계 (장녀)",
+      "desc": "대상그룹 창업가 2세 임창욱과 장녀 임세령 부회장"
+    },
+    {
+      "source": "p_lim_se_ryung",
+      "target": "c_daesang_holdings",
+      "type": "ownership_person",
+      "stake": 20.41,
+      "label": "지분 20.41%",
+      "desc": "대상홀딩스 2대 주주로서 식품·바이오 사업 관장"
+    },
+
+    {
+      "source": "p_lee_jae_yong",
+      "target": "c_samsung_cnt",
+      "type": "ownership_person",
+      "stake": 18.26,
+      "amount_krw": "약 4.7조 원",
+      "label": "18.26% (최대주주)",
+      "desc": "이재용 회장이 삼성물산 최대주주로서 그룹 전체를 지배하는 핵심 지분"
+    },
+    {
+      "source": "p_lee_boo_jin",
+      "target": "c_samsung_cnt",
+      "type": "ownership_person",
+      "stake": 5.60,
+      "label": "5.60%",
+      "desc": "삼성물산 주요 주주"
+    },
+    {
+      "source": "p_lee_seo_hyun",
+      "target": "c_samsung_cnt",
+      "type": "ownership_person",
+      "stake": 5.60,
+      "label": "5.60%",
+      "desc": "삼성물산 주요 주주"
+    },
+    {
+      "source": "c_samsung_cnt",
+      "target": "c_samsung_elec",
+      "type": "ownership_corp",
+      "stake": 5.01,
+      "amount_krw": "약 22.5조 원",
+      "label": "5.01%",
+      "desc": "삼성물산이 보유한 삼성전자 핵심 지분"
+    },
+    {
+      "source": "c_samsung_cnt",
+      "target": "c_samsung_life",
+      "type": "ownership_corp",
+      "stake": 19.34,
+      "amount_krw": "약 3.5조 원",
+      "label": "19.34% (최대주주)",
+      "desc": "삼성물산이 삼성생명을 지배하는 고리"
+    },
+    {
+      "source": "c_samsung_life",
+      "target": "c_samsung_elec",
+      "type": "ownership_corp",
+      "stake": 8.51,
+      "amount_krw": "약 38조 원",
+      "label": "8.51% (단일1위)",
+      "desc": "삼성생명이 고객 자금으로 삼성전자 지분을 보유한 금융-제조 연결 축"
+    },
+    {
+      "source": "p_lee_jae_yong",
+      "target": "c_samsung_elec",
+      "type": "ownership_person",
+      "stake": 1.63,
+      "amount_krw": "약 7.3조 원",
+      "label": "1.63%",
+      "desc": "이재용 회장 개인 보유 삼성전자 직접 지분"
+    },
+    {
+      "source": "p_hong_ra_hee",
+      "target": "c_samsung_elec",
+      "type": "ownership_person",
+      "stake": 1.45,
+      "amount_krw": "약 6.5조 원",
+      "label": "1.45%",
+      "desc": "홍라희 여사 보유 삼성전자 직접 지분"
+    },
+    {
+      "source": "c_samsung_cnt",
+      "target": "c_samsung_bio",
+      "type": "ownership_corp",
+      "stake": 43.06,
+      "label": "43.06% (최대주주)",
+      "desc": "삼성물산의 최대 미래 성장 동력"
+    },
+    {
+      "source": "c_samsung_elec",
+      "target": "c_samsung_bio",
+      "type": "ownership_corp",
+      "stake": 31.22,
+      "label": "31.22%",
+      "desc": "삼성전자가 보유한 삼성바이오로직스 공동 지분"
+    },
+    {
+      "source": "c_samsung_elec",
+      "target": "c_samsung_sdi",
+      "type": "ownership_corp",
+      "stake": 19.58,
+      "label": "19.58%",
+      "desc": "삼성전자가 지배하는 배터리 계열사"
+    },
+    {
+      "source": "c_samsung_elec",
+      "target": "c_samsung_sds",
+      "type": "ownership_corp",
+      "stake": 22.58,
+      "label": "22.58%",
+      "desc": "삼성SDS 최대주주"
+    },
+    {
+      "source": "c_samsung_cnt",
+      "target": "c_samsung_sds",
+      "type": "ownership_corp",
+      "stake": 17.08,
+      "label": "17.08%",
+      "desc": "삼성SDS 2대 주주"
+    },
+    {
+      "source": "p_lee_jae_yong",
+      "target": "c_samsung_sds",
+      "type": "ownership_person",
+      "stake": 9.20,
+      "label": "9.20%",
+      "desc": "이재용 회장의 핵심 개인 자산 지분"
+    },
+    {
+      "source": "c_samsung_life",
+      "target": "c_hotel_shilla",
+      "type": "ownership_corp",
+      "stake": 7.30,
+      "label": "7.30%",
+      "desc": "호텔신라 주요 주주"
+    },
+
+    {
+      "source": "p_chey_jong_gun",
+      "target": "p_chey_jong_hyon",
+      "type": "family",
+      "label": "형제 관계",
+      "desc": "창업주 최종건과 그룹 도약을 이끈 동생 최종현"
+    },
+    {
+      "source": "p_chey_jong_hyon",
+      "target": "p_chey_tae_won",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "최종현 선대회장 별세 후 최태원 회장이 사촌들의 추대로 총수 승계"
+    },
+    {
+      "source": "p_chey_jong_hyon",
+      "target": "p_chey_jae_won",
+      "type": "family",
+      "label": "부자 관계 (차남)",
+      "desc": "최재원 SK 수석부회장 (배터리/에너지 이끎)"
+    },
+    {
+      "source": "p_chey_jong_gun",
+      "target": "p_chey_chang_won",
+      "type": "family",
+      "label": "부자 관계 (3남)",
+      "desc": "최창원 SK디스커버리 부회장 겸 수펙스추구협의회 의장"
+    },
+    {
+      "source": "p_chey_tae_won",
+      "target": "p_noh_soh_yeong",
+      "type": "marriage_past",
+      "label": "혼맥(이혼소송) - SK-청와대",
+      "desc": "최태원 회장과 노태우 전 대통령의 장녀 노소영 관장의 결혼 (1조 원대 재산분할 소송 진행)"
+    },
+    {
+      "source": "p_noh_tae_woo",
+      "target": "p_noh_soh_yeong",
+      "type": "family",
+      "label": "부녀 관계",
+      "desc": "노태우 전 대통령과 노소영 관장"
+    },
+    {
+      "source": "p_chey_tae_won",
+      "target": "c_sk_inc",
+      "type": "ownership_person",
+      "stake": 17.73,
+      "amount_krw": "약 2조 원",
+      "label": "17.73% (최대주주)",
+      "desc": "최태원 회장이 SK그룹 지주사를 지배하는 단일 지분"
+    },
+    {
+      "source": "c_sk_inc",
+      "target": "c_sk_innovation",
+      "type": "ownership_corp",
+      "stake": 36.22,
+      "label": "36.22%",
+      "desc": "SK이노베이션 최대주주"
+    },
+    {
+      "source": "c_sk_inc",
+      "target": "c_sk_telecom",
+      "type": "ownership_corp",
+      "stake": 30.01,
+      "label": "30.01%",
+      "desc": "SK텔레콤 최대주주"
+    },
+    {
+      "source": "c_sk_inc",
+      "target": "c_sk_square",
+      "type": "ownership_corp",
+      "stake": 30.03,
+      "label": "30.03%",
+      "desc": "SK스퀘어(반도체/ICT 투자지주) 최대주주"
+    },
+    {
+      "source": "c_sk_square",
+      "target": "c_sk_hynix",
+      "type": "ownership_corp",
+      "stake": 20.07,
+      "amount_krw": "약 28조 원",
+      "label": "20.07% (최대주주)",
+      "desc": "SK스퀘어가 SK하이닉스를 지배하는 구조 (공정거래법상 지주사의 손자회사)"
+    },
+    {
+      "source": "c_sk_innovation",
+      "target": "c_sk_on",
+      "type": "ownership_corp",
+      "stake": 89.52,
+      "label": "89.52%",
+      "desc": "SK이노베이션의 배터리 자회사 SK온"
+    },
+
+    {
+      "source": "p_chung_ju_yung",
+      "target": "p_chung_mong_koo",
+      "type": "family",
+      "label": "부자 관계 (차남)",
+      "desc": "정주영 창업주 ➔ 정몽구 현대차그룹 명예회장"
+    },
+    {
+      "source": "p_chung_ju_yung",
+      "target": "p_chung_mong_joon",
+      "type": "family",
+      "label": "부자 관계 (6남)",
+      "desc": "정주영 창업주 ➔ 정몽준 HD현대 최대주주"
+    },
+    {
+      "source": "p_chung_mong_koo",
+      "target": "p_chung_euisun",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "정몽구 명예회장 ➔ 정의선 회장으로 3대 승계 완성"
+    },
+    {
+      "source": "p_chung_mong_joon",
+      "target": "p_chung_ki_sun",
+      "type": "family",
+      "label": "부자 관계 (장남)",
+      "desc": "정몽준 이사장 ➔ 정기선 HD현대 수석부회장"
+    },
+
+    {
+      "source": "c_hyundai_mobis",
+      "target": "c_hyundai_motor",
+      "type": "circular",
+      "highlight_loop": true,
+      "stake": 21.64,
+      "amount_krw": "약 12조 원",
+      "label": "21.64% [순환 1단계]",
+      "desc": "현대모비스가 현대자동차의 최대주주로서 지배"
+    },
+    {
+      "source": "c_hyundai_motor",
+      "target": "c_kia_corp",
+      "type": "circular",
+      "highlight_loop": true,
+      "stake": 34.25,
+      "amount_krw": "약 14.5조 원",
+      "label": "34.25% [순환 2단계]",
+      "desc": "현대자동차가 기아의 최대주주로서 지배"
+    },
+    {
+      "source": "c_kia_corp",
+      "target": "c_hyundai_mobis",
+      "type": "circular",
+      "highlight_loop": true,
+      "stake": 17.55,
+      "amount_krw": "약 4조 원",
+      "label": "17.55% [순환 3단계 (고리 완성)]",
+      "desc": "기아가 현대모비스 지분을 보유함으로써 모비스➔현대차➔기아➔모비스의 순환출자 완성!"
+    },
+
+    {
+      "source": "p_chung_euisun",
+      "target": "c_hyundai_glovis",
+      "type": "ownership_person",
+      "stake": 20.00,
+      "amount_krw": "약 1.7조 원",
+      "label": "20.00% (최대주주)",
+      "desc": "정의선 회장이 보유한 핵심 승계 자금줄"
+    },
+    {
+      "source": "p_chung_mong_koo",
+      "target": "c_hyundai_mobis",
+      "type": "ownership_person",
+      "stake": 7.19,
+      "label": "7.19%",
+      "desc": "정몽구 명예회장의 모비스 개인 지분"
+    },
+    {
+      "source": "p_chung_euisun",
+      "target": "c_hyundai_mobis",
+      "type": "ownership_person",
+      "stake": 0.32,
+      "label": "0.32%",
+      "desc": "정의선 회장의 모비스 개인 직접 지분 (향후 승계 핵심 과제)"
+    },
+    {
+      "source": "p_chung_euisun",
+      "target": "c_hyundai_motor",
+      "type": "ownership_person",
+      "stake": 2.62,
+      "label": "2.62%",
+      "desc": "정의선 회장의 현대차 직접 지분"
+    },
+    {
+      "source": "c_kia_corp",
+      "target": "c_hyundai_steel",
+      "type": "ownership_corp",
+      "stake": 17.27,
+      "label": "17.27%",
+      "desc": "기아가 현대제철 최대주주"
+    },
+    {
+      "source": "c_hyundai_motor",
+      "target": "c_hyundai_autoever",
+      "type": "ownership_corp",
+      "stake": 28.96,
+      "label": "28.96%",
+      "desc": "현대차가 현대오토에버 최대주주"
+    },
+    {
+      "source": "p_chung_euisun",
+      "target": "c_hyundai_autoever",
+      "type": "ownership_person",
+      "stake": 7.33,
+      "label": "7.33%",
+      "desc": "정의선 회장의 개인 보유 지분"
+    },
+
+    {
+      "source": "p_chung_mong_joon",
+      "target": "c_hd_hyundai",
+      "type": "ownership_person",
+      "stake": 26.60,
+      "label": "26.60% (최대주주)",
+      "desc": "HD현대 최대주주"
+    },
+    {
+      "source": "p_chung_ki_sun",
+      "target": "c_hd_hyundai",
+      "type": "ownership_person",
+      "stake": 5.26,
+      "label": "5.26%",
+      "desc": "정기선 수석부회장 보유 지분"
+    },
+    {
+      "source": "c_hd_hyundai",
+      "target": "c_hd_ksoe",
+      "type": "ownership_corp",
+      "stake": 35.05,
+      "label": "35.05%",
+      "desc": "HD현대가 한국조선해양 지배"
+    },
+    {
+      "source": "c_hd_ksoe",
+      "target": "c_hd_hyundai_heavy",
+      "type": "ownership_corp",
+      "stake": 75.02,
+      "label": "75.02%",
+      "desc": "한국조선해양이 현대중공업 지배"
+    },
+
+    {
+      "source": "p_koo_in_hwoi",
+      "target": "p_huh_man_jung",
+      "type": "business_alliance",
+      "label": "창업 동업 혈맹 (57년 동업)",
+      "desc": "1947년 락희화학 설립 당시 구인회와 허만정의 창업 출자로 시작된 대한민국 재계 최고의 동업 역사"
+    },
+    {
+      "source": "p_koo_in_hwoi",
+      "target": "p_koo_cha_kyung",
+      "type": "family",
+      "label": "부자 관계 (장남)",
+      "desc": "구인회 ➔ 구자경 LG 2대 회장"
+    },
+    {
+      "source": "p_koo_cha_kyung",
+      "target": "p_koo_bon_moo",
+      "type": "family",
+      "label": "부자 관계 (장남)",
+      "desc": "구자경 ➔ 구본무 LG 3대 회장"
+    },
+    {
+      "source": "p_koo_cha_kyung",
+      "target": "p_koo_bon_joon",
+      "type": "family",
+      "label": "부자 관계 (3남 분가)",
+      "desc": "구자경의 3남 구본준 회장이 LX그룹으로 계열 분리"
+    },
+    {
+      "source": "p_koo_bon_moo",
+      "target": "p_koo_kwang_mo",
+      "type": "family",
+      "label": "양부자 관계 (4대 승계)",
+      "desc": "구본무 회장이 장남을 잃은 뒤 조카 구광모를 양자로 입적하여 LG 4대 회장으로 승계"
+    },
+    {
+      "source": "p_koo_kwang_mo",
+      "target": "c_lg_corp",
+      "type": "ownership_person",
+      "stake": 15.95,
+      "amount_krw": "약 2조 원",
+      "label": "15.95% (최대주주)",
+      "desc": "구광모 회장이 (주)LG 단일 최대주주"
+    },
+    {
+      "source": "c_lg_corp",
+      "target": "c_lg_chem",
+      "type": "ownership_corp",
+      "stake": 33.34,
+      "label": "33.34%",
+      "desc": "(주)LG가 LG화학 지배"
+    },
+    {
+      "source": "c_lg_chem",
+      "target": "c_lg_energy_solution",
+      "type": "ownership_corp",
+      "stake": 81.84,
+      "amount_krw": "약 74조 원",
+      "label": "81.84% (압도적 지배)",
+      "desc": "LG화학이 LG에너지솔루션을 물적분할 후 자회사로 지배"
+    },
+    {
+      "source": "c_lg_corp",
+      "target": "c_lg_elec",
+      "type": "ownership_corp",
+      "stake": 33.67,
+      "label": "33.67%",
+      "desc": "(주)LG가 LG전자 지배"
+    },
+    {
+      "source": "c_lg_corp",
+      "target": "c_lg_uplus",
+      "type": "ownership_corp",
+      "stake": 37.70,
+      "label": "37.70%",
+      "desc": "(주)LG가 LG유플러스 지배"
+    },
+    {
+      "source": "p_koo_bon_joon",
+      "target": "c_lx_holdings",
+      "type": "ownership_person",
+      "stake": 40.04,
+      "label": "40.04% (최대주주)",
+      "desc": "구본준 회장이 LX홀딩스 지배"
+    },
+
+    {
+      "source": "p_huh_man_jung",
+      "target": "p_huh_chang_soo",
+      "type": "family",
+      "label": "조손 관계",
+      "desc": "허만정의 장남 허준구 ➔ 장남 허창수 GS 초대 회장"
+    },
+    {
+      "source": "p_huh_chang_soo",
+      "target": "p_huh_tae_soo",
+      "type": "family",
+      "label": "형제 관계 (승계)",
+      "desc": "허창수 명예회장의 뒤를 이어 막내동생 허태수 회장이 GS그룹 승계"
+    },
+    {
+      "source": "p_huh_chang_soo",
+      "target": "p_huh_sae_hong",
+      "type": "family",
+      "label": "사촌 관계",
+      "desc": "허동수 명예회장의 장남 허세홍 GS칼텍스 사장"
+    },
+    {
+      "source": "p_huh_chang_soo",
+      "target": "c_gs_holdings",
+      "type": "ownership_person",
+      "stake": 4.75,
+      "label": "4.75%",
+      "desc": "허씨 일가 50여 명이 약 50% 분산 지배"
+    },
+    {
+      "source": "c_gs_holdings",
+      "target": "c_gs_caltex",
+      "type": "ownership_corp",
+      "stake": 50.00,
+      "label": "50.00% (GS에너지 통해)",
+      "desc": "미국 셰브론과 50:50 합작 정유사"
+    },
+    {
+      "source": "c_gs_holdings",
+      "target": "c_gs_retail",
+      "type": "ownership_corp",
+      "stake": 65.75,
+      "label": "65.75%",
+      "desc": "GS리테일(GS25) 지배"
+    },
+
+    {
+      "source": "p_koo_in_hwoi",
+      "target": "p_koo_tae_hwoi",
+      "type": "family",
+      "label": "형제 관계",
+      "desc": "구인회 창업주의 셋째 동생 구태회(LS그룹 창시)"
+    },
+    {
+      "source": "p_koo_tae_hwoi",
+      "target": "p_koo_cha_eun",
+      "type": "family",
+      "label": "숙질/사촌 가문 승계",
+      "desc": "구두회 명예회장의 장남 구자은 회장이 3대 LS 회장 승계"
+    },
+    {
+      "source": "p_koo_cha_eun",
+      "target": "c_ls_corp",
+      "type": "ownership_person",
+      "stake": 3.63,
+      "label": "3.63%",
+      "desc": "LS가문 일가가 약 33% 공동 분산 지배"
+    },
+    {
+      "source": "c_ls_corp",
+      "target": "c_ls_electric",
+      "type": "ownership_corp",
+      "stake": 47.47,
+      "label": "47.47%",
+      "desc": "LS ELECTRIC 최대주주"
+    },
+
+    {
+      "source": "p_shin_kyuk_ho",
+      "target": "p_shin_dong_bin",
+      "type": "family",
+      "label": "부자 관계 (차남 승계)",
+      "desc": "신격호 총괄회장의 차남 신동빈 회장이 한일 롯데 원톱 구축"
+    },
+    {
+      "source": "p_shin_kyuk_ho",
+      "target": "p_shin_dong_joo",
+      "type": "family",
+      "label": "부자 관계 (장남/경영권 갈등)",
+      "desc": "장남 신동주 전 부회장이 일본 광윤사 지분을 쥐고 경영권 분쟁 지속"
+    },
+    {
+      "source": "p_shin_dong_bin",
+      "target": "p_shin_yu_yeol",
+      "type": "family",
+      "label": "부자 관계 (3세 승계)",
+      "desc": "신동빈 회장의 장남 신유열 전무가 롯데 바이오·미래성장 지휘"
+    },
+    {
+      "source": "p_shin_dong_joo",
+      "target": "c_koyunsa",
+      "type": "ownership_person",
+      "stake": 50.28,
+      "label": "50.28% (최대주주)",
+      "desc": "신동주가 일본 광윤사 지배"
+    },
+    {
+      "source": "c_koyunsa",
+      "target": "c_hotel_lotte",
+      "type": "ownership_corp",
+      "stake": 99.00,
+      "label": "99.00% (일본 롯데홀딩스 등 경유)",
+      "desc": "호텔롯데의 지분 99%를 일본 롯데 관계사들이 독점"
+    },
+    {
+      "source": "c_hotel_lotte",
+      "target": "c_lotte_holdings",
+      "type": "ownership_corp",
+      "stake": 11.10,
+      "label": "11.10%",
+      "desc": "호텔롯데가 한국 롯데지주의 주요 주주"
+    },
+    {
+      "source": "p_shin_dong_bin",
+      "target": "c_lotte_holdings",
+      "type": "ownership_person",
+      "stake": 13.04,
+      "label": "13.04% (단일1위)",
+      "desc": "신동빈 회장이 롯데지주 최대주주"
+    },
+    {
+      "source": "c_lotte_holdings",
+      "target": "c_lotte_shopping",
+      "type": "ownership_corp",
+      "stake": 40.00,
+      "label": "40.00%",
+      "desc": "롯데지주가 롯데쇼핑 지배"
+    },
+    {
+      "source": "c_lotte_holdings",
+      "target": "c_lotte_chem",
+      "type": "ownership_corp",
+      "stake": 25.59,
+      "label": "25.59%",
+      "desc": "롯데지주가 롯데케미칼 지배"
+    },
+
+    {
+      "source": "p_kim_jong_hee",
+      "target": "p_kim_seung_youn",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "창업주 김종희 ➔ 29세에 회장 취임한 김승연"
+    },
+    {
+      "source": "p_kim_seung_youn",
+      "target": "p_kim_dong_kwan",
+      "type": "family",
+      "label": "부자 관계 (장남 - 방산/에너지)",
+      "desc": "김동관 부회장 (방산/조선/태양광 총괄 승계)"
+    },
+    {
+      "source": "p_kim_seung_youn",
+      "target": "p_kim_dong_won",
+      "type": "family",
+      "label": "부자 관계 (차남 - 금융)",
+      "desc": "김동원 사장 (한화생명 등 금융 총괄)"
+    },
+    {
+      "source": "p_kim_seung_youn",
+      "target": "p_kim_dong_sun",
+      "type": "family",
+      "label": "부자 관계 (3남 - 유통/로봇)",
+      "desc": "김동선 부사장 (갤러리아/로봇 총괄)"
+    },
+    {
+      "source": "p_kim_seung_youn",
+      "target": "c_hanwha_corp",
+      "type": "ownership_person",
+      "stake": 22.65,
+      "amount_krw": "약 5.5천억 원",
+      "label": "22.65% (최대주주)",
+      "desc": "김승연 회장이 (주)한화 최대주주"
+    },
+    {
+      "source": "p_kim_dong_kwan",
+      "target": "c_hanwha_corp",
+      "type": "ownership_person",
+      "stake": 4.91,
+      "label": "4.91%",
+      "desc": "김동관 부회장 (주)한화 지분"
+    },
+    {
+      "source": "c_hanwha_corp",
+      "target": "c_hanwha_aerospace",
+      "type": "ownership_corp",
+      "stake": 33.95,
+      "amount_krw": "약 5.4조 원",
+      "label": "33.95%",
+      "desc": "(주)한화가 한화에어로스페이스 지배"
+    },
+    {
+      "source": "c_hanwha_aerospace",
+      "target": "c_hanwha_ocean",
+      "type": "ownership_corp",
+      "stake": 23.14,
+      "label": "23.14%",
+      "desc": "한화에어로스페이스가 한화오션(구 대우조선) 1대 주주"
+    },
+    {
+      "source": "c_hanwha_corp",
+      "target": "c_hanwha_solutions",
+      "type": "ownership_corp",
+      "stake": 36.35,
+      "label": "36.35%",
+      "desc": "(주)한화가 한화솔루션 지배"
+    },
+
+    {
+      "source": "p_lee_myung_hee",
+      "target": "p_chung_yong_jin",
+      "type": "family",
+      "label": "모자 관계 (장남 승계)",
+      "desc": "이명희 총괄회장 ➔ 정용진 신세계 회장 (이마트 부문)"
+    },
+    {
+      "source": "p_lee_myung_hee",
+      "target": "p_chung_yoo_kyung",
+      "type": "family",
+      "label": "모녀 관계 (딸 승계)",
+      "desc": "이명희 총괄회장 ➔ 정유경 신세계 회장 (백화점 부문)"
+    },
+    {
+      "source": "p_chung_yong_jin",
+      "target": "c_emart",
+      "type": "ownership_person",
+      "stake": 18.56,
+      "label": "18.56% (최대주주)",
+      "desc": "정용진 회장이 이마트 지배"
+    },
+    {
+      "source": "p_chung_yoo_kyung",
+      "target": "c_shinsegae_corp",
+      "type": "ownership_person",
+      "stake": 18.56,
+      "label": "18.56% (최대주주)",
+      "desc": "정유경 회장이 (주)신세계 지배"
+    },
+
+    {
+      "source": "p_lee_maeng_hee",
+      "target": "p_lee_jay_hyun",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "이맹희 명예회장 ➔ 이재현 CJ 회장"
+    },
+    {
+      "source": "p_lee_jay_hyun",
+      "target": "p_lee_mie_kyung",
+      "type": "family",
+      "label": "남매 관계",
+      "desc": "이재현 회장과 이미경 부회장의 글로벌 엔터/문화 동맹"
+    },
+    {
+      "source": "p_lee_jay_hyun",
+      "target": "p_lee_sun_ho",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "이재현 회장 ➔ 이선호 경영리더 4세 승계"
+    },
+    {
+      "source": "p_lee_jay_hyun",
+      "target": "c_cj_corp",
+      "type": "ownership_person",
+      "stake": 42.07,
+      "label": "42.07% (최대주주)",
+      "desc": "이재현 회장이 CJ(주) 단독 지배"
+    },
+    {
+      "source": "c_cj_corp",
+      "target": "c_cj_cheiljedang",
+      "type": "ownership_corp",
+      "stake": 40.94,
+      "label": "40.94%",
+      "desc": "CJ(주)가 CJ제일제당 지배"
+    },
+    {
+      "source": "c_cj_corp",
+      "target": "c_cj_enm",
+      "type": "ownership_corp",
+      "stake": 40.07,
+      "label": "40.07%",
+      "desc": "CJ(주)가 CJ ENM 지배"
+    },
+    {
+      "source": "c_cj_corp",
+      "target": "c_cj_oliveyoung",
+      "type": "ownership_corp",
+      "stake": 51.15,
+      "label": "51.15%",
+      "desc": "CJ(주)가 CJ올리브영 과반 지배"
+    },
+    {
+      "source": "p_lee_sun_ho",
+      "target": "c_cj_oliveyoung",
+      "type": "ownership_person",
+      "stake": 11.04,
+      "amount_krw": "약 5천억 원",
+      "label": "11.04%",
+      "desc": "이선호의 핵심 승계 자산"
+    },
+
+    {
+      "source": "p_cho_jung_hoon",
+      "target": "p_cho_yang_ho",
+      "type": "family",
+      "label": "부자 관계 (장남)",
+      "desc": "조중훈 창업주 ➔ 조양호 한진 회장"
+    },
+    {
+      "source": "p_cho_yang_ho",
+      "target": "p_cho_won_tae",
+      "type": "family",
+      "label": "부자 관계 (장남 승계)",
+      "desc": "조양호 회장 ➔ 조원태 한진그룹 회장 승계"
+    },
+    {
+      "source": "p_cho_won_tae",
+      "target": "c_hanjin_kal",
+      "type": "ownership_person",
+      "stake": 5.78,
+      "label": "5.78%",
+      "desc": "조원태 회장 일가 지분"
+    },
+    {
+      "source": "c_hanjin_kal",
+      "target": "c_korean_air",
+      "type": "ownership_corp",
+      "stake": 26.13,
+      "label": "26.13%",
+      "desc": "한진칼이 대한항공 지배"
+    },
+
+    {
+      "source": "p_park_jeong_won",
+      "target": "p_park_ji_won",
+      "type": "family",
+      "label": "형제 관계",
+      "desc": "두산 4세 박정원 회장과 박지원 부회장"
+    },
+    {
+      "source": "p_park_jeong_won",
+      "target": "c_doosan_corp",
+      "type": "ownership_person",
+      "stake": 7.64,
+      "label": "7.64%",
+      "desc": "박정원 회장 개인 지분"
+    },
+    {
+      "source": "c_doosan_corp",
+      "target": "c_doosan_enerbility",
+      "type": "ownership_corp",
+      "stake": 30.39,
+      "label": "30.39%",
+      "desc": "(주)두산이 두산에너빌리티 지배"
+    },
+    {
+      "source": "c_doosan_corp",
+      "target": "c_doosan_robotics",
+      "type": "ownership_corp",
+      "stake": 68.19,
+      "label": "68.19%",
+      "desc": "(주)두산이 두산로보틱스 지배"
+    },
+
+    {
+      "source": "p_cho_hong_je",
+      "target": "p_cho_hyun_joon",
+      "type": "family",
+      "label": "조손 관계 (장손 승계)",
+      "desc": "창업주 조홍제 ➔ 조석래 ➔ 조현준 효성 회장"
+    },
+    {
+      "source": "p_cho_hyun_joon",
+      "target": "p_cho_hyun_sang",
+      "type": "family",
+      "label": "형제 관계 (계열 분리)",
+      "desc": "장남 조현준((주)효성)과 3남 조현상(HS효성)의 계열 분리"
+    },
+    {
+      "source": "p_cho_hyun_joon",
+      "target": "c_hyosung_corp",
+      "type": "ownership_person",
+      "stake": 33.03,
+      "label": "33.03%",
+      "desc": "조현준 회장이 (주)효성 지배"
+    },
+    {
+      "source": "p_cho_hyun_sang",
+      "target": "c_hs_hyosung",
+      "type": "ownership_person",
+      "stake": 55.00,
+      "label": "55.00%",
+      "desc": "조현상 부회장이 HS효성 지배"
+    },
+
+    {
+      "source": "p_seo_jung_jin",
+      "target": "c_celltrion_holdings",
+      "type": "ownership_person",
+      "stake": 98.50,
+      "amount_krw": "약 10조 원",
+      "label": "98.50% (절대 지배)",
+      "desc": "서정진 회장이 지주사를 거의 100% 단독 소유"
+    },
+    {
+      "source": "c_celltrion_holdings",
+      "target": "c_celltrion",
+      "type": "ownership_corp",
+      "stake": 21.50,
+      "amount_krw": "약 9조 원",
+      "label": "21.50%",
+      "desc": "셀트리온홀딩스가 통합 셀트리온 지배"
+    },
+
+    {
+      "source": "p_lee_hae_jin",
+      "target": "c_naver",
+      "type": "ownership_person",
+      "stake": 3.73,
+      "label": "3.73%",
+      "desc": "이해진 GIO가 창업자로서 경영 실권 행사"
+    },
+    {
+      "source": "c_naver",
+      "target": "c_line_yahoo",
+      "type": "ownership_corp",
+      "stake": 50.00,
+      "label": "50.00% (A홀딩스 통해)",
+      "desc": "소프트뱅크와 공동 지배하는 라인야후"
+    },
+
+    {
+      "source": "p_kim_beom_su",
+      "target": "c_kcube_holdings",
+      "type": "ownership_person",
+      "stake": 100.00,
+      "label": "100.00%",
+      "desc": "김범수 위원장의 100% 개인 지배 회사"
+    },
+    {
+      "source": "p_kim_beom_su",
+      "target": "c_kakao",
+      "type": "ownership_person",
+      "stake": 13.27,
+      "label": "13.27%",
+      "desc": "김범수 위원장 개인 보유 카카오 지분"
+    },
+    {
+      "source": "c_kcube_holdings",
+      "target": "c_kakao",
+      "type": "ownership_corp",
+      "stake": 10.41,
+      "label": "10.41%",
+      "desc": "케이큐브홀딩스가 카카오 지분 보유 (합산 23.68% 지배)"
+    },
+    {
+      "source": "c_kakao",
+      "target": "c_kakao_bank",
+      "type": "ownership_corp",
+      "stake": 27.16,
+      "label": "27.16%",
+      "desc": "카카오가 카카오뱅크 최대주주"
+    },
+    {
+      "source": "c_kakao",
+      "target": "c_kakao_pay",
+      "type": "ownership_corp",
+      "stake": 46.50,
+      "label": "46.50%",
+      "desc": "카카오가 카카오페이 최대주주"
+    },
+    {
+      "source": "c_kakao",
+      "target": "c_kakao_ent",
+      "type": "ownership_corp",
+      "stake": 67.50,
+      "label": "67.50%",
+      "desc": "카카오가 카카오엔터테인먼트 지배"
+    },
+    {
+      "source": "c_kakao",
+      "target": "c_dunamu",
+      "type": "ownership_corp",
+      "stake": 10.60,
+      "label": "10.60%",
+      "desc": "카카오가 두나무(업비트) 주요 지분 보유"
+    },
+
+    {
+      "source": "p_bang_si_hyuk",
+      "target": "p_bang_jun_hyuk",
+      "type": "family",
+      "label": "친척 관계 (사촌)",
+      "desc": "하이브 방시혁 의장과 넷마블 방준혁 의장은 친척(사촌) 관계"
+    },
+    {
+      "source": "p_bang_si_hyuk",
+      "target": "c_hybe",
+      "type": "ownership_person",
+      "stake": 31.57,
+      "amount_krw": "약 2.6조 원",
+      "label": "31.57% (최대주주)",
+      "desc": "방시혁 의장이 하이브 지배"
+    },
+    {
+      "source": "p_bang_jun_hyuk",
+      "target": "c_netmarble",
+      "type": "ownership_person",
+      "stake": 24.12,
+      "label": "24.12% (최대주주)",
+      "desc": "방준혁 의장이 넷마블 지배"
+    },
+    {
+      "source": "c_netmarble",
+      "target": "c_hybe",
+      "type": "ownership_corp",
+      "stake": 12.08,
+      "amount_krw": "약 1조 원",
+      "label": "12.08% (2대 주주)",
+      "desc": "넷마블이 하이브의 초기 2대 주주로 참여한 빅테크 혈맹 지분"
+    },
+    {
+      "source": "c_cj_enm",
+      "target": "c_netmarble",
+      "type": "ownership_corp",
+      "stake": 21.78,
+      "label": "21.78% (2대 주주)",
+      "desc": "CJ ENM이 넷마블 2대 주주로 연결 (전통 대기업 ↔ 빅테크 연합)"
+    },
+    {
+      "source": "p_song_chi_hyung",
+      "target": "c_dunamu",
+      "type": "ownership_person",
+      "stake": 25.50,
+      "label": "25.50% (최대주주)",
+      "desc": "송치형 회장이 두나무 지배"
+    },
+    {
+      "source": "c_hybe",
+      "target": "c_dunamu",
+      "type": "ownership_corp",
+      "stake": 2.50,
+      "label": "2.50% (상호 지분 교환)",
+      "desc": "하이브와 두나무의 글로벌 NFT/블록체인 사업 상호 지분 동맹"
+    },
+    {
+      "source": "p_bom_kim",
+      "target": "c_coupang_inc",
+      "type": "ownership_person",
+      "stake": 10.20,
+      "amount_krw": "약 5.5조 원",
+      "label": "10.2% (의결권 70%+)",
+      "desc": "김범석 의장이 차등의결권(29배)을 통해 쿠팡 절대 지배"
+    }
+  ]
+}
