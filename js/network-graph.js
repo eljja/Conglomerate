@@ -73,21 +73,21 @@ export class NetworkGraphEngine {
   }
 
   /**
-   * Calculate link stroke width based on stake percentage (0% ~ 100%)
+   * Calculate link stroke width based on stake percentage (0% ~ 100%) - 2x Boosted
    */
   getLinkWidth(link) {
     if (link.type === 'circular') {
       const stake = link.stake || 20;
-      return Math.max(3.5, Math.min(8.5, Math.pow(stake / 100, 0.5) * 8 + 2));
+      return Math.max(7.0, Math.min(18.0, (Math.pow(stake / 100, 0.5) * 8 + 2) * 2));
     }
     if (link.type === 'ownership_corp' || link.type === 'ownership_person') {
       const stake = link.stake || 5;
-      // 1% -> 1.5px, 20% -> 4px, 50% -> 6.5px, 80%+ -> 9px
-      return Math.max(1.5, Math.min(9.5, Math.pow(stake / 100, 0.55) * 9 + 1.2));
+      // 2배 적용: 1% -> 3px, 20% -> 8px, 50% -> 13px, 80%+ -> 19px
+      return Math.max(3.0, Math.min(20.0, (Math.pow(stake / 100, 0.55) * 9 + 1.2) * 2));
     }
-    if (link.type === 'family') return 2.5;
-    if (link.type === 'marriage' || link.type === 'marriage_past') return 2.2;
-    return 1.8;
+    if (link.type === 'family') return 5.0;
+    if (link.type === 'marriage' || link.type === 'marriage_past') return 4.5;
+    return 3.6;
   }
 
   initSVG() {
@@ -102,15 +102,15 @@ export class NetworkGraphEngine {
 
     const defs = this.svg.append('defs');
 
-    // Dynamic marker generator function
+    // Dynamic marker generator function with enhanced visibility
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 10)
+        .attr('refX', 12)
         .attr('refY', 0)
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
+        .attr('markerWidth', 7.5)
+        .attr('markerHeight', 7.5)
         .attr('orient', 'auto')
         .append('path')
         .attr('d', 'M0,-4.5L9,0L0,4.5')
@@ -540,7 +540,7 @@ export class NetworkGraphEngine {
       .attr('stroke-width', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 5 : this.getLinkWidth(d);
+        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? Math.max(8, this.getLinkWidth(d) + 3) : this.getLinkWidth(d);
       });
 
     this.linkLabelLayer.selectAll('g.link-label-group')

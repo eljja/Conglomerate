@@ -562,14 +562,14 @@
 
 .scale-line-sm {
   width: 14px;
-  height: 2px;
+  height: 4px;
   background: #60a5fa;
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 .scale-line-lg {
-  width: 16px;
-  height: 5px;
+  width: 18px;
+  height: 10px;
   background: #60a5fa;
-  border-radius: 2px;
+  border-radius: 3px;
 }
