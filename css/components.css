@@ -1,5 +1,5 @@
 /* ==========================================================================
-   컴포넌트 및 세부 모듈 스타일시트
+   컴포넌트 및 세부 모듈 스타일시트 (v2.0)
    ========================================================================== */
 
 /* Inspector Drawer Styles */
@@ -522,4 +522,54 @@
   color: var(--text-primary);
   background: var(--bg-tertiary);
   border-color: var(--accent-blue);
+}
+
+/* Visual Scale Guide Pill in Legend */
+.scale-guide-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-color);
+  margin: 0 4px;
+}
+
+.scale-size-preview {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.scale-dot-sm {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.scale-dot-md {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.scale-dot-lg {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
+}
+
+.scale-line-sm {
+  width: 14px;
+  height: 2px;
+  background: #60a5fa;
+  border-radius: 1px;
+}
+
+.scale-line-lg {
+  width: 16px;
+  height: 5px;
+  background: #60a5fa;
+  border-radius: 2px;
 }

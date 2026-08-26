@@ -74,6 +74,15 @@
           <span style="font-weight: 700; font-size: 0.95rem;">🎛️ 네트워크 필터</span>
         </div>
 
+        <!-- Sizing Mode Toggle -->
+        <div class="filter-section">
+          <div class="filter-title">시각적 크기 매핑</div>
+          <label class="checkbox-row">
+            <span>📏 자산/재산 비례 노드 면적</span>
+            <input type="checkbox" id="toggle-proportional-size" checked>
+          </label>
+        </div>
+
         <!-- Group Selector -->
         <div class="filter-section">
           <div class="filter-title">
@@ -94,15 +103,15 @@
           <div class="filter-title">노드 유형 (Nodes)</div>
           <label class="checkbox-row">
             <span>👤 총수 / 오너 일가 / 인물</span>
-            <input type="checkbox" id="filter-node-person" checked onchange="window.app?.filterManager.setNodeType('person', this.checked)">
+            <input type="checkbox" id="filter-node-person" checked>
           </label>
           <label class="checkbox-row">
             <span>👑 그룹 지주회사 (Holdings)</span>
-            <input type="checkbox" id="filter-node-holding" checked onchange="window.app?.filterManager.setNodeType('holding', this.checked)">
+            <input type="checkbox" id="filter-node-holding" checked>
           </label>
           <label class="checkbox-row">
             <span>🏢 일반 상장/주요 계열사</span>
-            <input type="checkbox" id="filter-node-company" checked onchange="window.app?.filterManager.setNodeType('company', this.checked)">
+            <input type="checkbox" id="filter-node-company" checked>
           </label>
         </div>
 
@@ -110,20 +119,20 @@
         <div class="filter-section">
           <div class="filter-title">연결 관계 (Relationships)</div>
           <label class="checkbox-row">
-            <span style="color: #60a5fa;">🏢 소유 지분 (Ownership)</span>
-            <input type="checkbox" id="filter-link-ownership" checked onchange="window.app?.filterManager.setLinkType('ownership', this.checked)">
+            <span style="color: #60a5fa;">🏢 소유 지분 (굵기=지분율)</span>
+            <input type="checkbox" id="filter-link-ownership" checked>
           </label>
           <label class="checkbox-row">
             <span style="color: #fb7185;">🔄 순환출자 고리 (Circular)</span>
-            <input type="checkbox" id="filter-link-circular" checked onchange="window.app?.filterManager.setLinkType('circular', this.checked)">
+            <input type="checkbox" id="filter-link-circular" checked>
           </label>
           <label class="checkbox-row">
             <span style="color: #c084fc;">👨‍👩‍👧‍👦 혈연 / 가족 (Family)</span>
-            <input type="checkbox" id="filter-link-family" checked onchange="window.app?.filterManager.setLinkType('family', this.checked)">
+            <input type="checkbox" id="filter-link-family" checked>
           </label>
           <label class="checkbox-row">
             <span style="color: #f472b6;">💍 정·재계 혼맥 (Marriage)</span>
-            <input type="checkbox" id="filter-link-marriage" checked onchange="window.app?.filterManager.setLinkType('marriage', this.checked)">
+            <input type="checkbox" id="filter-link-marriage" checked>
           </label>
         </div>
 
@@ -169,23 +178,44 @@
         </div>
       </div>
 
-      <!-- Floating Bottom Legend Bar -->
+      <!-- Floating Bottom Legend Bar with Scale Indicator -->
       <div id="graph-legend-bar" class="graph-legend-bar">
-        <div class="legend-item">
-          <span class="legend-color-dot" style="background: #3b82f6;"></span>
-          <span>지분 출자</span>
+        <!-- Visual Node Scale Guide -->
+        <div class="legend-item" title="원의 면적은 기업 시가총액 또는 개인 보유 주식 평가액에 비례합니다.">
+          <span style="color: #94a3b8; font-weight: 700;">원의 면적:</span>
+          <div class="scale-size-preview">
+            <span class="scale-dot-sm" title="~1조 원"></span>
+            <span class="scale-dot-md" title="~20조 원"></span>
+            <span class="scale-dot-lg" title="100조~450조 원"></span>
+          </div>
+          <span>자산/시총 규모</span>
         </div>
+
+        <div class="scale-guide-divider"></div>
+
+        <!-- Visual Edge Width Guide -->
+        <div class="legend-item" title="선의 굵기는 소유 지분율(%)에 비례합니다.">
+          <span style="color: #94a3b8; font-weight: 700;">선 굵기:</span>
+          <div class="scale-size-preview">
+            <span class="scale-line-sm" title="5%"></span>
+            <span class="scale-line-lg" title="50%+"></span>
+          </div>
+          <span>지분율(%)</span>
+        </div>
+
+        <div class="scale-guide-divider"></div>
+
         <div class="legend-item">
-          <span class="legend-line circular-flow-edge" style="background: #f43f5e; height: 3px;"></span>
+          <span class="legend-line circular-flow-edge" style="background: #f43f5e; height: 3.5px;"></span>
           <span style="color: #fb7185; font-weight: 700;">순환출자 고리</span>
         </div>
         <div class="legend-item">
           <span class="legend-color-dot" style="background: #a855f7;"></span>
-          <span>혈연(직계/방계)</span>
+          <span>혈연</span>
         </div>
         <div class="legend-item">
           <span class="legend-color-dot" style="background: #ec4899;"></span>
-          <span>정·재계 혼맥</span>
+          <span>혼맥</span>
         </div>
         <div class="legend-item">
           <span class="legend-color-dot" style="background: #f59e0b; border-radius: 2px;"></span>

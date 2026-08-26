@@ -1,5 +1,8 @@
 /**
- * 대한민국 대기업 네트워크 - D3.js 고성능 인터랙티브 그래프 엔진
+ * 대한민국 대기업 네트워크 - D3.js 고성능 인터랙티브 그래프 엔진 (v2.0)
+ * - 원의 면적: 자산/시가총액/재산 규모에 비례 (Area ∝ Value)
+ * - 연결선 굵기: 소유 지분율(%)에 비례 (Stroke Width ∝ Stake %)
+ * - 고대비 텍스트 배지 및 동적 화살표 위치 보정
  */
 
 export class NetworkGraphEngine {
@@ -21,6 +24,7 @@ export class NetworkGraphEngine {
     this.currentViewMode = 'holistic';
     this.selectedNodeId = null;
     this.highlightedPath = null;
+    this.sizeScaleEnabled = true;
 
     this.initSVG();
     this.bindWindowResize();
@@ -40,10 +44,55 @@ export class NetworkGraphEngine {
     return '#6366f1';
   }
 
+  /**
+   * Calculate node radius based on Asset / Market Cap / Wealth (Area proportional)
+   * Formula: Area = π * r^2  =>  r ∝ sqrt(Value)
+   */
+  getNodeRadius(node) {
+    if (!this.sizeScaleEnabled) {
+      return node.type === 'person' ? 22 : 26;
+    }
+
+    const val = node.val_trillion || 0.5;
+
+    if (node.type === 'person') {
+      // Wealth range: 0.2조 ~ 14조 (이재용 14조, 서정진 11조 등)
+      // Radius range: 18px ~ 36px
+      const minR = 18;
+      const maxR = 36;
+      const normalized = Math.sqrt(Math.min(val, 15) / 15);
+      return minR + normalized * (maxR - minR);
+    } else {
+      // Corporate valuation range: 0.3조 ~ 450조 (삼성전자 450조, 하이닉스 140조, 모비스 23조 등)
+      // Radius range: 20px ~ 48px
+      const minR = 20;
+      const maxR = 48;
+      const normalized = Math.sqrt(Math.min(val, 450) / 450);
+      return minR + normalized * (maxR - minR);
+    }
+  }
+
+  /**
+   * Calculate link stroke width based on stake percentage (0% ~ 100%)
+   */
+  getLinkWidth(link) {
+    if (link.type === 'circular') {
+      const stake = link.stake || 20;
+      return Math.max(3.5, Math.min(8.5, Math.pow(stake / 100, 0.5) * 8 + 2));
+    }
+    if (link.type === 'ownership_corp' || link.type === 'ownership_person') {
+      const stake = link.stake || 5;
+      // 1% -> 1.5px, 20% -> 4px, 50% -> 6.5px, 80%+ -> 9px
+      return Math.max(1.5, Math.min(9.5, Math.pow(stake / 100, 0.55) * 9 + 1.2));
+    }
+    if (link.type === 'family') return 2.5;
+    if (link.type === 'marriage' || link.type === 'marriage_past') return 2.2;
+    return 1.8;
+  }
+
   initSVG() {
     this.container.innerHTML = '';
 
-    // Create base SVG
     this.svg = d3.select(this.container)
       .append('svg')
       .attr('id', 'network-svg')
@@ -51,21 +100,20 @@ export class NetworkGraphEngine {
       .attr('height', '100%')
       .attr('viewBox', [0, 0, this.width, this.height]);
 
-    // Define defs: markers and filters
     const defs = this.svg.append('defs');
 
-    // Arrow markers
+    // Dynamic marker generator function
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 28)
+        .attr('refX', 10)
         .attr('refY', 0)
         .attr('markerWidth', 6)
         .attr('markerHeight', 6)
         .attr('orient', 'auto')
         .append('path')
-        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('d', 'M0,-4.5L9,0L0,4.5')
         .attr('fill', color);
     };
 
@@ -76,7 +124,7 @@ export class NetworkGraphEngine {
     createMarker('arrow-alliance', '#eab308');
     createMarker('arrow-highlight', '#38bdf8');
 
-    // Glow filter
+    // Glow filter for holdings and super billionaires
     const filter = defs.append('filter')
       .attr('id', 'glow')
       .attr('x', '-50%')
@@ -84,19 +132,17 @@ export class NetworkGraphEngine {
       .attr('width', '200%')
       .attr('height', '200%');
     filter.append('feGaussianBlur')
-      .attr('stdDeviation', '4')
+      .attr('stdDeviation', '5')
       .attr('result', 'coloredBlur');
     const feMerge = filter.append('feMerge');
     feMerge.append('feMergeNode').attr('in', 'coloredBlur');
     feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
 
-    // Root transformation group
     this.g = this.svg.append('g').attr('class', 'network-root-group');
 
-    // Link container & Node container
     this.linkLayer = this.g.append('g').attr('class', 'links-layer');
+    this.linkLabelLayer = this.g.append('g').attr('class', 'link-labels-layer');
     this.nodeLayer = this.g.append('g').attr('class', 'nodes-layer');
-    this.labelLayer = this.g.append('g').attr('class', 'labels-layer');
 
     // Setup Zoom
     this.zoom = d3.zoom()
@@ -105,8 +151,7 @@ export class NetworkGraphEngine {
         this.g.attr('transform', event.transform);
       });
 
-    this.svg.call(this.zoom)
-      .on('dblclick.zoom', null); // Disable double click to zoom in favor of centering node
+    this.svg.call(this.zoom).on('dblclick.zoom', null);
   }
 
   bindWindowResize() {
@@ -125,7 +170,6 @@ export class NetworkGraphEngine {
 
   setData(data, viewMode = 'holistic') {
     this.currentViewMode = viewMode;
-    // Deep clone data to avoid D3 mutation issues on re-filtering
     this.nodes = data.nodes.map(d => ({ ...d }));
     const nodeMap = new Map(this.nodes.map(n => [n.id, n]));
 
@@ -149,18 +193,23 @@ export class NetworkGraphEngine {
       this.simulation.stop();
     }
 
-    // Force simulation setup
+    // Force Simulation with Dynamic Radii and Collision Buffers
     this.simulation = d3.forceSimulation(this.nodes)
       .force('link', d3.forceLink(this.links).id(d => d.id).distance(d => {
-        if (d.type === 'circular') return 110;
-        if (d.type === 'family' || d.type === 'marriage') return 80;
-        return 130;
-      }).strength(0.6))
-      .force('charge', d3.forceManyBody().strength(d => d.is_holding ? -450 : -280))
+        const sourceR = this.getNodeRadius(d.source);
+        const targetR = this.getNodeRadius(d.target);
+        if (d.type === 'circular') return sourceR + targetR + 70;
+        if (d.type === 'family' || d.type === 'marriage') return sourceR + targetR + 50;
+        return sourceR + targetR + 80;
+      }).strength(0.65))
+      .force('charge', d3.forceManyBody().strength(d => {
+        const r = this.getNodeRadius(d);
+        return d.is_holding ? -600 : (-r * 12);
+      }))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2).strength(0.08))
-      .force('collision', d3.forceCollide().radius(d => d.type === 'person' ? 35 : 45).strength(0.7));
+      .force('collision', d3.forceCollide().radius(d => this.getNodeRadius(d) + 16).strength(0.85));
 
-    // Special clustering force when in 'cluster' mode
+    // Group cluster forces
     if (this.currentViewMode === 'cluster') {
       const groups = Array.from(new Set(this.nodes.map(n => n.group)));
       const groupCenters = new Map();
@@ -179,14 +228,14 @@ export class NetworkGraphEngine {
         this.nodes.forEach(node => {
           const center = groupCenters.get(node.group);
           if (center) {
-            node.vx += (center.x - node.x) * alpha * 0.3;
-            node.vy += (center.y - node.y) * alpha * 0.3;
+            node.vx += (center.x - node.x) * alpha * 0.35;
+            node.vy += (center.y - node.y) * alpha * 0.35;
           }
         });
       });
     }
 
-    // Render Links
+    // --- Render Links ---
     const linkSelection = this.linkLayer.selectAll('g.link-group')
       .data(this.links, d => `${d.source.id || d.source}-${d.target.id || d.target}-${d.type}`);
 
@@ -195,28 +244,45 @@ export class NetworkGraphEngine {
     const linkEnter = linkSelection.enter().append('g')
       .attr('class', 'link-group');
 
-    // Link line
     linkEnter.append('path')
       .attr('class', d => `link-path ${d.type === 'circular' ? 'circular-flow-edge' : ''}`)
       .attr('stroke', d => this.getLinkColor(d))
       .attr('stroke-width', d => this.getLinkWidth(d))
-      .attr('stroke-opacity', 0.6)
+      .attr('stroke-opacity', 0.65)
       .attr('fill', 'none')
       .attr('marker-end', d => this.getMarkerEnd(d));
 
-    // Link label (stake / type badge)
-    linkEnter.append('text')
-      .attr('class', 'link-label')
-      .attr('font-size', '9px')
-      .attr('font-weight', '600')
-      .attr('fill', d => d.type === 'circular' ? '#fb7185' : '#94a3b8')
-      .attr('text-anchor', 'middle')
-      .attr('dy', -4)
-      .text(d => d.label || '');
-
     const linkGroup = linkEnter.merge(linkSelection);
 
-    // Render Nodes
+    // --- Render Link Label Badges (with high contrast background) ---
+    const labelSelection = this.linkLabelLayer.selectAll('g.link-label-group')
+      .data(this.links.filter(l => l.label), d => `${d.source.id || d.source}-${d.target.id || d.target}-${d.type}`);
+
+    labelSelection.exit().remove();
+
+    const labelEnter = labelSelection.enter().append('g')
+      .attr('class', 'link-label-group');
+
+    labelEnter.append('rect')
+      .attr('class', 'link-label-bg')
+      .attr('rx', 4)
+      .attr('ry', 4)
+      .attr('fill', 'rgba(15, 23, 42, 0.85)')
+      .attr('stroke', d => d.type === 'circular' ? '#fb7185' : 'rgba(148, 163, 184, 0.3)')
+      .attr('stroke-width', 1);
+
+    labelEnter.append('text')
+      .attr('class', 'link-label-text')
+      .attr('font-size', '9.5px')
+      .attr('font-weight', '700')
+      .attr('fill', d => d.type === 'circular' ? '#fb7185' : '#e2e8f0')
+      .attr('text-anchor', 'middle')
+      .attr('dy', 3.5)
+      .text(d => d.label || '');
+
+    const labelGroup = labelEnter.merge(labelSelection);
+
+    // --- Render Nodes ---
     const nodeSelection = this.nodeLayer.selectAll('g.node-group')
       .data(this.nodes, d => d.id);
 
@@ -237,99 +303,131 @@ export class NetworkGraphEngine {
       .on('mouseenter', (event, d) => this.handleNodeHover(d, true))
       .on('mouseleave', (event, d) => this.handleNodeHover(d, false));
 
-    // Node Shape based on Type
+    // Dynamic shapes per node
     nodeEnter.each((d, i, nodes) => {
       const el = d3.select(nodes[i]);
       const color = this.getNodeColor(d);
+      const r = this.getNodeRadius(d);
 
       if (d.type === 'person') {
-        // Person Node: Circle with avatar icon/initial
+        // Person Node: Circle with Avatar initial & proportional radius
         el.append('circle')
-          .attr('r', 20)
+          .attr('class', 'node-shape')
+          .attr('r', r)
           .attr('fill', '#1e293b')
           .attr('stroke', color)
-          .attr('stroke-width', 2.5)
-          .attr('filter', d.wealth_est ? 'url(#glow)' : null);
+          .attr('stroke-width', d.val_trillion >= 5 ? 3.5 : 2.5)
+          .attr('filter', d.val_trillion >= 4 ? 'url(#glow)' : null);
 
         el.append('text')
+          .attr('class', 'node-initial-text')
           .attr('text-anchor', 'middle')
-          .attr('dy', 5)
-          .attr('font-size', '13px')
+          .attr('dy', r * 0.22)
+          .attr('font-size', `${Math.max(11, r * 0.45)}px`)
           .attr('fill', '#f8fafc')
           .attr('font-weight', 'bold')
-          .text(d.name.slice(-2)); // Last 2 Korean chars
+          .text(d.name.slice(-2));
       } else {
-        // Company Node: Rounded Rect
-        const width = d.is_holding ? 54 : 48;
-        const height = d.is_holding ? 34 : 28;
-
-        el.append('rect')
-          .attr('x', -width / 2)
-          .attr('y', -height / 2)
-          .attr('width', width)
-          .attr('height', height)
-          .attr('rx', d.is_holding ? 8 : 6)
+        // Company Node: Circle or Rounded Pill
+        el.append('circle')
+          .attr('class', 'node-shape')
+          .attr('r', r)
           .attr('fill', d.is_holding ? '#1e1b4b' : '#0f172a')
           .attr('stroke', d.is_holding ? '#f59e0b' : color)
-          .attr('stroke-width', d.is_holding ? 3 : 2)
-          .attr('filter', d.is_holding ? 'url(#glow)' : null);
+          .attr('stroke-width', d.is_holding ? 3.8 : 2.5)
+          .attr('filter', (d.is_holding || d.val_trillion >= 50) ? 'url(#glow)' : null);
 
-        // Holding crown / badge icon
+        // Holding crown / top badge
         if (d.is_holding) {
           el.append('circle')
-            .attr('cx', width / 2 - 4)
-            .attr('cy', -height / 2 + 4)
-            .attr('r', 5)
-            .attr('fill', '#f59e0b');
+            .attr('cx', r * 0.65)
+            .attr('cy', -r * 0.65)
+            .attr('r', 6.5)
+            .attr('fill', '#f59e0b')
+            .attr('stroke', '#ffffff')
+            .attr('stroke-width', 1.5);
         }
 
+        // Inner company icon/name
         el.append('text')
+          .attr('class', 'node-corp-center-text')
           .attr('text-anchor', 'middle')
           .attr('dy', 4)
-          .attr('font-size', '11px')
-          .attr('font-weight', '600')
-          .attr('fill', '#ffffff')
+          .attr('font-size', `${Math.max(10, r * 0.36)}px`)
+          .attr('font-weight', '800')
+          .attr('fill', d.is_holding ? '#fbbf24' : '#ffffff')
           .text(d.name.length > 5 ? d.name.slice(0, 4) + '..' : d.name);
       }
 
-      // Bottom Full Label
+      // Bottom Name Label
       el.append('text')
         .attr('class', 'node-title-label')
         .attr('text-anchor', 'middle')
-        .attr('dy', d.type === 'person' ? 34 : 30)
-        .attr('font-size', '11px')
+        .attr('dy', r + 14)
+        .attr('font-size', `${Math.max(10.5, Math.min(14, r * 0.38))}px`)
         .attr('font-weight', '700')
-        .attr('fill', '#f1f5f9')
+        .attr('fill', '#f8fafc')
+        .attr('filter', 'drop-shadow(0px 2px 4px rgba(0,0,0,0.8))')
         .text(d.name);
 
-      // Sub-label (title or market cap)
+      // Sub-label (title / market cap)
       el.append('text')
         .attr('class', 'node-sub-label')
         .attr('text-anchor', 'middle')
-        .attr('dy', d.type === 'person' ? 46 : 42)
-        .attr('font-size', '9px')
-        .attr('fill', '#94a3b8')
-        .text(d.type === 'person' ? (d.title || d.role) : (d.market_cap || ''));
+        .attr('dy', r + 26)
+        .attr('font-size', '9.5px')
+        .attr('font-weight', '600')
+        .attr('fill', d.type === 'person' ? '#94a3b8' : '#34d399')
+        .attr('filter', 'drop-shadow(0px 1px 3px rgba(0,0,0,0.9))')
+        .text(d.type === 'person' ? (d.wealth_est || d.title) : (d.market_cap || ''));
     });
 
     const nodeGroup = nodeEnter.merge(nodeSelection);
 
-    // Simulation Tick
+    // Simulation Tick Listener with Precise Edge Trimming to Circle Borders
     this.simulation.on('tick', () => {
       linkGroup.select('path').attr('d', d => {
+        const sourceR = this.getNodeRadius(d.source);
+        const targetR = this.getNodeRadius(d.target);
+
         const dx = d.target.x - d.source.x;
         const dy = d.target.y - d.source.y;
-        const dr = (d.type === 'circular' || d.type === 'marriage') ? Math.sqrt(dx * dx + dy * dy) * 1.3 : 0;
-        if (dr === 0) {
-          return `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist === 0) return '';
+
+        // Calculate exact touch points on source and target circle boundaries
+        const sx = d.source.x + (dx * sourceR) / dist;
+        const sy = d.source.y + (dy * sourceR) / dist;
+        const tx = d.target.x - (dx * (targetR + 4)) / dist;
+        const ty = d.target.y - (dy * (targetR + 4)) / dist;
+
+        if (d.type === 'circular' || d.type === 'marriage') {
+          const dr = dist * 1.25;
+          return `M${sx},${sy}A${dr},${dr} 0 0,1 ${tx},${ty}`;
         }
-        return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+        return `M${sx},${sy}L${tx},${ty}`;
       });
 
-      linkGroup.select('text').attr('transform', d => {
+      // Position Link Labels
+      labelGroup.attr('transform', d => {
         const x = (d.source.x + d.target.x) / 2;
         const y = (d.source.y + d.target.y) / 2;
         return `translate(${x},${y})`;
+      });
+
+      // Update Label Bounding Boxes
+      labelGroup.each(function() {
+        const group = d3.select(this);
+        const textNode = group.select('text').node();
+        if (textNode) {
+          const bbox = textNode.getBBox();
+          group.select('rect')
+            .attr('x', bbox.x - 4)
+            .attr('y', bbox.y - 2)
+            .attr('width', bbox.width + 8)
+            .attr('height', bbox.height + 4);
+        }
       });
 
       nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
@@ -346,13 +444,6 @@ export class NetworkGraphEngine {
     return '#64748b';
   }
 
-  getLinkWidth(d) {
-    if (d.type === 'circular') return 3.5;
-    if (d.stake && d.stake > 20) return 3;
-    if (d.stake && d.stake > 10) return 2.2;
-    return 1.5;
-  }
-
   getMarkerEnd(d) {
     if (d.type === 'circular') return 'url(#arrow-circular)';
     if (d.type === 'family') return 'url(#arrow-family)';
@@ -363,11 +454,12 @@ export class NetworkGraphEngine {
 
   // Hover highlighting
   handleNodeHover(node, isHovering) {
-    if (this.highlightedPath) return; // Don't override active path search
+    if (this.highlightedPath) return;
 
     if (!isHovering) {
       this.nodeLayer.selectAll('g.node-group').attr('opacity', 1);
       this.linkLayer.selectAll('g.link-group').attr('opacity', 1);
+      this.linkLabelLayer.selectAll('g.link-label-group').attr('opacity', 1);
       return;
     }
 
@@ -385,13 +477,20 @@ export class NetworkGraphEngine {
     });
 
     this.nodeLayer.selectAll('g.node-group')
-      .attr('opacity', d => connectedNodeIds.has(d.id) ? 1 : 0.15);
+      .attr('opacity', d => connectedNodeIds.has(d.id) ? 1 : 0.12);
 
     this.linkLayer.selectAll('g.link-group')
       .attr('opacity', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (sourceId === node.id || targetId === node.id) ? 1 : 0.05;
+        return (sourceId === node.id || targetId === node.id) ? 1 : 0.04;
+      });
+
+    this.linkLabelLayer.selectAll('g.link-label-group')
+      .attr('opacity', d => {
+        const sourceId = d.source.id || d.source;
+        const targetId = d.target.id || d.target;
+        return (sourceId === node.id || targetId === node.id) ? 1 : 0.04;
       });
   }
 
@@ -421,16 +520,16 @@ export class NetworkGraphEngine {
     }
 
     this.nodeLayer.selectAll('g.node-group')
-      .attr('opacity', d => pathNodeSet.has(d.id) ? 1 : 0.12)
-      .select('circle, rect')
+      .attr('opacity', d => pathNodeSet.has(d.id) ? 1 : 0.1)
+      .select('circle.node-shape')
       .attr('stroke', d => pathNodeSet.has(d.id) ? '#38bdf8' : this.getNodeColor(d))
-      .attr('stroke-width', d => pathNodeSet.has(d.id) ? 4 : 2);
+      .attr('stroke-width', d => pathNodeSet.has(d.id) ? 4.5 : 2.5);
 
     this.linkLayer.selectAll('g.link-group')
       .attr('opacity', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 1 : 0.05;
+        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 1 : 0.04;
       })
       .select('path')
       .attr('stroke', d => {
@@ -441,7 +540,14 @@ export class NetworkGraphEngine {
       .attr('stroke-width', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 4 : this.getLinkWidth(d);
+        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 5 : this.getLinkWidth(d);
+      });
+
+    this.linkLabelLayer.selectAll('g.link-label-group')
+      .attr('opacity', d => {
+        const sourceId = d.source.id || d.source;
+        const targetId = d.target.id || d.target;
+        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 1 : 0.04;
       });
   }
 
@@ -449,15 +555,18 @@ export class NetworkGraphEngine {
     this.highlightedPath = null;
     this.nodeLayer.selectAll('g.node-group')
       .attr('opacity', 1)
-      .select('circle, rect')
+      .select('circle.node-shape')
       .attr('stroke', d => d.is_holding ? '#f59e0b' : this.getNodeColor(d))
-      .attr('stroke-width', d => d.is_holding ? 3 : 2.5);
+      .attr('stroke-width', d => d.is_holding ? 3.8 : 2.5);
 
     this.linkLayer.selectAll('g.link-group')
       .attr('opacity', 1)
       .select('path')
       .attr('stroke', d => this.getLinkColor(d))
       .attr('stroke-width', d => this.getLinkWidth(d));
+
+    this.linkLabelLayer.selectAll('g.link-label-group')
+      .attr('opacity', 1);
   }
 
   zoomIn() {
@@ -479,7 +588,7 @@ export class NetworkGraphEngine {
     const node = this.nodes.find(n => n.id === nodeId);
     if (!node) return;
 
-    const scale = 1.4;
+    const scale = 1.3;
     const x = this.width / 2 - node.x * scale;
     const y = this.height / 2 - node.y * scale;
 
@@ -489,7 +598,6 @@ export class NetworkGraphEngine {
     );
   }
 
-  // Export high-res PNG
   exportPNG() {
     const svgElement = this.svg.node();
     const svgString = new XMLSerializer().serializeToString(svgElement);
@@ -518,7 +626,6 @@ export class NetworkGraphEngine {
     img.src = url;
   }
 
-  // Drag handlers
   dragstarted(event, d) {
     if (!event.active) this.simulation.alphaTarget(0.3).restart();
     d.fx = d.x;

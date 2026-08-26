@@ -57,6 +57,38 @@ export class UIController {
     document.getElementById('run-path-btn')?.addEventListener('click', () => this.handleRunPathFinder());
     document.getElementById('clear-path-btn')?.addEventListener('click', () => this.handleClearPath());
 
+    // Proportional Sizing toggle
+    document.getElementById('toggle-proportional-size')?.addEventListener('change', (e) => {
+      this.app.graphEngine.sizeScaleEnabled = e.target.checked;
+      const currentFiltered = this.app.filterManager.getFilteredData();
+      this.app.graphEngine.setData(currentFiltered, this.app.currentViewMode);
+    });
+
+    // Node Type Checkboxes
+    document.getElementById('filter-node-person')?.addEventListener('change', (e) => {
+      this.app.filterManager.setNodeType('person', e.target.checked);
+    });
+    document.getElementById('filter-node-holding')?.addEventListener('change', (e) => {
+      this.app.filterManager.setNodeType('holding', e.target.checked);
+    });
+    document.getElementById('filter-node-company')?.addEventListener('change', (e) => {
+      this.app.filterManager.setNodeType('company', e.target.checked);
+    });
+
+    // Link Type Checkboxes
+    document.getElementById('filter-link-ownership')?.addEventListener('change', (e) => {
+      this.app.filterManager.setLinkType('ownership', e.target.checked);
+    });
+    document.getElementById('filter-link-circular')?.addEventListener('change', (e) => {
+      this.app.filterManager.setLinkType('circular', e.target.checked);
+    });
+    document.getElementById('filter-link-family')?.addEventListener('change', (e) => {
+      this.app.filterManager.setLinkType('family', e.target.checked);
+    });
+    document.getElementById('filter-link-marriage')?.addEventListener('change', (e) => {
+      this.app.filterManager.setLinkType('marriage', e.target.checked);
+    });
+
     // Stake slider
     const stakeSlider = document.getElementById('stake-slider');
     const stakeValueDisplay = document.getElementById('stake-value-display');
