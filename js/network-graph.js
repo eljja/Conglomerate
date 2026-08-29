@@ -71,18 +71,19 @@ export class NetworkGraph {
 
     const defs = this.svg.append('defs');
 
-    // Dynamic marker generator function with enhanced visibility
+    // Dynamic marker generator function with userSpaceOnUse (prevents huge triangle explosion)
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 12)
+        .attr('refX', 7)
         .attr('refY', 0)
-        .attr('markerWidth', 7.5)
-        .attr('markerHeight', 7.5)
+        .attr('markerUnits', 'userSpaceOnUse')
+        .attr('markerWidth', 10)
+        .attr('markerHeight', 10)
         .attr('orient', 'auto')
         .append('path')
-        .attr('d', 'M0,-4.5L9,0L0,4.5')
+        .attr('d', 'M0,-3.2L6.5,0L0,3.2')
         .attr('fill', color);
     };
 
@@ -399,7 +400,7 @@ export class NetworkGraph {
         if (dist === 0) return `M${sx},${sy}L${tx},${ty}`;
 
         const sourceR = this.getNodeRadius(d.source) + 2;
-        const targetR = this.getNodeRadius(d.target) + 10;
+        const targetR = this.getNodeRadius(d.target) + 4;
 
         const startX = sx + (dx * sourceR) / dist;
         const startY = sy + (dy * sourceR) / dist;
