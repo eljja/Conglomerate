@@ -71,19 +71,19 @@ export class NetworkGraph {
 
     const defs = this.svg.append('defs');
 
-    // Dynamic marker generator function with userSpaceOnUse (prevents huge triangle explosion)
+    // Dynamic marker generator: proportional to strokeWidth, sized at 50% of previous
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 7)
+        .attr('refX', 7.5)
         .attr('refY', 0)
-        .attr('markerUnits', 'userSpaceOnUse')
-        .attr('markerWidth', 10)
-        .attr('markerHeight', 10)
+        .attr('markerUnits', 'strokeWidth')
+        .attr('markerWidth', 3.6)
+        .attr('markerHeight', 3.6)
         .attr('orient', 'auto')
         .append('path')
-        .attr('d', 'M0,-3.2L6.5,0L0,3.2')
+        .attr('d', 'M0,-2.8L6.5,0L0,2.8')
         .attr('fill', color);
     };
 
@@ -399,8 +399,9 @@ export class NetworkGraph {
 
         if (dist === 0) return `M${sx},${sy}L${tx},${ty}`;
 
+        const linkW = this.getLinkWidth(d);
         const sourceR = this.getNodeRadius(d.source) + 2;
-        const targetR = this.getNodeRadius(d.target) + 4;
+        const targetR = this.getNodeRadius(d.target) + (linkW * 1.5) + 3;
 
         const startX = sx + (dx * sourceR) / dist;
         const startY = sy + (dy * sourceR) / dist;
