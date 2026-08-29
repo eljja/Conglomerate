@@ -71,19 +71,19 @@ export class NetworkGraph {
 
     const defs = this.svg.append('defs');
 
-    // Dynamic marker generator: proportional to strokeWidth, sized at 50% of previous
+    // Dynamic marker generator: proportional, solid filled triangle, clearly visible
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 7.5)
+        .attr('refX', 6)
         .attr('refY', 0)
         .attr('markerUnits', 'strokeWidth')
-        .attr('markerWidth', 3.6)
-        .attr('markerHeight', 3.6)
+        .attr('markerWidth', 4.5)
+        .attr('markerHeight', 4.5)
         .attr('orient', 'auto')
         .append('path')
-        .attr('d', 'M0,-2.8L6.5,0L0,2.8')
+        .attr('d', 'M0,-3L6,0L0,3Z')
         .attr('fill', color);
     };
 
@@ -267,6 +267,12 @@ export class NetworkGraph {
 
     const linkElements = linkEnter.merge(linkGroup);
 
+    linkElements.select('path')
+      .attr('class', d => `network-link ${d.type} ${d.highlight_loop ? 'circular-flow-edge' : ''}`)
+      .attr('stroke', d => this.getLinkColor(d))
+      .attr('stroke-width', d => this.getLinkWidth(d))
+      .attr('marker-end', d => this.getMarkerEnd(d));
+
     // --- Render Link Labels (Badge pill) ---
     const labelGroup = this.linkLabelLayer.selectAll('g.link-label-group')
       .data(links.filter(l => l.stake || l.label), d => `${d.source.id || d.source}-${d.target.id || d.target}`);
@@ -399,9 +405,8 @@ export class NetworkGraph {
 
         if (dist === 0) return `M${sx},${sy}L${tx},${ty}`;
 
-        const linkW = this.getLinkWidth(d);
-        const sourceR = this.getNodeRadius(d.source) + 2;
-        const targetR = this.getNodeRadius(d.target) + (linkW * 1.5) + 3;
+        const sourceR = this.getNodeRadius(d.source) + 1;
+        const targetR = this.getNodeRadius(d.target) + 2;
 
         const startX = sx + (dx * sourceR) / dist;
         const startY = sy + (dy * sourceR) / dist;
@@ -562,7 +567,8 @@ export class NetworkGraph {
     if (d.type === 'family') return 'url(#arrow-family)';
     if (d.type === 'marriage' || d.type === 'marriage_past') return 'url(#arrow-marriage)';
     if (d.type === 'ownership_corp' || d.type === 'ownership_person') return 'url(#arrow-ownership)';
-    return null;
+    if (d.type === 'business_alliance') return 'url(#arrow-ownership)';
+    return 'url(#arrow-ownership)';
   }
 
   // Hover highlighting
