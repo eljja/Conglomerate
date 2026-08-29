@@ -71,20 +71,22 @@ export class NetworkGraph {
 
     const defs = this.svg.append('defs');
 
-    // Dynamic marker generator: proportional, solid filled triangle, clearly visible
+    // Dynamic marker generator: high-contrast, stroke-proportional, clearly visible
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 6)
+        .attr('refX', 7)
         .attr('refY', 0)
         .attr('markerUnits', 'strokeWidth')
-        .attr('markerWidth', 4.5)
-        .attr('markerHeight', 4.5)
+        .attr('markerWidth', 5.5)
+        .attr('markerHeight', 5.5)
         .attr('orient', 'auto')
         .append('path')
-        .attr('d', 'M0,-3L6,0L0,3Z')
-        .attr('fill', color);
+        .attr('d', 'M0,-3.5L7,0L0,3.5Z')
+        .attr('fill', color)
+        .attr('stroke', '#0b0f19')
+        .attr('stroke-width', 0.6);
     };
 
     createMarker('arrow-ownership', '#3b82f6');

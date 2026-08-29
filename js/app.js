@@ -1,13 +1,13 @@
 /**
- * 대한민국 대기업 네트워크 시각화 플랫폼 - 메인 애플리케이션 엔트리포인트 (v2.0)
+ * 대한민국 대기업 네트워크 시각화 플랫폼 - 메인 애플리케이션 엔트리포인트 (v2.1.0)
  * 100% Client-Side Static & GitHub Pages Ready
  */
 
-import { NetworkGraph } from './network-graph.js';
-import { FilterManager } from './filters.js';
-import { PathFinder } from './path-finder.js';
-import { AnalyticsEngine } from './analytics.js';
-import { UIController } from './ui-controller.js';
+import { NetworkGraph } from './network-graph.js?v=2.1.0';
+import { FilterManager } from './filters.js?v=2.1.0';
+import { PathFinder } from './path-finder.js?v=2.1.0';
+import { AnalyticsEngine } from './analytics.js?v=2.1.0';
+import { UIController } from './ui-controller.js?v=2.1.0';
 
 class ChaebolApp {
   constructor() {
@@ -24,7 +24,7 @@ class ChaebolApp {
 
   async init() {
     try {
-      console.log('🚀 Loading Chaebol Network Data v2.0...');
+      console.log('🚀 Loading Chaebol Network Data v2.1.0...');
       await this.loadData();
 
       // Initialize Core Modules
@@ -73,10 +73,11 @@ class ChaebolApp {
   }
 
   async loadData() {
-    // Load static JSON files (relative paths for GitHub Pages support)
+    // Load static JSON files with cache-busting timestamp
+    const t = Date.now();
     const [networkRes, summaryRes] = await Promise.all([
-      fetch('./data/chaebol_network.json'),
-      fetch('./data/groups_summary.json')
+      fetch(`./data/chaebol_network.json?t=${t}`),
+      fetch(`./data/groups_summary.json?t=${t}`)
     ]);
 
     if (!networkRes.ok || !summaryRes.ok) {
