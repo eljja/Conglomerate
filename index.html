@@ -112,6 +112,30 @@
       </div>
     </header>
 
+    <!-- Macro KPI Live Stats Ticker Bar -->
+    <section class="kpi-ticker-bar" aria-label="네트워크 핵심 통계 요약">
+      <div class="kpi-item">
+        <span class="kpi-label">분석 대기업:</span>
+        <span id="kpi-total-groups" class="kpi-val">20개 그룹</span>
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-label">추적 법인:</span>
+        <span id="kpi-total-companies" class="kpi-val">65개사</span>
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-label">총수 및 오너:</span>
+        <span id="kpi-total-people" class="kpi-val">55명</span>
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-label">순환출자 고리:</span>
+        <span id="kpi-total-loops" class="kpi-val" style="color: #fb7185;">3개 고리</span>
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-label">네트워크 총 자산:</span>
+        <span id="kpi-total-capital" class="kpi-val" style="color: #38bdf8;">약 2,450조 원</span>
+      </div>
+    </section>
+
     <!-- Main Content Workspace -->
     <main class="main-workspace">
       
@@ -208,6 +232,11 @@
       <!-- Floating Path Finder Banner -->
       <div id="path-finder-banner" class="path-finder-banner" style="display: none;">
         <span style="font-weight: 700; font-size: 0.85rem; color: var(--accent-amber);">🔍 인맥 경로:</span>
+        <select id="path-type-select" class="path-select" style="max-width: 110px;">
+          <option value="all">전체 관계</option>
+          <option value="ownership">소유 지분만</option>
+          <option value="family">혼맥/혈연만</option>
+        </select>
         <select id="path-start-select" class="path-select"></select>
         <span style="color: var(--text-muted);">➔</span>
         <select id="path-end-select" class="path-select"></select>
@@ -223,6 +252,12 @@
           <input type="text" id="search-input" class="search-input" placeholder="인물, 기업, 그룹 검색...">
           <div id="search-results-dropdown" class="search-results-dropdown"></div>
         </div>
+      </div>
+
+      <!-- Real-time Minimap Navigator (Bottom Left) -->
+      <div class="minimap-container" title="전체 네트워크 미니맵 탐색기">
+        <div class="minimap-header">🗺️ 미니맵 네비게이터</div>
+        <canvas id="minimap-canvas" width="150" height="82"></canvas>
       </div>
 
       <!-- Floating Bottom Legend Bar with Scale Indicator -->

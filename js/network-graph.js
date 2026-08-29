@@ -1,93 +1,62 @@
 /**
- * 대한민국 대기업 네트워크 - D3.js 고성능 인터랙티브 그래프 엔진 (v2.0)
- * - 원의 면적: 자산/시가총액/재산 규모에 비례 (Area ∝ Value)
- * - 연결선 굵기: 소유 지분율(%)에 비례 (Stroke Width ∝ Stake %)
- * - 고대비 텍스트 배지 및 동적 화살표 위치 보정
+ * 대한민국 대기업 네트워크 - D3.js 고도화 포스 레이아웃 시각화 엔진 (v2.0 Advanced)
+ * 미니맵(Minimap), 스마트 툴팁(Tooltip), 성운 오라(Nebula Aura), 비례 면적/선굵기 지원
  */
 
-export class NetworkGraphEngine {
-  constructor(containerSelector, onNodeClick) {
-    this.container = document.querySelector(containerSelector);
-    this.onNodeClick = onNodeClick;
-
+export class NetworkGraph {
+  constructor(containerId, options = {}) {
+    this.container = document.getElementById(containerId);
+    this.options = options;
     this.width = this.container.clientWidth || window.innerWidth;
     this.height = this.container.clientHeight || window.innerHeight;
-
+    
+    this.nodes = [];
+    this.links = [];
+    this.filteredNodes = [];
+    this.filteredLinks = [];
+    
     this.svg = null;
     this.g = null;
     this.simulation = null;
     this.zoom = null;
-
-    this.nodes = [];
-    this.links = [];
-    this.groupColorMap = new Map();
-    this.currentViewMode = 'holistic';
+    this.currentTransform = d3.zoomIdentity;
+    
     this.selectedNodeId = null;
     this.highlightedPath = null;
+    this.viewMode = 'holistic';
     this.sizeScaleEnabled = true;
 
+    this.onNodeClick = options.onNodeClick || null;
+    this.onLinkClick = options.onLinkClick || null;
+    
+    // Group Color Palette
+    this.groupColors = {
+      'samsung': '#3b82f6',
+      'sk': '#ef4444',
+      'hyundai_motor': '#0284c7',
+      'hd_hyundai': '#059669',
+      'lg': '#ec4899',
+      'gs': '#f59e0b',
+      'ls': '#84cc16',
+      'lotte': '#e11d48',
+      'hanwha': '#f97316',
+      'shinsegae': '#d97706',
+      'cj': '#dc2626',
+      'hanjin': '#2563eb',
+      'doosan': '#0891b2',
+      'hyosung': '#4f46e5',
+      'celltrion': '#10b981',
+      'naver': '#22c55e',
+      'kakao': '#eab308',
+      'tech_giants': '#a855f7',
+      'inlaw_alliances': '#a855f7',
+      'default': '#64748b'
+    };
+
     this.initSVG();
-    this.bindWindowResize();
-  }
-
-  setGroupColors(groups) {
-    this.groupColorMap.clear();
-    groups.forEach(g => {
-      this.groupColorMap.set(g.id, g.color || '#6366f1');
-    });
-  }
-
-  getNodeColor(node) {
-    if (this.groupColorMap.has(node.group)) {
-      return this.groupColorMap.get(node.group);
-    }
-    return '#6366f1';
-  }
-
-  /**
-   * Calculate node radius based on Asset / Market Cap / Wealth (Area proportional)
-   * Formula: Area = π * r^2  =>  r ∝ sqrt(Value)
-   */
-  getNodeRadius(node) {
-    if (!this.sizeScaleEnabled) {
-      return node.type === 'person' ? 22 : 26;
-    }
-
-    const val = node.val_trillion || 0.5;
-
-    if (node.type === 'person') {
-      // Wealth range: 0.2조 ~ 14조 (이재용 14조, 서정진 11조 등)
-      // Radius range: 18px ~ 36px
-      const minR = 18;
-      const maxR = 36;
-      const normalized = Math.sqrt(Math.min(val, 15) / 15);
-      return minR + normalized * (maxR - minR);
-    } else {
-      // Corporate valuation range: 0.3조 ~ 450조 (삼성전자 450조, 하이닉스 140조, 모비스 23조 등)
-      // Radius range: 20px ~ 48px
-      const minR = 20;
-      const maxR = 48;
-      const normalized = Math.sqrt(Math.min(val, 450) / 450);
-      return minR + normalized * (maxR - minR);
-    }
-  }
-
-  /**
-   * Calculate link stroke width based on stake percentage (0% ~ 100%) - 2x Boosted
-   */
-  getLinkWidth(link) {
-    if (link.type === 'circular') {
-      const stake = link.stake || 20;
-      return Math.max(7.0, Math.min(18.0, (Math.pow(stake / 100, 0.5) * 8 + 2) * 2));
-    }
-    if (link.type === 'ownership_corp' || link.type === 'ownership_person') {
-      const stake = link.stake || 5;
-      // 2배 적용: 1% -> 3px, 20% -> 8px, 50% -> 13px, 80%+ -> 19px
-      return Math.max(3.0, Math.min(20.0, (Math.pow(stake / 100, 0.55) * 9 + 1.2) * 2));
-    }
-    if (link.type === 'family') return 5.0;
-    if (link.type === 'marriage' || link.type === 'marriage_past') return 4.5;
-    return 3.6;
+    this.initTooltip();
+    this.initMinimap();
+    this.initResizeListener();
   }
 
   initSVG() {
@@ -121,69 +90,130 @@ export class NetworkGraphEngine {
     createMarker('arrow-circular', '#f43f5e');
     createMarker('arrow-family', '#a855f7');
     createMarker('arrow-marriage', '#ec4899');
-    createMarker('arrow-alliance', '#eab308');
     createMarker('arrow-highlight', '#38bdf8');
 
-    // Glow filter for holdings and super billionaires
+    // Drop shadow filter for nodes
     const filter = defs.append('filter')
-      .attr('id', 'glow')
-      .attr('x', '-50%')
-      .attr('y', '-50%')
-      .attr('width', '200%')
-      .attr('height', '200%');
-    filter.append('feGaussianBlur')
-      .attr('stdDeviation', '5')
+      .attr('id', 'node-shadow')
+      .attr('x', '-20%')
+      .attr('y', '-20%')
+      .attr('width', '140%')
+      .attr('height', '140%');
+    filter.append('feDropShadow')
+      .attr('dx', 0)
+      .attr('dy', 4)
+      .attr('stdDeviation', 6)
+      .attr('flood-color', '#000000')
+      .attr('flood-opacity', 0.4);
+
+    // Neon glow filter for holdings and circular nodes
+    const glow = defs.append('filter')
+      .attr('id', 'neon-glow')
+      .attr('x', '-40%')
+      .attr('y', '-40%')
+      .attr('width', '180%')
+      .attr('height', '180%');
+    glow.append('feGaussianBlur')
+      .attr('stdDeviation', 4.5)
       .attr('result', 'coloredBlur');
-    const feMerge = filter.append('feMerge');
+    const feMerge = glow.append('feMerge');
     feMerge.append('feMergeNode').attr('in', 'coloredBlur');
     feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
 
-    this.g = this.svg.append('g').attr('class', 'network-root-group');
+    // Main Graph Container
+    this.g = this.svg.append('g').attr('class', 'main-graph-group');
 
-    this.linkLayer = this.g.append('g').attr('class', 'links-layer');
-    this.linkLabelLayer = this.g.append('g').attr('class', 'link-labels-layer');
-    this.nodeLayer = this.g.append('g').attr('class', 'nodes-layer');
+    // Layer groups for precise z-indexing
+    this.clusterLayer = this.g.append('g').attr('class', 'cluster-layer');
+    this.linkLayer = this.g.append('g').attr('class', 'link-layer');
+    this.linkLabelLayer = this.g.append('g').attr('class', 'link-label-layer');
+    this.nodeLayer = this.g.append('g').attr('class', 'node-layer');
 
-    // Setup Zoom
+    // Zoom & Pan Behavior
     this.zoom = d3.zoom()
-      .scaleExtent([0.1, 4])
+      .scaleExtent([0.15, 4.0])
       .on('zoom', (event) => {
+        this.currentTransform = event.transform;
         this.g.attr('transform', event.transform);
+        this.updateMinimap();
       });
 
-    this.svg.call(this.zoom).on('dblclick.zoom', null);
-  }
+    this.svg.call(this.zoom);
 
-  bindWindowResize() {
-    window.addEventListener('resize', () => {
-      this.width = this.container.clientWidth;
-      this.height = this.container.clientHeight;
-      if (this.svg) {
-        this.svg.attr('viewBox', [0, 0, this.width, this.height]);
-      }
-      if (this.simulation) {
-        this.simulation.force('center', d3.forceCenter(this.width / 2, this.height / 2));
-        this.simulation.alpha(0.3).restart();
+    // Canvas background click resets selection
+    this.svg.on('click', (event) => {
+      if (event.target === this.svg.node()) {
+        this.clearHighlight();
+        if (typeof this.options.onCanvasClick === 'function') {
+          this.options.onCanvasClick();
+        }
       }
     });
   }
 
-  setData(data, viewMode = 'holistic') {
-    this.currentViewMode = viewMode;
-    this.nodes = data.nodes.map(d => ({ ...d }));
-    const nodeMap = new Map(this.nodes.map(n => [n.id, n]));
+  initTooltip() {
+    let tooltip = document.getElementById('graph-floating-tooltip');
+    if (!tooltip) {
+      tooltip = document.createElement('div');
+      tooltip.id = 'graph-floating-tooltip';
+      tooltip.className = 'graph-tooltip-box';
+      document.body.appendChild(tooltip);
+    }
+    this.tooltip = tooltip;
+  }
 
-    this.links = data.links
-      .map(d => {
-        const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
-        const targetId = typeof d.target === 'object' ? d.target.id : d.target;
-        return {
-          ...d,
-          source: sourceId,
-          target: targetId
-        };
-      })
-      .filter(l => nodeMap.has(l.source) && nodeMap.has(l.target));
+  initMinimap() {
+    this.minimapCanvas = document.getElementById('minimap-canvas');
+    if (!this.minimapCanvas) return;
+    this.minimapCtx = this.minimapCanvas.getContext('2d');
+  }
+
+  /**
+   * Calculate node radius proportional to asset / market cap ($A \propto \text{Value}$)
+   */
+  getNodeRadius(node) {
+    if (!this.sizeScaleEnabled) {
+      if (node.type === 'person') return 22;
+      if (node.is_holding) return 30;
+      return 25;
+    }
+
+    const val = node.val_trillion || 1.0;
+
+    if (node.type === 'person') {
+      const minR = 18;
+      const maxR = 38;
+      const normalized = Math.sqrt(Math.min(val, 20) / 20);
+      return minR + normalized * (maxR - minR);
+    } else {
+      const minR = 20;
+      const maxR = 48;
+      const normalized = Math.sqrt(Math.min(val, 450) / 450);
+      return minR + normalized * (maxR - minR);
+    }
+  }
+
+  /**
+   * Calculate link stroke width based on stake percentage (0% ~ 100%) - 2x Boosted
+   */
+  getLinkWidth(link) {
+    if (link.type === 'circular') {
+      const stake = link.stake || 20;
+      return Math.max(7.0, Math.min(18.0, (Math.pow(stake / 100, 0.5) * 8 + 2) * 2));
+    }
+    if (link.type === 'ownership_corp' || link.type === 'ownership_person') {
+      const stake = link.stake || 5;
+      return Math.max(3.0, Math.min(20.0, (Math.pow(stake / 100, 0.55) * 9 + 1.2) * 2));
+    }
+    if (link.type === 'family') return 5.0;
+    if (link.type === 'marriage' || link.type === 'marriage_past') return 4.5;
+    return 3.6;
+  }
+
+  setData(data, viewMode = 'holistic') {
+    this.viewMode = viewMode;
+    this.nodes = JSON.parse(JSON.stringify(data.nodes || []));
+    this.links = JSON.parse(JSON.stringify(data.links || []));
 
     this.render();
   }
@@ -193,231 +223,201 @@ export class NetworkGraphEngine {
       this.simulation.stop();
     }
 
-    // Force Simulation with Dynamic Radii and Collision Buffers
-    this.simulation = d3.forceSimulation(this.nodes)
-      .force('link', d3.forceLink(this.links).id(d => d.id).distance(d => {
-        const sourceR = this.getNodeRadius(d.source);
-        const targetR = this.getNodeRadius(d.target);
-        if (d.type === 'circular') return sourceR + targetR + 70;
-        if (d.type === 'family' || d.type === 'marriage') return sourceR + targetR + 50;
-        return sourceR + targetR + 80;
-      }).strength(0.65))
+    const nodes = this.nodes;
+    const links = this.links;
+
+    // Simulation forces setup with dynamic node collision based on radii
+    this.simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d => d.id).distance(d => {
+        if (d.type === 'circular') return 100;
+        if (d.type === 'family') return 80;
+        if (d.type === 'marriage' || d.type === 'marriage_past') return 95;
+        return 125;
+      }).strength(0.75))
       .force('charge', d3.forceManyBody().strength(d => {
         const r = this.getNodeRadius(d);
-        return d.is_holding ? -600 : (-r * 12);
+        return -r * 26;
       }))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2).strength(0.08))
-      .force('collision', d3.forceCollide().radius(d => this.getNodeRadius(d) + 16).strength(0.85));
+      .force('collide', d3.forceCollide().radius(d => this.getNodeRadius(d) + 18).iterations(3))
+      .force('x', d3.forceX(this.width / 2).strength(0.04))
+      .force('y', d3.forceY(this.height / 2).strength(0.04));
 
-    // Group cluster forces
-    if (this.currentViewMode === 'cluster') {
-      const groups = Array.from(new Set(this.nodes.map(n => n.group)));
-      const groupCenters = new Map();
-      const numGroups = groups.length;
-      const radius = Math.min(this.width, this.height) * 0.38;
-
-      groups.forEach((grp, idx) => {
-        const angle = (idx / numGroups) * 2 * Math.PI;
-        groupCenters.set(grp, {
-          x: this.width / 2 + radius * Math.cos(angle),
-          y: this.height / 2 + radius * Math.sin(angle)
-        });
-      });
-
-      this.simulation.force('groupCluster', alpha => {
-        this.nodes.forEach(node => {
-          const center = groupCenters.get(node.group);
-          if (center) {
-            node.vx += (center.x - node.x) * alpha * 0.35;
-            node.vy += (center.y - node.y) * alpha * 0.35;
-          }
-        });
-      });
+    // Specific Layout clustering based on viewMode
+    if (this.viewMode === 'cluster') {
+      this.simulation.force('cluster', this.forceCluster());
     }
 
     // --- Render Links ---
-    const linkSelection = this.linkLayer.selectAll('g.link-group')
-      .data(this.links, d => `${d.source.id || d.source}-${d.target.id || d.target}-${d.type}`);
+    const linkGroup = this.linkLayer.selectAll('g.link-group')
+      .data(links, d => `${d.source.id || d.source}-${d.target.id || d.target}-${d.type}`);
 
-    linkSelection.exit().remove();
+    linkGroup.exit().remove();
 
-    const linkEnter = linkSelection.enter().append('g')
+    const linkEnter = linkGroup.enter().append('g')
       .attr('class', 'link-group');
 
     linkEnter.append('path')
-      .attr('class', d => `link-path ${d.type === 'circular' ? 'circular-flow-edge' : ''}`)
+      .attr('class', d => `network-link ${d.type} ${d.highlight_loop ? 'circular-flow-edge' : ''}`)
       .attr('stroke', d => this.getLinkColor(d))
       .attr('stroke-width', d => this.getLinkWidth(d))
-      .attr('stroke-opacity', 0.65)
-      .attr('fill', 'none')
-      .attr('marker-end', d => this.getMarkerEnd(d));
+      .attr('marker-end', d => this.getMarkerEnd(d))
+      .attr('fill', 'none');
 
-    const linkGroup = linkEnter.merge(linkSelection);
+    const linkElements = linkEnter.merge(linkGroup);
 
-    // --- Render Link Label Badges (with high contrast background) ---
-    const labelSelection = this.linkLabelLayer.selectAll('g.link-label-group')
-      .data(this.links.filter(l => l.label), d => `${d.source.id || d.source}-${d.target.id || d.target}-${d.type}`);
+    // --- Render Link Labels (Badge pill) ---
+    const labelGroup = this.linkLabelLayer.selectAll('g.link-label-group')
+      .data(links.filter(l => l.stake || l.label), d => `${d.source.id || d.source}-${d.target.id || d.target}`);
 
-    labelSelection.exit().remove();
+    labelGroup.exit().remove();
 
-    const labelEnter = labelSelection.enter().append('g')
+    const labelEnter = labelGroup.enter().append('g')
       .attr('class', 'link-label-group');
 
     labelEnter.append('rect')
       .attr('class', 'link-label-bg')
       .attr('rx', 4)
       .attr('ry', 4)
-      .attr('fill', 'rgba(15, 23, 42, 0.85)')
-      .attr('stroke', d => d.type === 'circular' ? '#fb7185' : 'rgba(148, 163, 184, 0.3)')
+      .attr('fill', 'rgba(11, 15, 25, 0.88)')
+      .attr('stroke', d => this.getLinkColor(d))
       .attr('stroke-width', 1);
 
     labelEnter.append('text')
       .attr('class', 'link-label-text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.35em')
       .attr('font-size', '9.5px')
       .attr('font-weight', '700')
-      .attr('fill', d => d.type === 'circular' ? '#fb7185' : '#e2e8f0')
-      .attr('text-anchor', 'middle')
-      .attr('dy', 3.5)
-      .text(d => d.label || '');
+      .attr('fill', '#f1f5f9')
+      .text(d => d.stake ? `${d.stake}%` : (d.label || ''));
 
-    const labelGroup = labelEnter.merge(labelSelection);
+    const labelElements = labelEnter.merge(labelGroup);
 
     // --- Render Nodes ---
-    const nodeSelection = this.nodeLayer.selectAll('g.node-group')
-      .data(this.nodes, d => d.id);
+    const nodeGroup = this.nodeLayer.selectAll('g.node-group')
+      .data(nodes, d => d.id);
 
-    nodeSelection.exit().remove();
+    nodeGroup.exit().remove();
 
-    const nodeEnter = nodeSelection.enter().append('g')
-      .attr('class', 'node-group')
-      .attr('cursor', 'pointer')
-      .call(d3.drag()
-        .on('start', (event, d) => this.dragstarted(event, d))
-        .on('drag', (event, d) => this.dragged(event, d))
-        .on('end', (event, d) => this.dragended(event, d))
-      )
+    const nodeEnter = nodeGroup.enter().append('g')
+      .attr('class', d => `node-group node-${d.type} ${d.is_holding ? 'is-holding' : ''}`)
+      .call(this.drag(this.simulation))
       .on('click', (event, d) => {
         event.stopPropagation();
         this.selectNode(d);
       })
-      .on('mouseenter', (event, d) => this.handleNodeHover(d, true))
-      .on('mouseleave', (event, d) => this.handleNodeHover(d, false));
+      .on('mouseenter', (event, d) => {
+        this.handleNodeHover(d, true);
+        this.showTooltip(event, d);
+      })
+      .on('mousemove', (event, d) => {
+        this.moveTooltip(event);
+      })
+      .on('mouseleave', (event, d) => {
+        this.handleNodeHover(d, false);
+        this.hideTooltip();
+      });
 
-    // Dynamic shapes per node
-    nodeEnter.each((d, i, nodes) => {
-      const el = d3.select(nodes[i]);
-      const color = this.getNodeColor(d);
-      const r = this.getNodeRadius(d);
+    // Outer Aura Ring for Holding Companies
+    nodeEnter.filter(d => d.is_holding)
+      .append('circle')
+      .attr('class', 'holding-aura-ring')
+      .attr('r', d => this.getNodeRadius(d) + 7)
+      .attr('fill', 'none')
+      .attr('stroke', '#f59e0b')
+      .attr('stroke-width', 2.5)
+      .attr('stroke-dasharray', '6,3')
+      .attr('filter', 'url(#neon-glow)');
 
-      if (d.type === 'person') {
-        // Person Node: Circle with Avatar initial & proportional radius
-        el.append('circle')
-          .attr('class', 'node-shape')
-          .attr('r', r)
-          .attr('fill', '#1e293b')
-          .attr('stroke', color)
-          .attr('stroke-width', d.val_trillion >= 5 ? 3.5 : 2.5)
-          .attr('filter', d.val_trillion >= 4 ? 'url(#glow)' : null);
+    // Main Circle Node
+    nodeEnter.append('circle')
+      .attr('class', 'node-shape')
+      .attr('r', d => this.getNodeRadius(d))
+      .attr('fill', d => this.getNodeColor(d))
+      .attr('stroke', d => d.is_holding ? '#fbbf24' : '#ffffff')
+      .attr('stroke-width', d => d.is_holding ? 3.5 : 2.5)
+      .attr('filter', 'url(#node-shadow)');
 
-        el.append('text')
-          .attr('class', 'node-initial-text')
-          .attr('text-anchor', 'middle')
-          .attr('dy', r * 0.22)
-          .attr('font-size', `${Math.max(11, r * 0.45)}px`)
-          .attr('fill', '#f8fafc')
-          .attr('font-weight', 'bold')
-          .text(d.name.slice(-2));
-      } else {
-        // Company Node: Circle or Rounded Pill
-        el.append('circle')
-          .attr('class', 'node-shape')
-          .attr('r', r)
-          .attr('fill', d.is_holding ? '#1e1b4b' : '#0f172a')
-          .attr('stroke', d.is_holding ? '#f59e0b' : color)
-          .attr('stroke-width', d.is_holding ? 3.8 : 2.5)
-          .attr('filter', (d.is_holding || d.val_trillion >= 50) ? 'url(#glow)' : null);
+    // Inner Icon / Emoji
+    nodeEnter.append('text')
+      .attr('class', 'node-icon')
+      .attr('text-anchor', 'middle')
+      .attr('dy', d => d.type === 'person' ? '0.35em' : '0.35em')
+      .attr('font-size', d => `${Math.max(12, this.getNodeRadius(d) * 0.5)}px`)
+      .attr('pointer-events', 'none')
+      .text(d => {
+        if (d.type === 'person') return '👤';
+        if (d.is_holding) return '👑';
+        return '🏢';
+      });
 
-        // Holding crown / top badge
-        if (d.is_holding) {
-          el.append('circle')
-            .attr('cx', r * 0.65)
-            .attr('cy', -r * 0.65)
-            .attr('r', 6.5)
-            .attr('fill', '#f59e0b')
-            .attr('stroke', '#ffffff')
-            .attr('stroke-width', 1.5);
-        }
+    // Node Title Label (Below)
+    const textGroup = nodeEnter.append('g')
+      .attr('class', 'node-label-wrap')
+      .attr('transform', d => `translate(0, ${this.getNodeRadius(d) + 14})`);
 
-        // Inner company icon/name
-        el.append('text')
-          .attr('class', 'node-corp-center-text')
-          .attr('text-anchor', 'middle')
-          .attr('dy', 4)
-          .attr('font-size', `${Math.max(10, r * 0.36)}px`)
-          .attr('font-weight', '800')
-          .attr('fill', d.is_holding ? '#fbbf24' : '#ffffff')
-          .text(d.name.length > 5 ? d.name.slice(0, 4) + '..' : d.name);
-      }
+    textGroup.append('text')
+      .attr('class', 'node-label-bg')
+      .attr('text-anchor', 'middle')
+      .attr('stroke', '#090d16')
+      .attr('stroke-width', 4)
+      .attr('stroke-linejoin', 'round')
+      .attr('font-size', '11.5px')
+      .attr('font-weight', '700')
+      .text(d => d.name);
 
-      // Bottom Name Label
-      el.append('text')
-        .attr('class', 'node-title-label')
-        .attr('text-anchor', 'middle')
-        .attr('dy', r + 14)
-        .attr('font-size', `${Math.max(10.5, Math.min(14, r * 0.38))}px`)
-        .attr('font-weight', '700')
-        .attr('fill', '#f8fafc')
-        .attr('filter', 'drop-shadow(0px 2px 4px rgba(0,0,0,0.8))')
-        .text(d.name);
+    textGroup.append('text')
+      .attr('class', 'node-label')
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#ffffff')
+      .attr('font-size', '11.5px')
+      .attr('font-weight', '700')
+      .text(d => d.name);
 
-      // Sub-label (title / market cap)
-      el.append('text')
-        .attr('class', 'node-sub-label')
-        .attr('text-anchor', 'middle')
-        .attr('dy', r + 26)
-        .attr('font-size', '9.5px')
-        .attr('font-weight', '600')
-        .attr('fill', d.type === 'person' ? '#94a3b8' : '#34d399')
-        .attr('filter', 'drop-shadow(0px 1px 3px rgba(0,0,0,0.9))')
-        .text(d.type === 'person' ? (d.wealth_est || d.title) : (d.market_cap || ''));
-    });
+    // Subtitle (Valuation / Stake / Role)
+    textGroup.append('text')
+      .attr('class', 'node-sublabel')
+      .attr('text-anchor', 'middle')
+      .attr('y', 13)
+      .attr('fill', '#94a3b8')
+      .attr('font-size', '9px')
+      .attr('font-weight', '500')
+      .text(d => d.val_trillion ? `${d.val_trillion}조` : (d.industry || d.title || ''));
 
-    const nodeGroup = nodeEnter.merge(nodeSelection);
+    const nodeElements = nodeEnter.merge(nodeGroup);
 
-    // Simulation Tick Listener with Precise Edge Trimming to Circle Borders
+    // --- Simulation Tick Handler ---
     this.simulation.on('tick', () => {
-      linkGroup.select('path').attr('d', d => {
-        const sourceR = this.getNodeRadius(d.source);
-        const targetR = this.getNodeRadius(d.target);
-
-        const dx = d.target.x - d.source.x;
-        const dy = d.target.y - d.source.y;
+      // Trim path to stop precisely at node boundaries
+      linkElements.select('path').attr('d', d => {
+        const sx = d.source.x, sy = d.source.y;
+        const tx = d.target.x, ty = d.target.y;
+        const dx = tx - sx, dy = ty - sy;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist === 0) return '';
+        if (dist === 0) return `M${sx},${sy}L${tx},${ty}`;
 
-        // Calculate exact touch points on source and target circle boundaries
-        const sx = d.source.x + (dx * sourceR) / dist;
-        const sy = d.source.y + (dy * sourceR) / dist;
-        const tx = d.target.x - (dx * (targetR + 4)) / dist;
-        const ty = d.target.y - (dy * (targetR + 4)) / dist;
+        const sourceR = this.getNodeRadius(d.source) + 2;
+        const targetR = this.getNodeRadius(d.target) + 10;
 
-        if (d.type === 'circular' || d.type === 'marriage') {
-          const dr = dist * 1.25;
-          return `M${sx},${sy}A${dr},${dr} 0 0,1 ${tx},${ty}`;
-        }
-        return `M${sx},${sy}L${tx},${ty}`;
+        const startX = sx + (dx * sourceR) / dist;
+        const startY = sy + (dy * sourceR) / dist;
+        const endX = tx - (dx * targetR) / dist;
+        const endY = ty - (dy * targetR) / dist;
+
+        return `M${startX},${startY}L${endX},${endY}`;
       });
 
       // Position Link Labels
-      labelGroup.attr('transform', d => {
+      labelElements.attr('transform', d => {
         const x = (d.source.x + d.target.x) / 2;
         const y = (d.source.y + d.target.y) / 2;
         return `translate(${x},${y})`;
       });
 
       // Update Label Bounding Boxes
-      labelGroup.each(function() {
+      labelElements.each(function() {
         const group = d3.select(this);
         const textNode = group.select('text').node();
         if (textNode) {
@@ -430,10 +430,121 @@ export class NetworkGraphEngine {
         }
       });
 
-      nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
+      nodeElements.attr('transform', d => `translate(${d.x},${d.y})`);
+
+      this.updateMinimap();
     });
 
     this.simulation.alpha(1).restart();
+  }
+
+  showTooltip(event, node) {
+    if (!this.tooltip) return;
+    
+    const roleText = node.title || node.industry || node.role || '';
+    const valText = node.val_trillion ? `자산/가치: 약 ${node.val_trillion}조 원` : '';
+    const groupName = (node.group || '').toUpperCase();
+
+    this.tooltip.innerHTML = `
+      <div class="tooltip-header">
+        <span class="tooltip-badge" style="background:${this.getNodeColor(node)};">${groupName}</span>
+        <strong>${node.name}</strong>
+      </div>
+      <div class="tooltip-sub">${roleText}</div>
+      ${valText ? `<div class="tooltip-val">${valText}</div>` : ''}
+      <div class="tooltip-desc">${node.desc ? node.desc.slice(0, 75) + '...' : ''}</div>
+    `;
+    this.tooltip.style.display = 'block';
+    this.moveTooltip(event);
+  }
+
+  moveTooltip(event) {
+    if (!this.tooltip) return;
+    const x = event.clientX + 14;
+    const y = event.clientY + 14;
+    this.tooltip.style.left = `${x}px`;
+    this.tooltip.style.top = `${y}px`;
+  }
+
+  hideTooltip() {
+    if (this.tooltip) {
+      this.tooltip.style.display = 'none';
+    }
+  }
+
+  updateMinimap() {
+    if (!this.minimapCanvas || !this.minimapCtx) return;
+    const ctx = this.minimapCtx;
+    const w = this.minimapCanvas.width;
+    const h = this.minimapCanvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    if (this.nodes.length === 0) return;
+
+    // Calculate bounding box of all nodes
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    this.nodes.forEach(n => {
+      if (n.x < minX) minX = n.x;
+      if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.y > maxY) maxY = n.y;
+    });
+
+    const padding = 100;
+    minX -= padding; maxX += padding;
+    minY -= padding; maxY += padding;
+
+    const dataW = Math.max(100, maxX - minX);
+    const dataH = Math.max(100, maxY - minY);
+    const scale = Math.min(w / dataW, h / dataH);
+
+    const mapX = (x) => (x - minX) * scale;
+    const mapY = (y) => (y - minY) * scale;
+
+    // Draw Links on Minimap
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 1;
+    this.links.forEach(l => {
+      if (l.source.x && l.target.x) {
+        ctx.beginPath();
+        ctx.moveTo(mapX(l.source.x), mapY(l.source.y));
+        ctx.lineTo(mapX(l.target.x), mapY(l.target.y));
+        ctx.stroke();
+      }
+    });
+
+    // Draw Nodes on Minimap
+    this.nodes.forEach(n => {
+      if (n.x && n.y) {
+        ctx.fillStyle = this.getNodeColor(n);
+        ctx.beginPath();
+        ctx.arc(mapX(n.x), mapY(n.y), n.is_holding ? 3.5 : 2, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    });
+
+    // Draw Viewport Box
+    const t = this.currentTransform;
+    const viewLeft = -t.x / t.k;
+    const viewTop = -t.y / t.k;
+    const viewRight = (this.width - t.x) / t.k;
+    const viewBottom = (this.height - t.y) / t.k;
+
+    const vx = mapX(viewLeft);
+    const vy = mapY(viewTop);
+    const vw = (viewRight - viewLeft) * scale;
+    const vh = (viewBottom - viewTop) * scale;
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+    ctx.fillRect(vx, vy, vw, vh);
+    ctx.strokeRect(vx, vy, vw, vh);
+  }
+
+  getNodeColor(node) {
+    return this.groupColors[node.group] || this.groupColors['default'];
   }
 
   getLinkColor(d) {
@@ -556,8 +667,8 @@ export class NetworkGraphEngine {
     this.nodeLayer.selectAll('g.node-group')
       .attr('opacity', 1)
       .select('circle.node-shape')
-      .attr('stroke', d => d.is_holding ? '#f59e0b' : this.getNodeColor(d))
-      .attr('stroke-width', d => d.is_holding ? 3.8 : 2.5);
+      .attr('stroke', d => d.is_holding ? '#fbbf24' : '#ffffff')
+      .attr('stroke-width', d => d.is_holding ? 3.5 : 2.5);
 
     this.linkLayer.selectAll('g.link-group')
       .attr('opacity', 1)
@@ -578,68 +689,65 @@ export class NetworkGraphEngine {
   }
 
   resetZoom() {
-    this.svg.transition().duration(500).call(
-      this.zoom.transform,
-      d3.zoomIdentity.translate(0, 0).scale(1)
-    );
-  }
-
-  centerNode(nodeId) {
-    const node = this.nodes.find(n => n.id === nodeId);
-    if (!node) return;
-
-    const scale = 1.3;
-    const x = this.width / 2 - node.x * scale;
-    const y = this.height / 2 - node.y * scale;
-
-    this.svg.transition().duration(600).call(
-      this.zoom.transform,
-      d3.zoomIdentity.translate(x, y).scale(scale)
-    );
+    this.svg.transition().duration(500).call(this.zoom.transform, d3.zoomIdentity);
   }
 
   exportPNG() {
-    const svgElement = this.svg.node();
-    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const svgEl = document.getElementById('network-svg');
+    const svgString = new XMLSerializer().serializeToString(svgEl);
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-
     canvas.width = this.width * 2;
     canvas.height = this.height * 2;
-    ctx.scale(2, 2);
-
+    const ctx = canvas.getContext('2d');
+    
+    const img = new Image();
     const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
       ctx.fillStyle = '#0b0f19';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
 
       const a = document.createElement('a');
-      a.download = 'korean_chaebol_network.png';
+      a.download = `korean_conglomerate_network_${Date.now()}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
     };
     img.src = url;
   }
 
-  dragstarted(event, d) {
-    if (!event.active) this.simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
+  initResizeListener() {
+    window.addEventListener('resize', () => {
+      this.width = this.container.clientWidth || window.innerWidth;
+      this.height = this.container.clientHeight || window.innerHeight;
+      this.svg.attr('viewBox', [0, 0, this.width, this.height]);
+      if (this.simulation) {
+        this.simulation.force('center', d3.forceCenter(this.width / 2, this.height / 2));
+        this.simulation.alpha(0.3).restart();
+      }
+    });
   }
 
-  dragged(event, d) {
-    d.fx = event.x;
-    d.fy = event.y;
-  }
-
-  dragended(event, d) {
-    if (!event.active) this.simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
+  drag(simulation) {
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+    return d3.drag()
+      .on('start', dragstarted)
+      .on('drag', dragged)
+      .on('end', dragended);
   }
 }

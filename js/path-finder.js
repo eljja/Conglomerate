@@ -1,6 +1,6 @@
 /**
- * 대한민국 대기업 네트워크 - 6단계 인맥/지분 경로 탐색기 (Path Finder)
- * BFS & Dijkstra 최단 경로 탐색 알고리즘
+ * 대한민국 대기업 네트워크 - 6단계 인맥/지분 경로 탐색기 (Path Finder v2.0)
+ * BFS & Dijkstra 최단 경로 탐색 알고리즘 + 다중 경로 모드(통합/지분/혼맥)
  */
 
 export class PathFinder {
@@ -51,13 +51,17 @@ export class PathFinder {
 
   /**
    * Find shortest path between startNodeId and endNodeId using BFS
+   * @param {string} startNodeId
+   * @param {string} endNodeId
+   * @param {string} filterMode 'all' | 'ownership' | 'family'
    */
-  findShortestPath(startNodeId, endNodeId) {
+  findShortestPath(startNodeId, endNodeId, filterMode = 'all') {
     if (!startNodeId || !endNodeId) return null;
     if (startNodeId === endNodeId) {
       return {
         found: true,
         distance: 0,
+        nodeIds: [startNodeId],
         nodes: [this.nodeMap.get(startNodeId)],
         links: [],
         steps: []
@@ -70,19 +74,27 @@ export class PathFinder {
 
     const queue = [[startNodeId]];
     const visited = new Set([startNodeId]);
-    const linkPathMap = new Map(); // targetId -> link used to reach it
+    const linkPathMap = new Map(); // 'u->v' -> edge
 
     while (queue.length > 0) {
       const currentPath = queue.shift();
       const currentNodeId = currentPath[currentPath.length - 1];
 
       if (currentNodeId === endNodeId) {
-        // Path found! Reconstruct steps
         return this.reconstructPath(currentPath, linkPathMap);
       }
 
       const neighbors = this.adjacency.get(currentNodeId) || [];
       for (const edge of neighbors) {
+        const link = edge.link;
+        
+        // Check filter mode
+        if (filterMode === 'ownership') {
+          if (!['ownership_corp', 'ownership_person', 'circular'].includes(link.type)) continue;
+        } else if (filterMode === 'family') {
+          if (!['family', 'marriage', 'marriage_past'].includes(link.type)) continue;
+        }
+
         const neighborId = edge.target;
         if (!visited.has(neighborId)) {
           visited.add(neighborId);
@@ -92,7 +104,8 @@ export class PathFinder {
       }
     }
 
-    return { found: false, error: '두 대상 간의 직접적인 연결 경로를 찾을 수 없습니다.' };
+    const modeLabel = filterMode === 'ownership' ? '지분 출자 관계' : filterMode === 'family' ? '혈연/혼맥 관계' : '전체 네트워크';
+    return { found: false, error: `${modeLabel} 내에서 두 대상 간의 직접적인 연결 경로를 찾을 수 없습니다.` };
   }
 
   reconstructPath(nodeIds, linkPathMap) {
@@ -104,41 +117,24 @@ export class PathFinder {
       const u = nodeIds[i];
       const v = nodeIds[i + 1];
       const edge = linkPathMap.get(`${u}->${v}`);
-      const link = edge ? edge.link : null;
-
-      if (link) {
-        links.push(link);
+      if (edge) {
+        links.push(edge.link);
         const sourceNode = this.nodeMap.get(u);
         const targetNode = this.nodeMap.get(v);
-
-        let relationDesc = link.label || link.type;
-        if (link.type === 'ownership_corp' || link.type === 'ownership_person') {
-          relationDesc = edge.direction === 'forward' 
-            ? `➔ [${link.label}] 지분 보유 ➔`
-            : `➔ [${link.label}] 지분 피소유 ➔`;
-        } else if (link.type === 'circular') {
-          relationDesc = `🔄 [${link.label}] 순환출자 ➔`;
-        } else if (link.type === 'family') {
-          relationDesc = `👨‍👩‍👧‍👦 [${link.label}] ➔`;
-        } else if (link.type === 'marriage' || link.type === 'marriage_past') {
-          relationDesc = `💍 [${link.label}] ➔`;
-        } else {
-          relationDesc = `🔗 [${link.label || '연결'}] ➔`;
-        }
-
         steps.push({
           from: sourceNode,
           to: targetNode,
-          link: link,
+          link: edge.link,
           direction: edge.direction,
-          description: relationDesc
+          label: edge.link.label || '연결',
+          desc: edge.link.desc || ''
         });
       }
     }
 
     return {
       found: true,
-      distance: nodes.length - 1,
+      distance: steps.length,
       nodeIds: nodeIds,
       nodes: nodes,
       links: links,

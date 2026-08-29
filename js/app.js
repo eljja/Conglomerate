@@ -1,11 +1,12 @@
 /**
- * 대한민국 대기업 네트워크 시각화 플랫폼 - 메인 애플리케이션 엔트리포인트
- * 100% Static & GitHub Pages Ready
+ * 대한민국 대기업 네트워크 시각화 플랫폼 - 메인 애플리케이션 엔트리포인트 (v2.0)
+ * 100% Client-Side Static & GitHub Pages Ready
  */
 
-import { NetworkGraphEngine } from './network-graph.js';
+import { NetworkGraph } from './network-graph.js';
 import { FilterManager } from './filters.js';
 import { PathFinder } from './path-finder.js';
+import { AnalyticsEngine } from './analytics.js';
 import { UIController } from './ui-controller.js';
 
 class ChaebolApp {
@@ -17,34 +18,39 @@ class ChaebolApp {
     this.graphEngine = null;
     this.filterManager = null;
     this.pathFinder = null;
+    this.analyticsEngine = null;
     this.uiController = null;
   }
 
   async init() {
     try {
-      console.log('🚀 Loading Chaebol Network Data...');
+      console.log('🚀 Loading Chaebol Network Data v2.0...');
       await this.loadData();
 
       // Initialize Core Modules
-      this.graphEngine = new NetworkGraphEngine('#graph-canvas-container', (node) => {
-        this.uiController.showInspector(node);
+      this.graphEngine = new NetworkGraph('graph-canvas-container', {
+        onNodeClick: (node) => this.uiController.showInspector(node),
+        onCanvasClick: () => this.uiController.closeInspector()
       });
 
       this.pathFinder = new PathFinder(this.networkData);
+      this.analyticsEngine = new AnalyticsEngine(this.networkData.nodes, this.networkData.links);
 
       this.filterManager = new FilterManager(this.networkData, (filteredData, filterState) => {
         this.graphEngine.setData(filteredData, filterState.viewMode);
+        this.analyticsEngine.updateData(filteredData.nodes, filteredData.links);
+        this.uiController.updateKPICounters();
       });
 
       this.uiController = new UIController(this);
 
       // Populate Filters & UI
       if (this.summaryData && this.summaryData.groups) {
-        this.graphEngine.setGroupColors(this.summaryData.groups);
         this.uiController.populateGroupFilters(this.summaryData.groups);
       }
 
       this.uiController.populatePathOptions(this.networkData.nodes || []);
+      this.uiController.updateKPICounters();
       this.bindTabNavigation();
 
       // Initial Graph Render
@@ -54,12 +60,15 @@ class ChaebolApp {
       console.log('✨ Chaebol Network Visualization Engine Ready!');
     } catch (err) {
       console.error('Failed to initialize ChaebolApp:', err);
-      document.getElementById('graph-canvas-container').innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #f43f5e; padding: 20px; text-align: center;">
-          <h2 style="font-size: 1.3rem; margin-bottom: 10px;">데이터 로드 중 오류가 발생했습니다.</h2>
-          <p style="color: #94a3b8; font-size: 0.9rem;">${err.message}</p>
-        </div>
-      `;
+      const container = document.getElementById('graph-canvas-container');
+      if (container) {
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #f43f5e; padding: 20px; text-align: center;">
+            <h2 style="font-size: 1.3rem; margin-bottom: 10px;">데이터 로드 중 오류가 발생했습니다.</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem;">${err.message}</p>
+          </div>
+        `;
+      }
     }
   }
 

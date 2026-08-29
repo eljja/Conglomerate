@@ -1,5 +1,5 @@
 /**
- * 대한민국 대기업 네트워크 - UI 컨트롤러 & 인터랙션 매니저
+ * 대한민국 대기업 네트워크 - UI 컨트롤러 & 인터랙션 매니저 (v2.0 Advanced)
  */
 
 export class UIController {
@@ -111,6 +111,23 @@ export class UIController {
     }
   }
 
+  updateKPICounters() {
+    if (!this.app.analyticsEngine) return;
+    const kpi = this.app.analyticsEngine.getMacroKPIs();
+    
+    const elGroups = document.getElementById('kpi-total-groups');
+    const elCompanies = document.getElementById('kpi-total-companies');
+    const elPeople = document.getElementById('kpi-total-people');
+    const elLoops = document.getElementById('kpi-total-loops');
+    const elCapital = document.getElementById('kpi-total-capital');
+
+    if (elGroups) elGroups.textContent = `${kpi.totalGroups}개`;
+    if (elCompanies) elCompanies.textContent = `${kpi.totalCompanies}개사`;
+    if (elPeople) elPeople.textContent = `${kpi.totalPeople}명`;
+    if (elLoops) elLoops.textContent = `${kpi.circularCount}개 고리`;
+    if (elCapital) elCapital.textContent = `${kpi.totalValTrillion}조 원`;
+  }
+
   // Populate Groups in Filter Sidebar
   populateGroupFilters(groups) {
     const container = document.getElementById('group-pill-container');
@@ -149,263 +166,208 @@ export class UIController {
     const endSelect = document.getElementById('path-end-select');
     if (!startSelect || !endSelect) return;
 
-    startSelect.innerHTML = '<option value="">출발 대상 선택...</option>';
-    endSelect.innerHTML = '<option value="">도착 대상 선택...</option>';
+    startSelect.innerHTML = '';
+    endSelect.innerHTML = '';
 
-    // Sort by name
     const sortedNodes = [...nodes].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
-    sortedNodes.forEach(n => {
+    sortedNodes.forEach(node => {
       const opt1 = document.createElement('option');
-      opt1.value = n.id;
-      opt1.textContent = `${n.type === 'person' ? '👤' : '🏢'} ${n.name} (${n.title || n.group})`;
+      opt1.value = node.id;
+      opt1.textContent = `${node.type === 'person' ? '👤' : '🏢'} ${node.name} (${node.group || ''})`;
       startSelect.appendChild(opt1);
 
       const opt2 = document.createElement('option');
-      opt2.value = n.id;
-      opt2.textContent = `${n.type === 'person' ? '👤' : '🏢'} ${n.name} (${n.title || n.group})`;
+      opt2.value = node.id;
+      opt2.textContent = `${node.type === 'person' ? '👤' : '🏢'} ${node.name} (${node.group || ''})`;
       endSelect.appendChild(opt2);
     });
 
-    // Default suggestions
-    startSelect.value = 'p_lee_jae_yong'; // 이재용
-    endSelect.value = 'p_bang_si_hyuk'; // 방시혁
+    // Default pre-select: 이재용 -> 최태원 or 현대차
+    startSelect.value = 'p_lee_jae_yong';
+    endSelect.value = 'p_chey_tae_won';
   }
 
-  // Search Autocomplete
+  // Search Autocomplete Handler
   handleSearchInput(query) {
-    const cleanQuery = (query || '').trim().toLowerCase();
-    if (!cleanQuery) {
+    if (!query || query.trim().length === 0) {
       this.searchResultsDropdown.style.display = 'none';
       return;
     }
 
-    const allNodes = this.app.networkData.nodes || [];
-    const matched = allNodes.filter(n => 
-      n.name.toLowerCase().includes(cleanQuery) ||
-      (n.title && n.title.toLowerCase().includes(cleanQuery)) ||
-      (n.group && n.group.toLowerCase().includes(cleanQuery))
+    const q = query.trim().toLowerCase();
+    const nodes = this.app.networkData.nodes || [];
+    const matches = nodes.filter(n => 
+      n.name.toLowerCase().includes(q) ||
+      (n.industry && n.industry.toLowerCase().includes(q)) ||
+      (n.title && n.title.toLowerCase().includes(q)) ||
+      (n.group && n.group.toLowerCase().includes(q))
     ).slice(0, 8);
 
-    if (matched.length === 0) {
-      this.searchResultsDropdown.innerHTML = `
-        <div style="padding: 12px; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
-          일치하는 검색 결과가 없습니다.
-        </div>
-      `;
-    } else {
-      this.searchResultsDropdown.innerHTML = '';
-      matched.forEach(n => {
-        const item = document.createElement('div');
-        item.className = 'search-result-item';
-        item.innerHTML = `
-          <div>
-            <div style="font-weight: 700; font-size: 0.85rem;">${n.type === 'person' ? '👤' : '🏢'} ${n.name}</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">${n.title || n.industry || n.group}</div>
-          </div>
-          <span class="badge badge-group">${n.group}</span>
-        `;
-        item.addEventListener('click', () => {
-          this.searchResultsDropdown.style.display = 'none';
-          this.searchInput.value = n.name;
-          this.app.graphEngine.centerNode(n.id);
-          this.showInspector(n);
-        });
-        this.searchResultsDropdown.appendChild(item);
-      });
+    if (matches.length === 0) {
+      this.searchResultsDropdown.innerHTML = `<div class="search-result-item" style="color: var(--text-muted);">검색 결과가 없습니다.</div>`;
+      this.searchResultsDropdown.style.display = 'block';
+      return;
     }
 
+    this.searchResultsDropdown.innerHTML = matches.map(m => `
+      <div class="search-result-item" data-node-id="${m.id}">
+        <span style="font-size: 1rem;">${m.type === 'person' ? '👤' : m.is_holding ? '👑' : '🏢'}</span>
+        <div>
+          <div style="font-weight: 700;">${m.name} <span style="font-size: 0.75rem; color: var(--text-muted);">(${m.group || ''})</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary);">${m.title || m.industry || ''}</div>
+        </div>
+      </div>
+    `).join('');
+
     this.searchResultsDropdown.style.display = 'block';
+
+    this.searchResultsDropdown.querySelectorAll('.search-result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const nodeId = item.getAttribute('data-node-id');
+        const targetNode = nodes.find(n => n.id === nodeId);
+        if (targetNode) {
+          this.showInspector(targetNode);
+          this.app.graphEngine.selectNode(targetNode);
+        }
+        this.searchResultsDropdown.style.display = 'none';
+        this.searchInput.value = targetNode.name;
+      });
+    });
   }
 
-  // Open Inspector Drawer
+  // Show Inspector Panel for Selected Node
   showInspector(node) {
+    if (!this.inspectorDrawer) return;
+
     this.inspectorDrawer.classList.remove('closed');
-    const content = document.getElementById('inspector-dynamic-content');
-    if (!content) return;
+    const container = document.getElementById('inspector-dynamic-content');
+    if (!container) return;
 
     const groupColor = this.app.graphEngine.getNodeColor(node);
     const links = this.app.networkData.links || [];
 
-    // Filter outgoing & incoming connections
-    const outgoing = links.filter(l => (l.source.id || l.source) === node.id);
-    const incoming = links.filter(l => (l.target.id || l.target) === node.id);
+    // Filter connections
+    const connectedLinks = links.filter(l => {
+      const sId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tId = typeof l.target === 'object' ? l.target.id : l.target;
+      return sId === node.id || tId === node.id;
+    });
 
-    // Build Node Map for easy lookup
-    const nodeMap = new Map(this.app.networkData.nodes.map(n => [n.id, n]));
+    const isPerson = node.type === 'person';
 
-    content.innerHTML = `
+    container.innerHTML = `
       <div class="profile-card">
         <div class="profile-top">
-          <div class="profile-avatar" style="background: linear-gradient(135deg, ${groupColor}, #1e293b)">
-            ${node.type === 'person' ? '👤' : (node.is_holding ? '👑' : '🏢')}
+          <div class="profile-avatar" style="background: ${groupColor};">
+            ${isPerson ? '👤' : node.is_holding ? '👑' : '🏢'}
           </div>
           <div class="profile-title-area">
             <h2>${node.name}</h2>
-            <p>${node.title || (node.is_holding ? '그룹 지주회사' : '주요 계열사')}</p>
+            <p>${node.title || node.industry || ''}</p>
           </div>
         </div>
 
         <div class="profile-badge-row">
-          <span class="badge badge-group" style="border-color: ${groupColor}; color: ${groupColor}">${node.group.toUpperCase()}</span>
+          <span class="badge badge-group" style="background: ${groupColor}22; color: ${groupColor}; border-color: ${groupColor}44;">
+            ${(node.group || '').toUpperCase()}
+          </span>
+          ${node.is_holding ? '<span class="badge badge-holding">지주회사 (Holding)</span>' : ''}
           ${node.generation ? `<span class="badge badge-gen">${node.generation}</span>` : ''}
-          ${node.is_holding ? `<span class="badge badge-holding">지주회사</span>` : ''}
-          ${node.role ? `<span class="badge" style="background: rgba(255,255,255,0.1); color: #fff">${node.role}</span>` : ''}
         </div>
 
-        ${(node.wealth_est || node.market_cap) ? `
-          <div class="metric-grid">
+        <div class="metric-grid">
+          ${node.val_trillion ? `
             <div class="metric-box">
-              <label>${node.type === 'person' ? '추정 지분 평가액' : '시가총액 / 기업가치'}</label>
-              <value>${node.wealth_est || node.market_cap}</value>
+              <label>${isPerson ? '추정 주식 평가액' : '시가총액 / 기업가치'}</label>
+              <value>약 ${node.val_trillion}조 원</value>
             </div>
+          ` : ''}
+          ${node.market_cap ? `
             <div class="metric-box">
-              <label>연결 관계 수</label>
-              <value>${outgoing.length + incoming.length}개</value>
+              <label>공시 시가총액</label>
+              <value>${node.market_cap}</value>
             </div>
+          ` : ''}
+          <div class="metric-box">
+            <label>연결 네트워크 수</label>
+            <value style="color: var(--accent-blue);">${connectedLinks.length}개 관계</value>
           </div>
-        ` : ''}
+        </div>
 
         <div class="profile-bio">
-          ${node.desc || '대한민국 주요 대기업 지배구조 네트워크 구성원'}
-        </div>
-
-        <div style="display: flex; gap: 8px; margin-top: 6px;">
-          <button id="set-path-start-btn" class="path-btn" style="flex: 1; font-size: 0.75rem; padding: 6px;">
-            🚩 출발지로 지정
-          </button>
-          <button id="set-path-end-btn" class="path-btn" style="flex: 1; font-size: 0.75rem; padding: 6px; background: linear-gradient(135deg, #10b981, #059669)">
-            🎯 도착지로 지정
-          </button>
+          ${node.desc || '등록된 상세 설명 정보가 없습니다.'}
         </div>
       </div>
 
-      <!-- Outgoing Connections -->
-      ${outgoing.length > 0 ? `
-        <div>
-          <div class="section-title">
-            <span>📤 소유 지분 및 가족/하위 관계 (${outgoing.length})</span>
-          </div>
-          <div class="conn-list">
-            ${outgoing.map(l => {
-              const targetNode = nodeMap.get(l.target.id || l.target);
-              if (!targetNode) return '';
-              return `
-                <div class="conn-card" data-node-id="${targetNode.id}">
-                  <div class="conn-left">
-                    <span class="conn-tag ${this.getLinkTagClass(l.type)}">${this.getLinkTagLabel(l.type)}</span>
-                    <div>
-                      <div class="conn-name">${targetNode.name}</div>
-                      <div class="conn-sub">${targetNode.title || targetNode.industry || targetNode.group}</div>
-                    </div>
-                  </div>
-                  <div class="conn-right">
-                    <div class="conn-value">${l.label || ''}</div>
-                    ${l.amount_krw ? `<div class="conn-sub">${l.amount_krw}</div>` : ''}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
+      <!-- Connections Section -->
+      <div>
+        <div class="section-title">
+          <span>🔗 연결된 지분 및 인맥 관계 (${connectedLinks.length})</span>
         </div>
-      ` : ''}
+        <div class="conn-list">
+          ${connectedLinks.map(link => {
+            const sId = typeof link.source === 'object' ? link.source.id : link.source;
+            const tId = typeof link.target === 'object' ? link.target.id : link.target;
+            const isSource = sId === node.id;
+            const otherId = isSource ? tId : sId;
+            const otherNode = this.app.networkData.nodes.find(n => n.id === otherId) || { name: otherId };
 
-      <!-- Incoming Connections -->
-      ${incoming.length > 0 ? `
-        <div>
-          <div class="section-title">
-            <span>📥 피소유 지분 및 부모/상위 관계 (${incoming.length})</span>
-          </div>
-          <div class="conn-list">
-            ${incoming.map(l => {
-              const sourceNode = nodeMap.get(l.source.id || l.source);
-              if (!sourceNode) return '';
-              return `
-                <div class="conn-card" data-node-id="${sourceNode.id}">
-                  <div class="conn-left">
-                    <span class="conn-tag ${this.getLinkTagClass(l.type)}">${this.getLinkTagLabel(l.type)}</span>
-                    <div>
-                      <div class="conn-name">${sourceNode.name}</div>
-                      <div class="conn-sub">${sourceNode.title || sourceNode.industry || sourceNode.group}</div>
-                    </div>
-                  </div>
-                  <div class="conn-right">
-                    <div class="conn-value">${l.label || ''}</div>
-                    ${l.amount_krw ? `<div class="conn-sub">${l.amount_krw}</div>` : ''}
+            const tagClass = link.type.includes('ownership') ? 'ownership' : link.type === 'circular' ? 'circular' : link.type === 'marriage' ? 'marriage' : 'family';
+            const tagLabel = link.type === 'circular' ? '순환출자' : link.type.includes('ownership') ? (isSource ? '출자 ➔' : '피출자 ⬅') : link.type === 'marriage' ? '혼맥' : '혈연';
+
+            return `
+              <div class="conn-card" data-node-id="${otherNode.id}">
+                <div class="conn-left">
+                  <span class="conn-tag ${tagClass}">${tagLabel}</span>
+                  <div>
+                    <div class="conn-name">${otherNode.name}</div>
+                    <div class="conn-sub">${link.desc || ''}</div>
                   </div>
                 </div>
-              `;
-            }).join('')}
-          </div>
+                <div class="conn-right">
+                  <div class="conn-value">${link.label || ''}</div>
+                  ${link.amount_krw ? `<div class="conn-sub">${link.amount_krw}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
-      ` : ''}
+      </div>
     `;
 
-    // Bind click events on connection items
-    content.querySelectorAll('.conn-card').forEach(card => {
+    // Click to navigate to other node
+    container.querySelectorAll('.conn-card').forEach(card => {
       card.addEventListener('click', () => {
-        const id = card.getAttribute('data-node-id');
-        if (id) {
-          this.app.graphEngine.centerNode(id);
-          const target = nodeMap.get(id);
-          if (target) this.showInspector(target);
+        const targetId = card.getAttribute('data-node-id');
+        const targetNode = this.app.networkData.nodes.find(n => n.id === targetId);
+        if (targetNode) {
+          this.showInspector(targetNode);
+          this.app.graphEngine.selectNode(targetNode);
         }
       });
     });
-
-    // Bind Quick Path Assign buttons
-    document.getElementById('set-path-start-btn')?.addEventListener('click', () => {
-      const select = document.getElementById('path-start-select');
-      if (select) {
-        select.value = node.id;
-        document.getElementById('path-finder-banner').style.display = 'flex';
-      }
-    });
-
-    document.getElementById('set-path-end-btn')?.addEventListener('click', () => {
-      const select = document.getElementById('path-end-select');
-      if (select) {
-        select.value = node.id;
-        document.getElementById('path-finder-banner').style.display = 'flex';
-      }
-    });
-  }
-
-  getLinkTagClass(type) {
-    if (type === 'circular') return 'circular';
-    if (type === 'family') return 'family';
-    if (type === 'marriage' || type === 'marriage_past') return 'marriage';
-    return 'ownership';
-  }
-
-  getLinkTagLabel(type) {
-    if (type === 'circular') return '🔄 순환출자';
-    if (type === 'family') return '👨‍👩‍👧 혈연';
-    if (type === 'marriage' || type === 'marriage_past') return '💍 혼맥';
-    if (type === 'ownership_person') return '👤 개인보유';
-    return '🏢 법인출자';
   }
 
   closeInspector() {
-    this.inspectorDrawer.classList.add('closed');
+    if (this.inspectorDrawer) {
+      this.inspectorDrawer.classList.add('closed');
+    }
   }
 
-  // Handle Path Finder Execution
   handleRunPathFinder() {
     const startId = document.getElementById('path-start-select')?.value;
     const endId = document.getElementById('path-end-select')?.value;
+    const pathType = document.getElementById('path-type-select')?.value || 'all';
 
-    if (!startId || !endId) {
-      alert('출발 대상과 도착 대상을 모두 선택해주세요.');
-      return;
-    }
+    if (!startId || !endId) return;
 
-    const result = this.app.pathFinder.findShortestPath(startId, endId);
+    const result = this.app.pathFinder.findShortestPath(startId, endId, pathType);
     const stepsContainer = document.getElementById('path-steps-container');
 
     if (!result || !result.found) {
       if (stepsContainer) {
-        stepsContainer.innerHTML = `<span style="color: #f43f5e; font-size: 0.8rem;">연결 경로를 찾을 수 없습니다.</span>`;
+        stepsContainer.innerHTML = `<span style="color: #f43f5e; font-size: 0.8rem;">${result?.error || '연결 경로를 찾을 수 없습니다.'}</span>`;
       }
       this.app.graphEngine.clearHighlight();
       return;
@@ -415,7 +377,7 @@ export class UIController {
     if (stepsContainer) {
       stepsContainer.innerHTML = result.steps.map(step => `
         <span class="path-step-node">${step.from.name}</span>
-        <span class="path-step-arrow">${step.description}</span>
+        <span class="path-step-arrow">➔ ${step.label} ➔</span>
       `).join('') + `<span class="path-step-node" style="border-color: #34d399; color: #34d399;">${result.nodes[result.nodes.length - 1].name}</span>`;
     }
 
@@ -424,11 +386,12 @@ export class UIController {
   }
 
   handleClearPath() {
-    document.getElementById('path-steps-container').innerHTML = '';
+    const stepsContainer = document.getElementById('path-steps-container');
+    if (stepsContainer) stepsContainer.innerHTML = '';
     this.app.graphEngine.clearHighlight();
   }
 
-  // Render Matrix Analytics View
+  // Render Matrix Analytics View with Centrality & Capital Flow Explorer
   renderMatrixView(summaryData, networkData) {
     if (!this.matrixView) return;
 
@@ -436,24 +399,24 @@ export class UIController {
     const nodes = networkData.nodes || [];
     const links = networkData.links || [];
 
-    // Filter Billionaires
-    const billionaires = nodes
-      .filter(n => n.type === 'person' && n.wealth_est)
-      .sort((a, b) => {
-        const valA = parseFloat(a.wealth_est.replace(/[^0-9.]/g, '')) || 0;
-        const valB = parseFloat(b.wealth_est.replace(/[^0-9.]/g, '')) || 0;
-        return valB - valA;
-      });
+    // Centrality stats
+    const degreeStats = this.app.analyticsEngine ? this.app.analyticsEngine.calculateDegreeCentrality().slice(0, 10) : [];
+    const betweennessStats = this.app.analyticsEngine ? this.app.analyticsEngine.calculateBetweennessCentrality().slice(0, 10) : [];
 
-    // Filter Circular Loops
-    const circularLinks = links.filter(l => l.type === 'circular');
+    // Billionaires
+    const billionaires = nodes
+      .filter(n => n.type === 'person' && n.val_trillion)
+      .sort((a, b) => b.val_trillion - a.val_trillion);
+
+    // Circular Loops
+    const circularLinks = links.filter(l => l.type === 'circular' || l.highlight_loop);
 
     this.matrixView.innerHTML = `
       <div class="matrix-header">
         <div class="matrix-title">
-          <h2>📊 대한민국 대기업 지배구조 & 지분 종합 매트릭스</h2>
+          <h2>📊 대한민국 대기업 지배구조 & 네트워크 심층 분석 매트릭스</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
-            공정거래위원회 기업집단 현황 및 DART 공시 기준 30대 그룹 요약
+            공정거래위원회 공시대상기업집단 및 DART 공시 기준 최신 지분율·네트워크 중심성 전수 분석
           </p>
         </div>
         <button id="close-matrix-btn" class="sidebar-toggle-btn" style="padding: 8px 16px; font-size: 0.9rem;">
@@ -464,7 +427,7 @@ export class UIController {
       <div class="matrix-grid-sections">
         <!-- 1. Group Ranking Table -->
         <div class="matrix-card" style="grid-column: span 2;">
-          <h3>🏢 주요 대기업 집단(재벌) 현황 및 지배구조 특징</h3>
+          <h3>🏢 대한민국 20대 대기업 집단(재벌) 현황 및 지배구조 형태</h3>
           <table class="data-table">
             <thead>
               <tr>
@@ -491,16 +454,70 @@ export class UIController {
           </table>
         </div>
 
-        <!-- 2. Top Wealth Billionaires -->
+        <!-- 2. Degree Centrality (연결도 허브) -->
         <div class="matrix-card">
-          <h3>💰 대기업 총수 및 오너 일가 주식 평가액 랭킹</h3>
+          <h3>⚡ 네트워크 연결도(Degree Centrality) Top 10</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">가장 많은 지분 출자·피출자 및 혼맥 관계를 보유한 핵심 허브</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>순위</th>
+                <th>대상</th>
+                <th>유형/그룹</th>
+                <th>총 연결수</th>
+                <th>출자(Out) / 피출자(In)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${degreeStats.map((item, idx) => `
+                <tr>
+                  <td><span class="badge" style="background: rgba(255,255,255,0.08);">${idx + 1}</span></td>
+                  <td style="font-weight: 700;">${item.node.name}</td>
+                  <td>${item.node.type === 'person' ? '👤 오너' : '🏢 기업'} (${item.node.group})</td>
+                  <td style="color: #60a5fa; font-weight: 700;">${item.totalConnections}개</td>
+                  <td style="font-size: 0.8rem; color: var(--text-secondary);">${item.ownershipOut} / ${item.ownershipIn}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3. Betweenness Centrality (매개 중심성: 가교 역할) -->
+        <div class="matrix-card">
+          <h3>🌉 매개 중심성(Betweenness Centrality) Top 10</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">재계 생태계에서 서로 다른 가문과 기업을 잇는 핵심 교량 역할</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>순위</th>
+                <th>대상</th>
+                <th>유형/그룹</th>
+                <th>매개 중심 지수</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${betweennessStats.map((item, idx) => `
+                <tr>
+                  <td><span class="badge" style="background: rgba(255,255,255,0.08);">${idx + 1}</span></td>
+                  <td style="font-weight: 700;">${item.node.name}</td>
+                  <td>${item.node.type === 'person' ? '👤 인물' : '👑 지주/핵심사'} (${item.node.group})</td>
+                  <td style="color: #a855f7; font-weight: 700;">${item.betweenness}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 4. Top Wealth Billionaires -->
+        <div class="matrix-card">
+          <h3>💰 대기업 총수 및 오너 일가 추정 자산 랭킹</h3>
           <table class="data-table">
             <thead>
               <tr>
                 <th>순위</th>
                 <th>인물</th>
                 <th>소속 / 직함</th>
-                <th>추정 지분 평가액</th>
+                <th>추정 자산/평가액</th>
               </tr>
             </thead>
             <tbody>
@@ -509,14 +526,14 @@ export class UIController {
                   <td><span class="badge" style="background: rgba(255,255,255,0.08);">${idx + 1}</span></td>
                   <td style="font-weight: 700;">${b.name} (${b.generation || ''})</td>
                   <td>${b.title || b.group}</td>
-                  <td style="color: #34d399; font-weight: 700;">${b.wealth_est}</td>
+                  <td style="color: #34d399; font-weight: 700;">약 ${b.val_trillion}조 원</td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
 
-        <!-- 3. Circular Shareholdings & Special Loops -->
+        <!-- 5. Circular Shareholdings & Special Loops -->
         <div class="matrix-card">
           <h3>🔄 대표 순환출자 및 핵심 지분 출자 고리</h3>
           <table class="data-table">
@@ -537,7 +554,7 @@ export class UIController {
                     <td style="font-weight: 700; color: #f43f5e;">${sName}</td>
                     <td><span class="badge" style="background: rgba(244,63,94,0.2); color: #fb7185;">순환출자</span></td>
                     <td style="font-weight: 700; color: #f43f5e;">${tName}</td>
-                    <td style="color: #60a5fa; font-weight: 700;">${l.label}</td>
+                    <td style="color: #60a5fa; font-weight: 700;">${l.label || ''}</td>
                   </tr>
                 `;
               }).join('')}

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   대한민국 대기업 네트워크 시각화 플랫폼 - 메인 스타일시트
+   대한민국 대기업 네트워크 시각화 플랫폼 - 메인 스타일시트 (v2.0 Advanced)
    100% Static & GitHub Pages Ready
    ========================================================================== */
 
@@ -67,7 +67,7 @@ body {
 
 /* Top Navigation Bar */
 header.app-header {
-  height: 64px;
+  height: 60px;
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
@@ -88,8 +88,8 @@ header.app-header {
 .logo-badge {
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -100,69 +100,100 @@ header.app-header {
 }
 
 .logo-text h1 {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(90deg, #60a5fa, #c084fc);
+  background: linear-gradient(90deg, #f8fafc, #cbd5e1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .logo-text span {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+/* Macro KPI Ticker Sub-Header */
+.kpi-ticker-bar {
+  height: 34px;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  font-size: 0.78rem;
+  z-index: 39;
+  backdrop-filter: blur(8px);
+}
+
+.kpi-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kpi-label {
   color: var(--text-muted);
 }
 
-/* View Switcher Tabs */
+.kpi-val {
+  font-weight: 700;
+  color: var(--accent-emerald);
+}
+
+/* View Mode Switcher Tabs */
 .view-tabs {
   display: flex;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
   padding: 4px;
-  border-radius: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
   gap: 4px;
 }
 
 .tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tab-btn:hover {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: var(--accent-blue);
   color: white;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
 }
 
-/* Main Content Workspace */
+/* Main Workspace Layout */
 .main-workspace {
   flex: 1;
-  position: relative;
   display: flex;
+  position: relative;
   overflow: hidden;
+  height: calc(100vh - 94px);
 }
 
-/* Canvas Graph Area */
+/* Center Graph Canvas Container */
 #graph-canvas-container {
   flex: 1;
-  height: 100%;
   position: relative;
-  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.5) 0%, var(--bg-primary) 100%);
+  background: radial-gradient(circle at center, #111827 0%, #080c14 100%);
+  overflow: hidden;
   cursor: grab;
 }
 
@@ -170,21 +201,15 @@ header.app-header {
   cursor: grabbing;
 }
 
-#network-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Floating Toolbar Over Canvas */
+/* Floating Controls (Search, Legend, Zoom) */
 .floating-controls {
   position: absolute;
-  top: 16px;
+  top: 14px;
   left: 16px;
+  z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  z-index: 20;
+  gap: 12px;
 }
 
 .search-box-container {
@@ -194,21 +219,21 @@ header.app-header {
 
 .search-input {
   width: 100%;
-  padding: 10px 14px 10px 38px;
-  border-radius: 10px;
+  padding: 9px 14px 9px 36px;
   background: var(--bg-glass);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
+  border-radius: 10px;
   color: var(--text-primary);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   outline: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .search-input:focus {
   border-color: var(--accent-blue);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
 .search-icon {
@@ -217,31 +242,32 @@ header.app-header {
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
-  pointer-events: none;
+  font-size: 0.85rem;
 }
 
 .search-results-dropdown {
   position: absolute;
-  top: calc(100% + 6px);
+  top: 100%;
   left: 0;
-  width: 100%;
-  max-height: 320px;
+  right: 0;
+  margin-top: 6px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 10px;
+  max-height: 280px;
   overflow-y: auto;
   z-index: 50;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
   display: none;
 }
 
 .search-result-item {
   padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  cursor: pointer;
+  gap: 10px;
   transition: background 0.15s ease;
 }
 
@@ -249,22 +275,24 @@ header.app-header {
   background: var(--bg-tertiary);
 }
 
-/* Floating Bottom Overlay for Graph Legend */
+/* Floating Bottom Legend Bar */
 .graph-legend-bar {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--bg-glass);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   padding: 8px 18px;
-  border-radius: 30px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 16px;
   z-index: 20;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  max-width: 92vw;
+  overflow-x: auto;
 }
 
 .legend-item {
@@ -273,6 +301,7 @@ header.app-header {
   gap: 6px;
   font-size: 0.78rem;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .legend-color-dot {
@@ -282,16 +311,99 @@ header.app-header {
 }
 
 .legend-line {
-  width: 20px;
+  width: 18px;
   height: 3px;
   border-radius: 2px;
 }
 
-/* Zoom & Canvas Action Floating Buttons */
+/* Floating Minimap Box (Bottom Left) */
+.minimap-container {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  width: 150px;
+  height: 100px;
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 20;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.minimap-header {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+#minimap-canvas {
+  width: 100%;
+  height: calc(100% - 18px);
+  display: block;
+}
+
+/* Floating Rich Tooltip */
+.graph-tooltip-box {
+  position: fixed;
+  display: none;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glow);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #f8fafc;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  max-width: 260px;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.tooltip-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+}
+
+.tooltip-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.tooltip-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #34d399;
+  margin-bottom: 6px;
+}
+
+.tooltip-desc {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+/* Canvas Bottom Right Action Buttons */
 .canvas-action-buttons {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 16px;
+  right: 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -299,8 +411,8 @@ header.app-header {
 }
 
 .canvas-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
   background: var(--bg-glass);
   backdrop-filter: blur(8px);
@@ -312,6 +424,7 @@ header.app-header {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: all 0.2s ease;
+  font-weight: bold;
 }
 
 .canvas-btn:hover {

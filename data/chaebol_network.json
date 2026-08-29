@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "2.0.0",
   "metadata": {
     "title": "대한민국 대기업 네트워크 & 지배구조·혼맥 종합 데이터베이스",
-    "description": "30대 대기업 집단 및 빅테크의 인맥, 혈연/혼맥, 순환출자 및 지분율 데이터",
+    "description": "공정거래위원회 공시대상기업집단 및 DART 전자공시 기반 30대 그룹 정밀 지분율 및 혼맥도",
     "last_updated": "2026-08"
   },
   "nodes": [
@@ -37,8 +37,8 @@
       "title": "전 리움미술관 관장",
       "generation": "2세대",
       "val_trillion": 7.0,
-      "wealth_est": "약 7조 원",
-      "desc": "홍진기 전 법무부장관의 장녀이자 이건희 회장의 부인. 삼성전자 지분 다수 보유."
+      "wealth_est": "약 7.0조 원",
+      "desc": "홍진기 전 법무부장관의 장녀이자 이건희 회장의 부인. 삼성전자(1.45%), 삼성물산(0.97%) 보유."
     },
     {
       "id": "p_lee_jae_yong",
@@ -48,9 +48,9 @@
       "role": "총수 / 회장",
       "title": "삼성전자 회장",
       "generation": "3세대",
-      "val_trillion": 14.0,
-      "wealth_est": "약 14조 원",
-      "desc": "이건희의 장남. 삼성물산 최대주주로서 삼성생명-삼성전자로 이어지는 지배구조의 정점에 위치."
+      "val_trillion": 14.5,
+      "wealth_est": "약 14.5조 원",
+      "desc": "삼성물산 최대주주(18.26%)로서 삼성생명(10.44%), 삼성전자(1.63%), 삼성SDS(9.20%)를 통해 그룹 지배."
     },
     {
       "id": "p_lee_boo_jin",
@@ -62,7 +62,7 @@
       "generation": "3세대",
       "val_trillion": 3.8,
       "wealth_est": "약 3.8조 원",
-      "desc": "이건희의 장녀. 호텔신라 경영을 총괄하며 삼성물산 주요 주주."
+      "desc": "이건희의 장녀. 호텔신라 경영 총괄. 삼성물산(5.60%), 삼성전자(0.78%), 삼성SDS(1.5%) 보유."
     },
     {
       "id": "p_lee_seo_hyun",
@@ -74,7 +74,7 @@
       "generation": "3세대",
       "val_trillion": 3.5,
       "wealth_est": "약 3.5조 원",
-      "desc": "이건희의 차녀. 삼성복지재단 이사장 겸 삼성물산 패션/전략 총괄."
+      "desc": "이건희의 차녀. 삼성물산(5.60%), 삼성전자(0.70%), 삼성복지재단 이사장."
     },
     {
       "id": "p_kim_jae_yeol",
@@ -85,7 +85,7 @@
       "title": "삼성글로벌리서치 사장 / IOC 위원",
       "generation": "3세대",
       "val_trillion": 0.5,
-      "desc": "동아일보 김병관 전 명예회장의 차남이자 이서현 사장의 남편. 국제빙상경기연맹 회장."
+      "desc": "동아일보 김병관 전 명예회장의 차남이자 이서현 사장의 남편. 국제빙상경기연맹(ISU) 회장."
     },
     {
       "id": "c_samsung_cnt",
@@ -113,10 +113,10 @@
       "name": "삼성생명",
       "type": "company",
       "group": "samsung",
-      "industry": "생명보험/금융",
+      "industry": "생명보험/금융지주",
       "val_trillion": 18.0,
       "market_cap": "약 18조 원",
-      "desc": "삼성물산이 19.34% 지분을 가진 1대 주주이며, 삼성전자 지분 8.51%를 보유한 금융-제조 연결고리."
+      "desc": "삼성물산(19.34%), 이재용(10.44%)이 주주이며, 삼성전자 지분 8.51%를 보유한 금융-제조 연결 축."
     },
     {
       "id": "c_samsung_bio",
@@ -149,6 +149,16 @@
       "desc": "삼성전자(22.58%), 삼성물산(17.08%), 이재용(9.2%) 등 오너 일가 직보유 지분이 높은 IT서비스사."
     },
     {
+      "id": "c_samsung_fire",
+      "name": "삼성화재",
+      "type": "company",
+      "group": "samsung",
+      "industry": "손해보험/금융",
+      "val_trillion": 15.0,
+      "market_cap": "약 15조 원",
+      "desc": "삼성생명이 14.98% 지분을 가진 1대 주주이며, 삼성전자 지분 1.49%를 보유."
+    },
+    {
       "id": "c_hotel_shilla",
       "name": "호텔신라",
       "type": "company",
@@ -156,7 +166,7 @@
       "industry": "호텔/면세유통",
       "val_trillion": 3.0,
       "market_cap": "약 3조 원",
-      "desc": "이부진 사장이 경영을 총괄. 삼성생명(7.3%), 삼성전자(5.1%) 등이 주요 주주."
+      "desc": "이부진 사장이 경영을 총괄. 삼성생명(7.3%), 삼성전자(5.1%), 삼성증권 등이 주요 주주."
     },
 
     {
@@ -213,7 +223,7 @@
       "title": "SK수펙스추구협의회 의장 / SK디스커버리 부회장",
       "generation": "2세대",
       "val_trillion": 0.9,
-      "desc": "최종건 창업주의 3남(최태원의 사촌). SK디스커버리 소그룹을 이끌며 그룹 최고 협의체 의장 역임."
+      "desc": "최종건 창업주의 3남(최태원의 사촌). SK디스커버리(40.18%)를 지배하며 그룹 최고 협의체 의장 역임."
     },
     {
       "id": "p_noh_soh_yeong",
@@ -224,7 +234,7 @@
       "title": "아트센터 나비 관장",
       "generation": "2세대",
       "val_trillion": 1.3,
-      "desc": "노태우 전 대통령의 장녀이자 최태원 회장의 전 부인. 세기의 재산분할 소송 당사자."
+      "desc": "노태우 전 대통령의 장녀이자 최태원 회장의 전 부인. 1조 3800억 원대 재산분할 판결 당사자."
     },
     {
       "id": "p_noh_tae_woo",
@@ -286,7 +296,7 @@
       "industry": "정유/에너지/배터리",
       "val_trillion": 10.0,
       "market_cap": "약 10조 원",
-      "desc": "SK E&S와의 합병으로 초대형 에너지 복합기업 탄생. SK온(배터리)의 모회사."
+      "desc": "SK E&S와의 합병으로 초대형 에너지 복합기업 탄생. SK온(배터리 89.5%)의 모회사."
     },
     {
       "id": "c_sk_on",
@@ -319,7 +329,8 @@
       "title": "현대자동차그룹 명예회장 / MK",
       "generation": "2세대",
       "val_trillion": 3.0,
-      "desc": "정주영의 차남. 품질경영으로 현대·기아차를 글로벌 3위 완성차 그룹으로 성장시킴."
+      "wealth_est": "약 3.0조 원",
+      "desc": "정주영의 차남. 품질경영으로 현대·기아차를 글로벌 3위 완성차 그룹으로 성장시킴. 현대모비스 7.19% 보유."
     },
     {
       "id": "p_chung_euisun",
@@ -331,7 +342,7 @@
       "generation": "3세대",
       "val_trillion": 4.2,
       "wealth_est": "약 4.2조 원",
-      "desc": "정몽구의 장남. 미래 모빌리티, 수소, 로보틱스(보스턴다이내믹스), AAM 전환 주도. 현대글로비스 20% 보유."
+      "desc": "정몽구의 장남. 현대글로비스(20.00%), 현대오토에버(7.33%), 현대차(2.62%), 현대모비스(0.32%) 보유."
     },
     {
       "id": "c_hyundai_mobis",
@@ -392,7 +403,17 @@
       "industry": "차량SW/IT서비스",
       "val_trillion": 4.0,
       "market_cap": "약 4조 원",
-      "desc": "현대차(28.96%), 정의선(7.33%), 현대모비스(19.36%)가 보유한 차량용 SW 플랫폼 기업."
+      "desc": "현대차(28.96%), 현대모비스(19.36%), 기아(9.57%), 정의선(7.33%)이 보유한 차량용 SW 플랫폼 기업."
+    },
+    {
+      "id": "c_hyundai_enc",
+      "name": "현대건설",
+      "type": "company",
+      "group": "hyundai_motor",
+      "industry": "건설/원전/토목",
+      "val_trillion": 3.8,
+      "market_cap": "약 3.8조 원",
+      "desc": "현대차(20.95%), 현대모비스(8.73%), 기아(5.24%)가 합산 34.92% 보유."
     },
 
     {
@@ -404,6 +425,7 @@
       "title": "아산재단 이사장 / 전 국회의원",
       "generation": "2세대",
       "val_trillion": 1.8,
+      "wealth_est": "약 1.8조 원",
       "desc": "정주영의 6남. HD현대(구 현대중공업그룹) 최대주주(26.60%)."
     },
     {
@@ -415,7 +437,7 @@
       "title": "HD현대 수석부회장",
       "generation": "3세대",
       "val_trillion": 1.0,
-      "wealth_est": "약 1조 원",
+      "wealth_est": "약 1.0조 원",
       "desc": "정몽준 이사장의 장남. HD현대 지분 5.26% 보유 및 친환경 선박/로봇/스마트에너지 승계 완성 단계."
     },
     {
@@ -515,7 +537,8 @@
       "title": "LX그룹 회장",
       "generation": "3세대",
       "val_trillion": 1.1,
-      "desc": "구자경 회장의 3남. LG그룹에서 LX세미콘, LX인터내셔널 등을 분리 독립하여 LX그룹 창업."
+      "wealth_est": "약 1.1조 원",
+      "desc": "구자경 회장의 3남. LG그룹에서 LX세미콘, LX인터내셔널 등을 분리 독립하여 LX그룹 창업(지분 40.04%)."
     },
     {
       "id": "c_lg_corp",
@@ -721,6 +744,7 @@
       "title": "SDJ코퍼레이션 회장 / 전 일본 롯데 부회장",
       "generation": "2세대",
       "val_trillion": 1.4,
+      "wealth_est": "약 1.4조 원",
       "desc": "신격호의 장남. 일본 광윤사 지분 50%+1주를 보유하며 롯데 경영권 소송을 지속."
     },
     {
@@ -808,7 +832,7 @@
       "title": "한화그룹 회장",
       "generation": "2세대",
       "val_trillion": 2.0,
-      "wealth_est": "약 2조 원",
+      "wealth_est": "약 2.0조 원",
       "desc": "29세에 회장 취임 후 대한생명(한화생명), 삼성 화학/방산 빅딜(에어로스페이스), 대우조선(한화오션)을 인수하며 재계 7위로 도약."
     },
     {
@@ -819,8 +843,9 @@
       "role": "경영진/후계",
       "title": "한화그룹 부회장",
       "generation": "3세대",
-      "val_trillion": 0.6,
-      "desc": "김승연 회장의 장남. 방산(에어로스페이스/오션) 및 태양광·에너지(한화솔루션)를 총괄하며 그룹의 주력 승계자."
+      "val_trillion": 1.2,
+      "wealth_est": "약 1.2조 원",
+      "desc": "김승연 회장의 장남. 한화에너지(50.0%)를 통해 (주)한화 지배력 강화 및 방산·조선·우주 총괄 승계."
     },
     {
       "id": "p_kim_dong_won",
@@ -830,8 +855,8 @@
       "role": "경영진/차남",
       "title": "한화생명 사장 (최고글로벌책임자)",
       "generation": "3세대",
-      "val_trillion": 0.3,
-      "desc": "김승연 회장의 차남. 한화생명 등 금융 부문 승계 라인 총괄."
+      "val_trillion": 0.6,
+      "desc": "김승연 회장의 차남. 한화에너지(25.0%) 보유 및 금융 부문 총괄."
     },
     {
       "id": "p_kim_dong_sun",
@@ -841,8 +866,19 @@
       "role": "경영진/3남",
       "title": "한화갤러리아 / 한화로보틱스 부사장",
       "generation": "3세대",
-      "val_trillion": 0.2,
-      "desc": "김승연 회장의 3남. 유통(갤러리아), 외식(파이브가이즈), 로봇/건설기계 부문 총괄."
+      "val_trillion": 0.6,
+      "desc": "김승연 회장의 3남. 한화에너지(25.0%) 보유 및 유통(갤러리아), 로봇, 외식 총괄."
+    },
+    {
+      "id": "c_hanwha_energy",
+      "name": "한화에너지",
+      "type": "company",
+      "is_holding": true,
+      "group": "hanwha",
+      "industry": "에너지/오너 3세 100% 회사",
+      "val_trillion": 3.5,
+      "market_cap": "비상장",
+      "desc": "김동관(50%), 김동원(25%), 김동선(25%) 3형제가 100% 지배하는 그룹 승계 핵심 파이프라인. (주)한화 지분 14.90% 보유."
     },
     {
       "id": "c_hanwha_corp",
@@ -853,7 +889,7 @@
       "industry": "자체사업/지주회사",
       "val_trillion": 2.4,
       "market_cap": "약 2.4조 원",
-      "desc": "김승연 회장(22.65%), 김동관(4.91%) 및 한화에너지(14.9%)가 지배하는 그룹 최상위 지주사."
+      "desc": "김승연 회장(22.65%), 한화에너지(14.90%), 김동관(4.91%)이 지배하는 그룹 최상위 지주사."
     },
     {
       "id": "c_hanwha_aerospace",
@@ -918,6 +954,7 @@
       "title": "(주)신세계 회장",
       "generation": "3세대",
       "val_trillion": 0.9,
+      "wealth_est": "약 0.9조 원",
       "desc": "이명희 총괄회장의 딸. 백화점, 면세점, 인터내셔날(패션/뷰티) 부문 회장으로 승진하며 남매 분리 지배구조 완성."
     },
     {
@@ -1061,6 +1098,7 @@
       "title": "BGF그룹 회장 (CU 편의점)",
       "generation": "2세대",
       "val_trillion": 0.7,
+      "wealth_est": "약 7천억 원",
       "desc": "홍진기의 차남(이재용의 외삼촌). 전 광주고검장 출신으로 BGF리테일 창업 및 지배."
     },
     {
@@ -1249,7 +1287,7 @@
       "generation": "3세대",
       "val_trillion": 1.5,
       "wealth_est": "약 1.5조 원",
-      "desc": "조석래 명예회장의 장남. (주)효성, 효성티앤씨, 효성중공업 중심 그룹 경영 총괄."
+      "desc": "조석래 명예회장의 장남. (주)효성(33.03%), 효성티앤씨, 효성중공업 중심 그룹 경영 총괄."
     },
     {
       "id": "p_cho_hyun_sang",
@@ -1261,7 +1299,7 @@
       "generation": "3세대",
       "val_trillion": 1.2,
       "wealth_est": "약 1.2조 원",
-      "desc": "조석래 명예회장의 3남. 효성첨단소재 등을 중심으로 신설 지주 'HS효성'을 설립하여 계열 분리 완성."
+      "desc": "조석래 명예회장의 3남. 효성첨단소재 등을 중심으로 신설 지주 'HS효성(55%)'을 설립하여 계열 분리 완성."
     },
     {
       "id": "c_hyosung_corp",
@@ -1295,7 +1333,7 @@
       "title": "셀트리온그룹 회장",
       "generation": "1세대",
       "val_trillion": 11.0,
-      "wealth_est": "약 11조 원",
+      "wealth_est": "약 11.0조 원",
       "desc": "대우자동차 출신으로 자본금 5천만원으로 셀트리온을 창업해 글로벌 바이오시밀러 1위로 키운 흙수저 신화."
     },
     {
@@ -1452,7 +1490,7 @@
       "title": "쿠팡(Coupang, Inc.) 이사회 의장 겸 CEO",
       "generation": "1세대",
       "val_trillion": 6.0,
-      "wealth_est": "약 6조 원",
+      "wealth_est": "약 6.0조 원",
       "desc": "로켓배송 혁신으로 한국 유통 시장을 재편하고 뉴욕증시(NYSE)에 직상장시킨 혁신가."
     },
     {
@@ -1464,7 +1502,7 @@
       "title": "두나무(업비트) 회장",
       "generation": "1세대",
       "val_trillion": 3.0,
-      "wealth_est": "약 3조 원",
+      "wealth_est": "약 3.0조 원",
       "desc": "국내 최대 가상자산 거래소 업비트 운영사 두나무 창업. 하이브와 상호 지분 교환 혈맹."
     },
     {
@@ -1654,6 +1692,14 @@
       "desc": "삼성물산 주요 주주"
     },
     {
+      "source": "p_hong_ra_hee",
+      "target": "c_samsung_cnt",
+      "type": "ownership_person",
+      "stake": 0.97,
+      "label": "0.97%",
+      "desc": "홍라희 여사 삼성물산 보유 지분"
+    },
+    {
       "source": "c_samsung_cnt",
       "target": "c_samsung_elec",
       "type": "ownership_corp",
@@ -1672,6 +1718,14 @@
       "desc": "삼성물산이 삼성생명을 지배하는 고리"
     },
     {
+      "source": "p_lee_jae_yong",
+      "target": "c_samsung_life",
+      "type": "ownership_person",
+      "stake": 10.44,
+      "label": "10.44% (개인 1위)",
+      "desc": "이재용 회장 개인 보유 삼성생명 지분"
+    },
+    {
       "source": "c_samsung_life",
       "target": "c_samsung_elec",
       "type": "ownership_corp",
@@ -1679,6 +1733,22 @@
       "amount_krw": "약 38조 원",
       "label": "8.51% (단일1위)",
       "desc": "삼성생명이 고객 자금으로 삼성전자 지분을 보유한 금융-제조 연결 축"
+    },
+    {
+      "source": "c_samsung_life",
+      "target": "c_samsung_fire",
+      "type": "ownership_corp",
+      "stake": 14.98,
+      "label": "14.98%",
+      "desc": "삼성생명이 삼성화재 1대 주주"
+    },
+    {
+      "source": "c_samsung_fire",
+      "target": "c_samsung_elec",
+      "type": "ownership_corp",
+      "stake": 1.49,
+      "label": "1.49%",
+      "desc": "삼성화재 보유 삼성전자 지분"
     },
     {
       "source": "p_lee_jae_yong",
@@ -1697,6 +1767,22 @@
       "amount_krw": "약 6.5조 원",
       "label": "1.45%",
       "desc": "홍라희 여사 보유 삼성전자 직접 지분"
+    },
+    {
+      "source": "p_lee_boo_jin",
+      "target": "c_samsung_elec",
+      "type": "ownership_person",
+      "stake": 0.78,
+      "label": "0.78%",
+      "desc": "이부진 사장 삼성전자 지분"
+    },
+    {
+      "source": "p_lee_seo_hyun",
+      "target": "c_samsung_elec",
+      "type": "ownership_person",
+      "stake": 0.70,
+      "label": "0.70%",
+      "desc": "이서현 사장 삼성전자 지분"
     },
     {
       "source": "c_samsung_cnt",
@@ -1919,6 +2005,14 @@
     },
     {
       "source": "p_chung_mong_koo",
+      "target": "c_hyundai_glovis",
+      "type": "ownership_person",
+      "stake": 6.71,
+      "label": "6.71%",
+      "desc": "정몽구 명예회장의 글로비스 지분"
+    },
+    {
+      "source": "p_chung_mong_koo",
       "target": "c_hyundai_mobis",
       "type": "ownership_person",
       "stake": 7.19,
@@ -1951,11 +2045,27 @@
     },
     {
       "source": "c_hyundai_motor",
+      "target": "c_hyundai_steel",
+      "type": "ownership_corp",
+      "stake": 6.87,
+      "label": "6.87%",
+      "desc": "현대차가 현대제철 2대 주주"
+    },
+    {
+      "source": "c_hyundai_motor",
       "target": "c_hyundai_autoever",
       "type": "ownership_corp",
       "stake": 28.96,
       "label": "28.96%",
       "desc": "현대차가 현대오토에버 최대주주"
+    },
+    {
+      "source": "c_hyundai_mobis",
+      "target": "c_hyundai_autoever",
+      "type": "ownership_corp",
+      "stake": 19.36,
+      "label": "19.36%",
+      "desc": "현대모비스가 현대오토에버 2대 주주"
     },
     {
       "source": "p_chung_euisun",
@@ -1964,6 +2074,14 @@
       "stake": 7.33,
       "label": "7.33%",
       "desc": "정의선 회장의 개인 보유 지분"
+    },
+    {
+      "source": "c_hyundai_motor",
+      "target": "c_hyundai_enc",
+      "type": "ownership_corp",
+      "stake": 20.95,
+      "label": "20.95%",
+      "desc": "현대차가 현대건설 최대주주"
     },
 
     {
@@ -2233,6 +2351,17 @@
     },
 
     {
+      "id": "c_hanwha_energy",
+      "name": "한화에너지",
+      "type": "company",
+      "is_holding": true,
+      "group": "hanwha",
+      "industry": "에너지/승계 파이프라인",
+      "val_trillion": 3.5,
+      "market_cap": "비상장",
+      "desc": "김동관(50%), 김동원(25%), 김동선(25%) 3형제가 100% 지배하는 그룹 승계 핵심. (주)한화 지분 14.90% 보유."
+    },
+    {
       "source": "p_kim_jong_hee",
       "target": "p_kim_seung_youn",
       "type": "family",
@@ -2259,6 +2388,38 @@
       "type": "family",
       "label": "부자 관계 (3남 - 유통/로봇)",
       "desc": "김동선 부사장 (갤러리아/로봇 총괄)"
+    },
+    {
+      "source": "p_kim_dong_kwan",
+      "target": "c_hanwha_energy",
+      "type": "ownership_person",
+      "stake": 50.00,
+      "label": "50.00% (최대주주)",
+      "desc": "김동관 부회장이 한화에너지 50% 과반 지배"
+    },
+    {
+      "source": "p_kim_dong_won",
+      "target": "c_hanwha_energy",
+      "type": "ownership_person",
+      "stake": 25.00,
+      "label": "25.00%",
+      "desc": "김동원 사장 한화에너지 지분"
+    },
+    {
+      "source": "p_kim_dong_sun",
+      "target": "c_hanwha_energy",
+      "type": "ownership_person",
+      "stake": 25.00,
+      "label": "25.00%",
+      "desc": "김동선 부사장 한화에너지 지분"
+    },
+    {
+      "source": "c_hanwha_energy",
+      "target": "c_hanwha_corp",
+      "type": "ownership_corp",
+      "stake": 14.90,
+      "label": "14.90% (2대 주주)",
+      "desc": "한화에너지가 (주)한화 지분을 매입하여 승계 완성 단계 진입"
     },
     {
       "source": "p_kim_seung_youn",
