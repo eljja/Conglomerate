@@ -561,6 +561,52 @@ export class UIController {
             </tbody>
           </table>
         </div>
+
+        <!-- 6. Hanjin KAL Management Dispute & Hoban Group Rivalry Analysis -->
+        <div class="matrix-card" style="grid-column: span 2; border-color: rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.85);">
+          <h3>⚔️ 한진칼·대한항공 경영권 분쟁 & 호반그룹 지분 대치 심층 분석</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+            한진그룹 지주사 <strong style="color:#60a5fa;">한진칼</strong>을 둘러싼 <strong>조원태 회장 연합</strong>과 <strong>호반건설(단일 2대 주주)</strong>의 지분 분포 및 아시아나항공 메가 합병 구도
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <!-- Camp 1: Cho Won-tae -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 16px;">
+              <h4 style="color: #60a5fa; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <span>🛡️ 조원태 회장 연합 (방어)</span>
+                <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">합산 약 45.3%</span>
+              </h4>
+              <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 1.8;">
+                <li>• <strong>조원태 회장 및 일가/특수관계인</strong>: <span style="color:#34d399; font-weight:700;">19.79%</span> (조원태 5.78%, 조현민 5.73%, 이명희 등)</li>
+                <li>• <strong>델타항공 (Delta Air Lines)</strong>: <span style="color:#60a5fa; font-weight:700;">14.90%</span> (글로벌 스카이팀 백기사)</li>
+                <li>• <strong>KDB 한국산업은행</strong>: <span style="color:#a78bfa; font-weight:700;">10.58%</span> (아시아나 합병 지원 캐스팅보트)</li>
+              </ul>
+            </div>
+
+            <!-- Camp 2: Hoban Group -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(13, 148, 136, 0.4); border-radius: 8px; padding: 16px;">
+              <h4 style="color: #2dd4bf; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <span>⚡ 호반그룹 (도전자 / 잠재 경쟁)</span>
+                <span class="badge" style="background: rgba(13, 148, 136, 0.2); color: #2dd4bf;">지분 17.43%</span>
+              </h4>
+              <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 1.8;">
+                <li>• <strong>호반건설 & 계열사</strong>: <span style="color:#f59e0b; font-weight:700;">17.43%</span> (단일 최대 2대 주주)</li>
+                <li>• <strong>배경</strong>: 2022년 KCGI(강성부 펀드) 지분 전량 인수 후 장내 매집 확대</li>
+                <li>• <strong>보유 목적</strong>: 단순투자 ➔ 일반투자(경영권 영향 가능)로 전환, 잠재적 경영권 위협 잔존</li>
+              </ul>
+            </div>
+
+            <!-- Camp 3: Past 3-Party Alliance -->
+            <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 8px; padding: 16px;">
+              <h4 style="color: #fb7185; margin-bottom: 10px;">📜 과거 3자 연합 분쟁 & 메가캐리어 합병</h4>
+              <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; line-height: 1.7; color: var(--text-secondary);">
+                <li>• <strong>3자 연합</strong>: 조현아(전 부사장) + KCGI + 반도건설 연합으로 조원태 퇴진 요구</li>
+                <li>• <strong>산업은행 개입</strong>: 아시아나항공 인수 자금으로 한진칼에 8천억 출자하며 조원태 승리</li>
+                <li>• <strong>대한항공 ➔ 아시아나항공</strong>: 63.9% 지분 인수로 세계 10대 글로벌 메가캐리어 탄생</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 

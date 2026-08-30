@@ -1188,7 +1188,29 @@
       "generation": "3세대",
       "val_trillion": 0.8,
       "wealth_est": "약 8천억 원",
-      "desc": "조양호 회장의 장남. 3자 연합 경영권 분쟁을 극복하고 아시아나항공 메가 합병을 완수."
+      "desc": "조양호 회장의 장남. 3자 연합 및 호반건설의 경영권 위협에 맞서 델타항공·산업은행과 연합해 경영권 수성."
+    },
+    {
+      "id": "p_cho_hyun_ah",
+      "name": "조현아",
+      "type": "person",
+      "group": "hanjin",
+      "role": "오너 일가 / 전 부사장",
+      "title": "전 대한항공 부사장",
+      "generation": "3세대",
+      "val_trillion": 0.3,
+      "desc": "조양호 회장의 장녀. KCGI·반도건설과 3자 연합을 결성해 동생 조원태 회장을 상대로 한진칼 경영권 분쟁 주도."
+    },
+    {
+      "id": "p_cho_hyun_min",
+      "name": "조현민",
+      "type": "person",
+      "group": "hanjin",
+      "role": "경영진",
+      "title": "(주)한진 사장 / 한진칼 지분 보유",
+      "generation": "3세대",
+      "val_trillion": 0.3,
+      "desc": "조양호 회장의 차녀. 한진칼 지분(5.73%)을 보유하며 조원태 회장 우호 지분으로 경영권 방어 협력."
     },
     {
       "id": "c_hanjin_kal",
@@ -1199,7 +1221,7 @@
       "industry": "지주회사/항공·물류",
       "val_trillion": 5.2,
       "market_cap": "약 5.2조 원",
-      "desc": "조원태 회장 일가 및 델타항공(14.9%), 산업은행(10.58%)이 주주인 항공 지주사."
+      "desc": "한진그룹 최상위 지주사. 조원태 일가+우호지분(약 45%) vs 호반건설(17.43%)의 치열한 경영권 대치 중심지."
     },
     {
       "id": "c_korean_air",
@@ -1209,7 +1231,59 @@
       "industry": "대형항공사(FSC)/항공우주",
       "val_trillion": 8.5,
       "market_cap": "약 8.5조 원",
-      "desc": "한진칼이 26.13% 보유. 아시아나항공을 자회사로 편입하여 초대형 메가캐리어 출범."
+      "desc": "한진칼이 26.13% 보유. 아시아나항공을 63.9% 인수하여 세계 10대 메가캐리어로 도약."
+    },
+    {
+      "id": "c_asiana_airlines",
+      "name": "아시아나항공",
+      "type": "company",
+      "group": "hanjin",
+      "industry": "대형항공사(FSC)",
+      "val_trillion": 1.5,
+      "market_cap": "약 1.5조 원",
+      "desc": "대한항공이 63.9% 지분을 인수하여 글로벌 메가캐리어(Mega-Carrier)로 통합 진행 중."
+    },
+    {
+      "id": "c_delta_air_lines",
+      "name": "델타항공 (미국)",
+      "type": "company",
+      "group": "hanjin",
+      "industry": "글로벌 항공사 / 조원태 백기사",
+      "val_trillion": 35.0,
+      "market_cap": "NYSE 상장",
+      "desc": "스카이팀 핵심 파트너. 한진칼 지분 14.90%를 보유한 조원태 회장의 최대 백기사(White Knight)."
+    },
+    {
+      "id": "c_kdb_bank",
+      "name": "KDB산업은행",
+      "type": "company",
+      "group": "hanjin",
+      "industry": "국책은행 / 정책금융",
+      "val_trillion": 50.0,
+      "desc": "대한항공-아시아나 메가 합병 지원을 위해 한진칼에 8천억 출자(지분 10.58%), 조원태 회장 경영권 안정의 결정적 캐스팅보트."
+    },
+    {
+      "id": "p_kim_sang_yeol",
+      "name": "김상열",
+      "type": "person",
+      "group": "hoban",
+      "role": "총수 / 창업회장",
+      "title": "호반그룹 창업회장",
+      "generation": "1세대",
+      "val_trillion": 3.0,
+      "wealth_est": "약 3.0조 원",
+      "desc": "호반건설을 일구어 자산 16조 원 대기업으로 성장시킴. 한진칼 지분 17.43%를 인수하며 경영권 잠재 인수 후보로 부상."
+    },
+    {
+      "id": "c_hoban_construction",
+      "name": "호반건설",
+      "type": "company",
+      "is_holding": true,
+      "group": "hoban",
+      "industry": "종합건설/그룹 지주사",
+      "val_trillion": 8.0,
+      "market_cap": "비상장 (자산 약 8조 원)",
+      "desc": "호반그룹 지주사. 한진칼 지분 17.43%를 보유한 단일 2대 주주로서 조원태 회장 체제를 위협하는 최대 잠재 경쟁자."
     },
 
     {
@@ -2573,20 +2647,95 @@
       "desc": "조양호 회장 ➔ 조원태 한진그룹 회장 승계"
     },
     {
+      "source": "p_cho_yang_ho",
+      "target": "p_cho_hyun_ah",
+      "type": "family",
+      "label": "부녀 관계 (장녀)",
+      "desc": "조양호 회장의 장녀 조현아 전 부사장"
+    },
+    {
+      "source": "p_cho_yang_ho",
+      "target": "p_cho_hyun_min",
+      "type": "family",
+      "label": "부녀 관계 (차녀)",
+      "desc": "조양호 회장의 차녀 조현민 사장"
+    },
+    {
       "source": "p_cho_won_tae",
       "target": "c_hanjin_kal",
       "type": "ownership_person",
       "stake": 5.78,
-      "label": "5.78%",
-      "desc": "조원태 회장 일가 지분"
+      "amount_krw": "약 3천억 원",
+      "label": "5.78% (회장)",
+      "desc": "조원태 회장 개인 지분"
+    },
+    {
+      "source": "p_cho_hyun_min",
+      "target": "c_hanjin_kal",
+      "type": "ownership_person",
+      "stake": 5.73,
+      "label": "5.73% (우호 지분)",
+      "desc": "조현민 사장 한진칼 우호 지분"
+    },
+    {
+      "source": "p_cho_hyun_ah",
+      "target": "c_hanjin_kal",
+      "type": "business_alliance",
+      "label": "경영권 분쟁 주도 (3자연합)",
+      "desc": "과거 KCGI·반도건설과 3자 연합을 결성해 동생 조원태 퇴진 요구 경영권 분쟁 주도"
+    },
+    {
+      "source": "c_delta_air_lines",
+      "target": "c_hanjin_kal",
+      "type": "ownership_corp",
+      "stake": 14.90,
+      "amount_krw": "약 8천억 원",
+      "label": "14.90% [조원태 백기사]",
+      "desc": "미국 델타항공이 조원태 회장 경영권 방어의 핵심 우군으로 14.90% 보유"
+    },
+    {
+      "source": "c_kdb_bank",
+      "target": "c_hanjin_kal",
+      "type": "ownership_corp",
+      "stake": 10.58,
+      "amount_krw": "약 5.5천억 원",
+      "label": "10.58% [산업은행 캐스팅보트]",
+      "desc": "아시아나항공 합병 지원 명분으로 한진칼 지분 인수, 조원태 회장 승리에 결정적 기여"
+    },
+    {
+      "source": "p_kim_sang_yeol",
+      "target": "c_hoban_construction",
+      "type": "ownership_person",
+      "stake": 100.00,
+      "label": "100.00% (가족 지배)",
+      "desc": "김상열 회장 일가가 호반건설 100% 지배"
+    },
+    {
+      "source": "c_hoban_construction",
+      "target": "c_hanjin_kal",
+      "type": "ownership_corp",
+      "stake": 17.43,
+      "amount_krw": "약 9천억 원",
+      "label": "17.43% [단일 2대 주주 / 경영권 위협]",
+      "desc": "호반건설이 KCGI 보유 지분을 전량 인수 후 추가 매집, 조원태 회장 체제를 위협하는 최대 잠재 라이벌"
     },
     {
       "source": "c_hanjin_kal",
       "target": "c_korean_air",
       "type": "ownership_corp",
       "stake": 26.13,
-      "label": "26.13%",
-      "desc": "한진칼이 대한항공 지배"
+      "amount_krw": "약 2.2조 원",
+      "label": "26.13% (최대주주)",
+      "desc": "한진칼이 대한항공을 모회사로서 지배"
+    },
+    {
+      "source": "c_korean_air",
+      "target": "c_asiana_airlines",
+      "type": "ownership_corp",
+      "stake": 63.90,
+      "amount_krw": "약 1.5조 원",
+      "label": "63.90% [메가 합병 인수]",
+      "desc": "대한항공이 아시아나항공을 자회사로 편입하여 글로벌 10대 메가캐리어 출범"
     },
 
     {

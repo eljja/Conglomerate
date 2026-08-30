@@ -145,6 +145,19 @@
       "key_hub": "corp_cj_corp"
     },
     {
+      "id": "hanjin",
+      "name": "한진 (Hanjin - 대한항공)",
+      "rank": 14,
+      "head": "조원태",
+      "founding_year": 1945,
+      "founder": "조중훈",
+      "asset_krw": "약 38조 원",
+      "core_business": ["항공(대한항공, 아시아나 메가 합병)", "종합물류(한진)", "LCC(진에어)"],
+      "color": "#002B49",
+      "holding_structure": "한진칼 지주회사 체제 (조원태+델타+산은 45% vs 호반건설 17.43% 대치)",
+      "key_hub": "c_hanjin_kal"
+    },
+    {
       "id": "ls",
       "name": "LS (엘에스)",
       "rank": 15,
@@ -184,19 +197,6 @@
       "key_hub": "corp_hyosung_corp"
     },
     {
-      "id": "hanjin",
-      "name": "한진 (Hanjin)",
-      "rank": 14,
-      "head": "조원태",
-      "founding_year": 1945,
-      "founder": "조중훈",
-      "asset_krw": "약 38조 원",
-      "core_business": ["항공(대한항공, 아시아나 합병)", "종합물류(한진)", "저비용항공(진에어)"],
-      "color": "#002B49",
-      "holding_structure": "한진칼 지주회사 체제",
-      "key_hub": "corp_hanjin_kal"
-    },
-    {
       "id": "celltrion",
       "name": "셀트리온 (Celltrion)",
       "rank": 19,
@@ -234,6 +234,19 @@
       "color": "#03C75A",
       "holding_structure": "이해진(소수 지분) 및 국민연금 등 분산 소유 전문경영인 체제",
       "key_hub": "corp_naver"
+    },
+    {
+      "id": "hoban",
+      "name": "호반 (Hoban - 한진칼 2대주주)",
+      "rank": 33,
+      "head": "김상열 (장남: 김대헌)",
+      "founding_year": 1989,
+      "founder": "김상열",
+      "asset_krw": "약 16조 원",
+      "core_business": ["종합건설(호반건설)", "전선·제조(대한전선)", "리조트·골프(호반호텔앤리조트)", "언론(서울신문)"],
+      "color": "#008080",
+      "holding_structure": "호반건설 오너 일가 100% 지배 및 한진칼 지분 17.43% 확보로 항공 경영권 잠재 위협",
+      "key_hub": "c_hoban_construction"
     },
     {
       "id": "tech_giants",

@@ -43,6 +43,7 @@ export class NetworkGraph {
       'shinsegae': '#d97706',
       'cj': '#dc2626',
       'hanjin': '#2563eb',
+      'hoban': '#0d9488',
       'doosan': '#0891b2',
       'hyosung': '#4f46e5',
       'celltrion': '#10b981',
