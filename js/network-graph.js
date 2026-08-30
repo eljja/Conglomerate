@@ -349,12 +349,13 @@ export class NetworkGraph {
       .attr('stroke-width', d => d.is_holding ? 3.5 : 2.5)
       .attr('filter', 'url(#node-shadow)');
 
-    // Inner Icon / Emoji
+    // Inner Icon / Emoji (2x boosted size)
     nodeEnter.append('text')
       .attr('class', 'node-icon')
       .attr('text-anchor', 'middle')
-      .attr('dy', d => d.type === 'person' ? '0.35em' : '0.35em')
-      .attr('font-size', d => `${Math.max(12, this.getNodeRadius(d) * 0.5)}px`)
+      .attr('dominant-baseline', 'central')
+      .attr('dy', '0.05em')
+      .attr('font-size', d => `${Math.max(22, this.getNodeRadius(d) * 1.05)}px`)
       .attr('pointer-events', 'none')
       .text(d => {
         if (d.type === 'person') return '👤';
@@ -396,6 +397,10 @@ export class NetworkGraph {
       .text(d => d.val_trillion ? `${d.val_trillion}조` : (d.industry || d.title || ''));
 
     const nodeElements = nodeEnter.merge(nodeGroup);
+    nodeElements.select('.node-icon')
+      .attr('font-size', d => `${Math.max(22, this.getNodeRadius(d) * 1.05)}px`)
+      .attr('dominant-baseline', 'central')
+      .attr('dy', '0.05em');
 
     // --- Simulation Tick Handler ---
     this.simulation.on('tick', () => {
