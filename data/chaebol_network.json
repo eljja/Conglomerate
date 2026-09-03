@@ -2423,18 +2423,6 @@
       "label": "25.59%",
       "desc": "롯데지주가 롯데케미칼 지배"
     },
-
-    {
-      "id": "c_hanwha_energy",
-      "name": "한화에너지",
-      "type": "company",
-      "is_holding": true,
-      "group": "hanwha",
-      "industry": "에너지/승계 파이프라인",
-      "val_trillion": 3.5,
-      "market_cap": "비상장",
-      "desc": "김동관(50%), 김동원(25%), 김동선(25%) 3형제가 100% 지배하는 그룹 승계 핵심. (주)한화 지분 14.90% 보유."
-    },
     {
       "source": "p_kim_jong_hee",
       "target": "p_kim_seung_youn",

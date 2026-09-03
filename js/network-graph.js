@@ -303,6 +303,19 @@ export class NetworkGraph {
       .text(d => d.stake ? `${d.stake}%` : (d.label || ''));
 
     const labelElements = labelEnter.merge(labelGroup);
+    labelElements.select('text').text(d => d.stake ? `${d.stake}%` : (d.label || ''));
+    labelElements.each(function() {
+      const group = d3.select(this);
+      const textNode = group.select('text').node();
+      if (textNode) {
+        const bbox = textNode.getBBox();
+        group.select('rect')
+          .attr('x', bbox.x - 4)
+          .attr('y', bbox.y - 2)
+          .attr('width', bbox.width + 8)
+          .attr('height', bbox.height + 4);
+      }
+    });
 
     // --- Render Nodes ---
     const nodeGroup = this.nodeLayer.selectAll('g.node-group')
@@ -429,20 +442,6 @@ export class NetworkGraph {
         const x = (d.source.x + d.target.x) / 2;
         const y = (d.source.y + d.target.y) / 2;
         return `translate(${x},${y})`;
-      });
-
-      // Update Label Bounding Boxes
-      labelElements.each(function() {
-        const group = d3.select(this);
-        const textNode = group.select('text').node();
-        if (textNode) {
-          const bbox = textNode.getBBox();
-          group.select('rect')
-            .attr('x', bbox.x - 4)
-            .attr('y', bbox.y - 2)
-            .attr('width', bbox.width + 8)
-            .attr('height', bbox.height + 4);
-        }
       });
 
       nodeElements.attr('transform', d => `translate(${d.x},${d.y})`);
