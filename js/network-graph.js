@@ -620,11 +620,32 @@ export class NetworkGraph {
       });
   }
 
-  selectNode(node) {
+  selectNode(node, autoFocus = true) {
     this.selectedNodeId = node.id;
+    if (autoFocus && node && node.x !== undefined) {
+      this.focusOnNode(node.id);
+    }
     if (typeof this.onNodeClick === 'function') {
       this.onNodeClick(node);
     }
+  }
+
+  focusOnNode(nodeId, scale = 1.35) {
+    const node = this.nodes.find(n => n.id === nodeId);
+    if (!node || node.x === undefined || node.y === undefined) return;
+
+    this.selectedNodeId = node.id;
+    this.handleNodeHover(node, true);
+
+    const transform = d3.zoomIdentity
+      .translate(this.width / 2, this.height / 2)
+      .scale(scale)
+      .translate(-node.x, -node.y);
+
+    this.svg.transition()
+      .duration(700)
+      .ease(d3.easeCubicOut)
+      .call(this.zoom.transform, transform);
   }
 
   highlightPath(pathResult) {

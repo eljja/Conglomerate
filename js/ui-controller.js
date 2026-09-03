@@ -47,6 +47,19 @@ export class UIController {
       });
     }
 
+    // Keyboard Shortcuts (ESC to close drawers/dropdowns/reset)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeInspector();
+        if (this.searchResultsDropdown) {
+          this.searchResultsDropdown.style.display = 'none';
+        }
+        if (this.app.graphEngine) {
+          this.app.graphEngine.clearHighlight();
+        }
+      }
+    });
+
     // Canvas action buttons (zoom in/out/reset/png)
     document.getElementById('zoom-in-btn')?.addEventListener('click', () => this.app.graphEngine.zoomIn());
     document.getElementById('zoom-out-btn')?.addEventListener('click', () => this.app.graphEngine.zoomOut());
@@ -228,7 +241,7 @@ export class UIController {
         const targetNode = nodes.find(n => n.id === nodeId);
         if (targetNode) {
           this.showInspector(targetNode);
-          this.app.graphEngine.selectNode(targetNode);
+          this.app.graphEngine.selectNode(targetNode, true);
         }
         this.searchResultsDropdown.style.display = 'none';
         this.searchInput.value = targetNode.name;
@@ -241,6 +254,10 @@ export class UIController {
     if (!this.inspectorDrawer) return;
 
     this.inspectorDrawer.classList.remove('closed');
+    // Synchronize URL with active node for deep linking
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', `?node=${encodeURIComponent(node.id)}`);
+    }
     const container = document.getElementById('inspector-dynamic-content');
     if (!container) return;
 
@@ -336,14 +353,14 @@ export class UIController {
       </div>
     `;
 
-    // Click to navigate to other node
+    // Click to navigate to other node with smooth camera autofocus
     container.querySelectorAll('.conn-card').forEach(card => {
       card.addEventListener('click', () => {
         const targetId = card.getAttribute('data-node-id');
         const targetNode = this.app.networkData.nodes.find(n => n.id === targetId);
         if (targetNode) {
           this.showInspector(targetNode);
-          this.app.graphEngine.selectNode(targetNode);
+          this.app.graphEngine.selectNode(targetNode, true);
         }
       });
     });
@@ -352,6 +369,9 @@ export class UIController {
   closeInspector() {
     if (this.inspectorDrawer) {
       this.inspectorDrawer.classList.add('closed');
+    }
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
     }
   }
 

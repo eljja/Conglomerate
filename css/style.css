@@ -493,3 +493,83 @@ aside.filter-sidebar.closed {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ==========================================================================
+   반응형 미디어 쿼리 (Mobile & Tablet Responsiveness)
+   ========================================================================== */
+@media (max-width: 768px) {
+  header.app-header {
+    padding: 0 10px;
+    height: 52px;
+  }
+
+  .logo-text span {
+    display: none;
+  }
+
+  .logo-text h1 {
+    font-size: 0.92rem;
+  }
+
+  nav.view-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    max-width: 48vw;
+    gap: 4px;
+    padding: 2px 0;
+  }
+
+  nav.view-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+
+  .kpi-ticker-bar {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 6px 12px;
+    gap: 16px;
+  }
+
+  .kpi-ticker-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  aside.filter-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 86vw;
+    max-width: 320px;
+    box-shadow: 12px 0 30px rgba(0, 0, 0, 0.6);
+    z-index: 50;
+  }
+
+  aside.inspector-drawer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 90vw;
+    max-width: 380px;
+    box-shadow: -12px 0 30px rgba(0, 0, 0, 0.6);
+    z-index: 50;
+  }
+
+  #graph-minimap-container {
+    bottom: 12px;
+    left: 12px;
+    width: 140px;
+    height: 90px;
+  }
+}
