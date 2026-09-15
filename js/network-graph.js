@@ -250,6 +250,12 @@ export class NetworkGraph {
     // Specific Layout clustering based on viewMode
     if (this.viewMode === 'cluster') {
       this.simulation.force('cluster', this.forceCluster());
+      this.renderClusterBackgrounds();
+    } else {
+      this.simulation.force('cluster', null);
+      if (this.clusterLayer) {
+        this.clusterLayer.selectAll('*').remove();
+      }
     }
 
     // --- Render Links ---
@@ -555,6 +561,102 @@ export class NetworkGraph {
     ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
     ctx.fillRect(vx, vy, vw, vh);
     ctx.strokeRect(vx, vy, vw, vh);
+  }
+
+  getGroupDisplayName(group) {
+    const names = {
+      'samsung': '삼성그룹',
+      'sk': 'SK그룹',
+      'hyundai_motor': '현대자동차그룹',
+      'hd_hyundai': 'HD현대그룹',
+      'lg': 'LG그룹',
+      'gs': 'GS그룹',
+      'ls': 'LS그룹',
+      'lotte': '롯데그룹',
+      'hanwha': '한화그룹',
+      'shinsegae': '신세계그룹',
+      'cj': 'CJ그룹',
+      'hanjin': '한진그룹',
+      'hoban': '호반그룹',
+      'doosan': '두산그룹',
+      'hyosung': '효성그룹',
+      'celltrion': '셀트리온',
+      'naver': '네이버',
+      'kakao': '카카오',
+      'tech_giants': '빅테크·엔터',
+      'inlaw_alliances': '정·재계 혼맥'
+    };
+    return names[group] || (group ? group.toUpperCase() : '기타');
+  }
+
+  getGroupCenters() {
+    const groupList = Object.keys(this.groupColors).filter(g => g !== 'default');
+    const totalGroups = groupList.length;
+    const centerX = this.width / 2;
+    const centerY = this.height / 2;
+    const radius = Math.max(520, Math.min(this.width, this.height) * 0.48);
+    const centers = new Map();
+
+    groupList.forEach((group, index) => {
+      const angle = (2 * Math.PI * index) / totalGroups - Math.PI / 2;
+      centers.set(group, {
+        x: centerX + radius * Math.cos(angle),
+        y: centerY + radius * Math.sin(angle),
+        name: this.getGroupDisplayName(group),
+        color: this.groupColors[group] || '#64748b'
+      });
+    });
+
+    return centers;
+  }
+
+  forceCluster() {
+    const centers = this.getGroupCenters();
+    const centerX = this.width / 2;
+    const centerY = this.height / 2;
+
+    return (alpha) => {
+      for (const node of this.nodes) {
+        const center = centers.get(node.group) || { x: centerX, y: centerY };
+        node.vx += (center.x - node.x) * 0.15 * alpha;
+        node.vy += (center.y - node.y) * 0.15 * alpha;
+      }
+    };
+  }
+
+  renderClusterBackgrounds() {
+    if (!this.clusterLayer) return;
+    this.clusterLayer.selectAll('*').remove();
+
+    const centers = this.getGroupCenters();
+    const clusterGroup = this.clusterLayer.selectAll('g.cluster-group')
+      .data(Array.from(centers.entries()), d => d[0])
+      .enter()
+      .append('g')
+      .attr('class', 'cluster-group')
+      .attr('transform', d => `translate(${d[1].x}, ${d[1].y})`)
+      .attr('pointer-events', 'none');
+
+    // Soft glowing ambient zone circle for each group cluster
+    clusterGroup.append('circle')
+      .attr('r', 160)
+      .attr('fill', d => d[1].color)
+      .attr('opacity', 0.05)
+      .attr('stroke', d => d[1].color)
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '5,5')
+      .attr('stroke-opacity', 0.3);
+
+    // Group territory title
+    clusterGroup.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('y', -175)
+      .attr('fill', d => d[1].color)
+      .attr('font-size', '14px')
+      .attr('font-weight', '800')
+      .attr('opacity', 0.9)
+      .attr('letter-spacing', '0.04em')
+      .text(d => d[1].name);
   }
 
   getNodeColor(node) {
