@@ -47,10 +47,23 @@ export class UIController {
       });
     }
 
-    // Keyboard Shortcuts (ESC to close drawers/dropdowns/reset)
+    // Guide Modal (SEO Knowledge Base & Guidebook)
+    const guideModal = document.getElementById('seo-guide-modal');
+    document.getElementById('guide-modal-btn')?.addEventListener('click', () => {
+      guideModal?.classList.remove('closed');
+    });
+    document.getElementById('close-guide-modal-btn')?.addEventListener('click', () => {
+      guideModal?.classList.add('closed');
+    });
+    document.getElementById('seo-guide-backdrop')?.addEventListener('click', () => {
+      guideModal?.classList.add('closed');
+    });
+
+    // Keyboard Shortcuts (ESC to close drawers/dropdowns/modals/reset)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeInspector();
+        guideModal?.classList.add('closed');
         if (this.searchResultsDropdown) {
           this.searchResultsDropdown.style.display = 'none';
         }
