@@ -345,20 +345,22 @@
 /* Path Finder Modal / Bar */
 .path-finder-banner {
   position: absolute;
-  top: 16px;
+  top: 64px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--bg-glass);
   backdrop-filter: blur(14px);
   border: 1px solid var(--border-glow);
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 14px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
   z-index: 25;
   box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  max-width: 90vw;
+  max-width: calc(100% - 32px);
 }
 
 .path-select {

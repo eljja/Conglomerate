@@ -135,8 +135,8 @@
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   
   <!-- Application CSS with cache buster -->
-  <link rel="stylesheet" href="./css/style.css?v=2.6.0">
-  <link rel="stylesheet" href="./css/components.css?v=2.6.0">
+  <link rel="stylesheet" href="./css/style.css?v=3.0.0">
+  <link rel="stylesheet" href="./css/components.css?v=3.0.0">
 </head>
 <body>
   <div id="app-container">
@@ -217,10 +217,11 @@
     <!-- Main Content Workspace -->
     <main class="main-workspace">
       
-      <!-- Left Filter Sidebar -->
-      <aside id="filter-sidebar" class="filter-sidebar">
-        <div class="filter-header">
+      <!-- Left Filter Sidebar (Closed by default for maximum panoramic canvas space) -->
+      <aside id="filter-sidebar" class="filter-sidebar closed">
+        <div class="filter-header" style="display: flex; align-items: center; justify-content: space-between;">
           <span style="font-weight: 700; font-size: 0.95rem;">🎛️ 네트워크 필터</span>
+          <button id="close-filter-btn" class="inspector-close-btn" title="필터 닫기">✕</button>
         </div>
 
         <!-- Sizing Mode Toggle -->
@@ -241,6 +242,9 @@
               <span style="color: var(--text-muted);">|</span>
               <button id="clear-all-groups-btn" class="filter-btn-mini">해제</button>
             </div>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
+            💡 팁: 그룹을 <strong>더블클릭</strong>하면 해당 그룹만 단독 집중 보기
           </div>
           <div id="group-pill-container" class="group-pill-grid">
             <!-- Dynamic Group Pills -->
@@ -302,92 +306,111 @@
         </div>
       </aside>
 
-      <!-- Center Graph Canvas Area -->
-      <div id="graph-canvas-container">
-        <!-- SVG Canvas rendered by D3 -->
-      </div>
-
-      <!-- Floating Path Finder Banner -->
-      <div id="path-finder-banner" class="path-finder-banner" style="display: none;">
-        <span style="font-weight: 700; font-size: 0.85rem; color: var(--accent-amber);">🔍 인맥 경로:</span>
-        <select id="path-type-select" class="path-select" style="max-width: 110px;">
-          <option value="all">전체 관계</option>
-          <option value="ownership">소유 지분만</option>
-          <option value="family">혼맥/혈연만</option>
-        </select>
-        <select id="path-start-select" class="path-select"></select>
-        <span style="color: var(--text-muted);">➔</span>
-        <select id="path-end-select" class="path-select"></select>
-        <button id="run-path-btn" class="path-btn">경로 탐색</button>
-        <button id="clear-path-btn" class="sidebar-toggle-btn" style="padding: 4px 8px; font-size: 0.75rem;">초기화</button>
-        <div id="path-steps-container" class="path-result-steps"></div>
-      </div>
-
-      <!-- Floating Search Box (Top Left) -->
-      <div class="floating-controls">
-        <div class="search-box-container">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" class="search-input" placeholder="인물, 기업, 그룹 검색...">
-          <div id="search-results-dropdown" class="search-results-dropdown"></div>
+      <!-- Center Graph Canvas Stage (All overlays anchored inside canvas viewport!) -->
+      <div class="canvas-stage" id="canvas-stage">
+        <div id="graph-canvas-container">
+          <!-- SVG Canvas rendered by D3 -->
         </div>
-      </div>
 
-      <!-- Real-time Minimap Navigator (Bottom Left) -->
-      <div class="minimap-container" title="전체 네트워크 미니맵 탐색기">
-        <div class="minimap-header">🗺️ 미니맵 네비게이터</div>
-        <canvas id="minimap-canvas" width="150" height="82"></canvas>
-      </div>
+        <!-- Smooth Loading Overlay -->
+        <div id="canvas-loading-overlay" class="canvas-loading-overlay">
+          <div class="loading-spinner-ring"></div>
+          <div class="loading-text">대한민국 20대 대기업 네트워크 최적화 계산 중...</div>
+          <div class="loading-subtext">147개 법인 · 총수 일가 레이아웃 정렬</div>
+        </div>
 
-      <!-- Floating Bottom Legend Bar with Scale Indicator -->
-      <div id="graph-legend-bar" class="graph-legend-bar">
-        <!-- Visual Node Scale Guide -->
-        <div class="legend-item" title="원의 면적은 기업 시가총액 또는 개인 보유 주식 평가액에 비례합니다.">
-          <span style="color: #94a3b8; font-weight: 700;">원의 면적:</span>
-          <div class="scale-size-preview">
-            <span class="scale-dot-sm" title="~1조 원"></span>
-            <span class="scale-dot-md" title="~20조 원"></span>
-            <span class="scale-dot-lg" title="100조~450조 원"></span>
+        <!-- Empty Filter State Overlay -->
+        <div id="canvas-empty-state" class="canvas-empty-state" style="display: none;">
+          <div style="font-size: 2.2rem; margin-bottom: 10px;">🔎</div>
+          <div style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">표시할 기업·인물 노드가 없습니다</div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 14px;">필터 조건에 맞는 대상이 없습니다. 그룹을 선택하거나 필터를 초기화해 보세요.</div>
+          <button id="reset-all-filters-btn" class="path-btn">전체 네트워크 복원</button>
+        </div>
+
+        <!-- Floating Path Finder Banner -->
+        <div id="path-finder-banner" class="path-finder-banner" style="display: none;">
+          <span style="font-weight: 700; font-size: 0.85rem; color: var(--accent-amber);">🔍 인맥 경로:</span>
+          <select id="path-type-select" class="path-select" style="max-width: 110px;">
+            <option value="all">전체 관계</option>
+            <option value="ownership">소유 지분만</option>
+            <option value="family">혼맥/혈연만</option>
+          </select>
+          <select id="path-start-select" class="path-select"></select>
+          <span style="color: var(--text-muted);">➔</span>
+          <select id="path-end-select" class="path-select"></select>
+          <button id="run-path-btn" class="path-btn">경로 탐색</button>
+          <button id="clear-path-btn" class="sidebar-toggle-btn" style="padding: 4px 8px; font-size: 0.75rem;">초기화</button>
+          <div id="path-steps-container" class="path-result-steps"></div>
+        </div>
+
+        <!-- Floating Search Box (Top Left of Canvas) -->
+        <div class="floating-controls">
+          <div class="search-box-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="search-input" placeholder="인물, 기업, 그룹 검색 (예: 이재용, 한진칼)..." autocomplete="off">
+            <button id="search-clear-btn" class="search-clear-btn" title="검색어 지우기" style="display: none;">✕</button>
+            <div id="search-results-dropdown" class="search-results-dropdown"></div>
           </div>
-          <span>자산/시총 규모</span>
         </div>
 
-        <div class="scale-guide-divider"></div>
+        <!-- Real-time Clickable Minimap Navigator (Bottom Left of Canvas) -->
+        <div class="minimap-container" id="minimap-container" title="미니맵을 클릭하여 원하는 영역으로 즉시 이동하세요">
+          <div class="minimap-header">🗺️ 미니맵 (클릭 이동)</div>
+          <canvas id="minimap-canvas" width="160" height="86"></canvas>
+        </div>
 
-        <!-- Visual Edge Width Guide -->
-        <div class="legend-item" title="선의 굵기는 소유 지분율(%)에 비례합니다.">
-          <span style="color: #94a3b8; font-weight: 700;">선 굵기:</span>
-          <div class="scale-size-preview">
-            <span class="scale-line-sm" title="5%"></span>
-            <span class="scale-line-lg" title="50%+"></span>
+        <!-- Floating Bottom Legend Bar with Scale Indicator -->
+        <div id="graph-legend-bar" class="graph-legend-bar">
+          <!-- Visual Node Scale Guide -->
+          <div class="legend-item" title="원의 면적은 기업 시가총액 또는 개인 보유 주식 평가액에 비례합니다.">
+            <span style="color: var(--text-secondary); font-weight: 700;">원 면적:</span>
+            <div class="scale-size-preview">
+              <span class="scale-dot-sm" title="~1조 원"></span>
+              <span class="scale-dot-md" title="~20조 원"></span>
+              <span class="scale-dot-lg" title="100조~450조 원"></span>
+            </div>
+            <span>자산/시총</span>
           </div>
-          <span>지분율(%)</span>
+
+          <div class="scale-guide-divider"></div>
+
+          <!-- Visual Edge Width Guide -->
+          <div class="legend-item" title="선의 굵기는 소유 지분율(%)에 비례합니다.">
+            <span style="color: var(--text-secondary); font-weight: 700;">선 굵기:</span>
+            <div class="scale-size-preview">
+              <span class="scale-line-sm" title="5%"></span>
+              <span class="scale-line-lg" title="50%+"></span>
+            </div>
+            <span>지분율(%)</span>
+          </div>
+
+          <div class="scale-guide-divider"></div>
+
+          <div class="legend-item">
+            <span class="legend-line circular-flow-edge" style="background: #f43f5e; height: 3.5px;"></span>
+            <span style="color: #fb7185; font-weight: 700;">순환출자</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color-dot" style="background: #a855f7;"></span>
+            <span>혈연</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color-dot" style="background: #ec4899;"></span>
+            <span>혼맥</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color-dot" style="background: #f59e0b; border-radius: 2px;"></span>
+            <span>지주사</span>
+          </div>
         </div>
 
-        <div class="scale-guide-divider"></div>
-
-        <div class="legend-item">
-          <span class="legend-line circular-flow-edge" style="background: #f43f5e; height: 3.5px;"></span>
-          <span style="color: #fb7185; font-weight: 700;">순환출자 고리</span>
+        <!-- Floating Action Buttons (Bottom Right of Canvas) -->
+        <div class="canvas-action-buttons">
+          <div id="zoom-level-badge" class="zoom-level-badge" title="현재 확대 배율">100%</div>
+          <button id="zoom-in-btn" class="canvas-btn" title="확대 (+)">+</button>
+          <button id="zoom-out-btn" class="canvas-btn" title="축소 (-)">−</button>
+          <button id="zoom-reset-btn" class="canvas-btn" title="전체 한눈에 보기 (화면 맞춤)" style="font-size: 0.9rem;">⛶</button>
         </div>
-        <div class="legend-item">
-          <span class="legend-color-dot" style="background: #a855f7;"></span>
-          <span>혈연</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-color-dot" style="background: #ec4899;"></span>
-          <span>혼맥</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-color-dot" style="background: #f59e0b; border-radius: 2px;"></span>
-          <span>지주회사</span>
-        </div>
-      </div>
-
-      <!-- Floating Action Buttons (Bottom Right) -->
-      <div class="canvas-action-buttons">
-        <button id="zoom-in-btn" class="canvas-btn" title="확대">+</button>
-        <button id="zoom-out-btn" class="canvas-btn" title="축소">-</button>
-        <button id="zoom-reset-btn" class="canvas-btn" title="화면 맞춤" style="font-size: 0.8rem;">⟲</button>
       </div>
 
       <!-- Right Side Inspector Drawer -->
@@ -554,6 +577,6 @@
   </div>
 
   <!-- Main Application Script with Cache Buster -->
-  <script type="module" src="./js/app.js?v=2.6.0"></script>
+  <script type="module" src="./js/app.js?v=3.0.0"></script>
 </body>
 </html>

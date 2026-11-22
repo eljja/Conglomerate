@@ -1,5 +1,5 @@
 /**
- * 대한민국 대기업 네트워크 - 필터 및 뷰 모드 관리자
+ * 대한민국 대기업 네트워크 - 필터 및 뷰 모드 관리자 (v3.0)
  */
 
 export class FilterManager {
@@ -7,9 +7,16 @@ export class FilterManager {
     this.rawNetwork = initialData;
     this.onFilterChange = onFilterChange;
 
+    // Collect all unique group IDs present in network nodes
+    this.allGroupIds = new Set();
+    (this.rawNetwork.nodes || []).forEach(n => {
+      if (n.group) this.allGroupIds.add(n.group);
+    });
+
     this.state = {
-      viewMode: 'holistic', // 'holistic', 'circular', 'dynasty', 'cluster'
-      activeGroups: new Set(), // empty means ALL
+      viewMode: 'holistic', // 'holistic', 'circular', 'dynasty', 'cluster', 'path'
+      activeGroups: new Set(this.allGroupIds),
+      allGroupsMode: true, // true = show all groups including any ungrouped nodes
       nodeTypes: {
         person: true,
         company: true,
@@ -24,11 +31,17 @@ export class FilterManager {
       minStake: 0,
       searchQuery: ''
     };
+  }
 
-    // Initialize all available groups
-    if (this.rawNetwork.groups) {
-      this.rawNetwork.groups.forEach(g => this.state.activeGroups.add(g.id));
-    }
+  registerSummaryGroups(groups = []) {
+    groups.forEach(g => {
+      if (g && g.id) {
+        this.allGroupIds.add(g.id);
+        if (this.state.allGroupsMode) {
+          this.state.activeGroups.add(g.id);
+        }
+      }
+    });
   }
 
   setViewMode(mode) {
@@ -39,7 +52,6 @@ export class FilterManager {
 
   applyViewModeDefaults(mode) {
     if (mode === 'circular') {
-      // Prioritize companies, holdings, ownership & circular loops
       this.state.nodeTypes.person = true;
       this.state.nodeTypes.company = true;
       this.state.nodeTypes.holding = true;
@@ -48,7 +60,6 @@ export class FilterManager {
       this.state.linkTypes.family = false;
       this.state.linkTypes.marriage = false;
     } else if (mode === 'dynasty') {
-      // Prioritize people, family bloodlines & marriage networks
       this.state.nodeTypes.person = true;
       this.state.nodeTypes.company = false;
       this.state.nodeTypes.holding = false;
@@ -56,8 +67,7 @@ export class FilterManager {
       this.state.linkTypes.circular = false;
       this.state.linkTypes.family = true;
       this.state.linkTypes.marriage = true;
-    } else if (mode === 'holistic' || mode === 'cluster') {
-      // Enable all
+    } else if (mode === 'holistic' || mode === 'cluster' || mode === 'path') {
       this.state.nodeTypes.person = true;
       this.state.nodeTypes.company = true;
       this.state.nodeTypes.holding = true;
@@ -70,6 +80,7 @@ export class FilterManager {
   }
 
   toggleGroup(groupId) {
+    this.state.allGroupsMode = false;
     if (this.state.activeGroups.has(groupId)) {
       this.state.activeGroups.delete(groupId);
     } else {
@@ -78,13 +89,33 @@ export class FilterManager {
     this.notify();
   }
 
-  selectAllGroups(allGroups) {
+  soloGroup(groupId) {
+    this.state.allGroupsMode = false;
+    this.state.activeGroups.clear();
+    this.state.activeGroups.add(groupId);
+    this.notify();
+  }
+
+  selectAllGroups(allGroups = []) {
+    this.state.allGroupsMode = true;
+    this.allGroupIds.forEach(id => this.state.activeGroups.add(id));
     allGroups.forEach(g => this.state.activeGroups.add(g.id));
     this.notify();
   }
 
   clearAllGroups() {
+    this.state.allGroupsMode = false;
     this.state.activeGroups.clear();
+    this.notify();
+  }
+
+  resetAllFilters(allGroups = []) {
+    this.state.allGroupsMode = true;
+    this.allGroupIds.forEach(id => this.state.activeGroups.add(id));
+    allGroups.forEach(g => this.state.activeGroups.add(g.id));
+    this.state.nodeTypes = { person: true, company: true, holding: true };
+    this.state.linkTypes = { ownership: true, circular: true, family: true, marriage: true };
+    this.state.minStake = 0;
     this.notify();
   }
 
@@ -119,15 +150,15 @@ export class FilterManager {
     const rawNodes = this.rawNetwork.nodes || [];
     const rawLinks = this.rawNetwork.links || [];
 
-    // Filter nodes
+    // 1. Filter nodes
     const validNodeIdSet = new Set();
-    const filteredNodes = rawNodes.filter(node => {
-      // 1. Group filter
-      if (this.state.activeGroups.size > 0 && !this.state.activeGroups.has(node.group)) {
+    let filteredNodes = rawNodes.filter(node => {
+      // Group filter (if not in allGroupsMode, must be in activeGroups)
+      if (!this.state.allGroupsMode && !this.state.activeGroups.has(node.group)) {
         return false;
       }
 
-      // 2. Node type filter
+      // Node type filter
       if (node.type === 'person' && !this.state.nodeTypes.person) return false;
       if (node.type === 'company') {
         if (node.is_holding && !this.state.nodeTypes.holding) return false;
@@ -138,7 +169,7 @@ export class FilterManager {
       return true;
     });
 
-    // Filter links
+    // 2. Filter links
     const filteredLinks = rawLinks.filter(link => {
       const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
       const targetId = typeof link.target === 'object' ? link.target.id : link.target;
@@ -149,7 +180,7 @@ export class FilterManager {
       }
 
       // Link type filter
-      if ((link.type === 'ownership_corp' || link.type === 'ownership_person') && !this.state.linkTypes.ownership) {
+      if ((link.type === 'ownership_corp' || link.type === 'ownership_person' || link.type === 'business_alliance') && !this.state.linkTypes.ownership) {
         return false;
       }
       if (link.type === 'circular' && !this.state.linkTypes.circular) {
@@ -170,7 +201,20 @@ export class FilterManager {
       return true;
     });
 
-    // Re-verify isolated nodes in specific modes if needed
+    // 3. Prune isolated nodes in focused modes (dynasty / circular) for visual clarity
+    if (this.state.viewMode === 'dynasty' || this.state.viewMode === 'circular') {
+      const connectedIds = new Set();
+      filteredLinks.forEach(l => {
+        const s = typeof l.source === 'object' ? l.source.id : l.source;
+        const t = typeof l.target === 'object' ? l.target.id : l.target;
+        connectedIds.add(s);
+        connectedIds.add(t);
+      });
+      if (connectedIds.size > 0) {
+        filteredNodes = filteredNodes.filter(n => connectedIds.has(n.id));
+      }
+    }
+
     return {
       nodes: filteredNodes,
       links: filteredLinks

@@ -21,25 +21,61 @@ export class UIController {
       themeBtn.addEventListener('click', () => this.toggleTheme());
     }
 
-    // Filter sidebar toggle
+    // Filter sidebar toggle & close button
     const toggleFilterBtn = document.getElementById('toggle-filter-btn');
     if (toggleFilterBtn) {
       toggleFilterBtn.addEventListener('click', () => {
         this.filterSidebar.classList.toggle('closed');
       });
     }
+    const closeFilterBtn = document.getElementById('close-filter-btn');
+    if (closeFilterBtn) {
+      closeFilterBtn.addEventListener('click', () => {
+        this.filterSidebar.classList.add('closed');
+      });
+    }
+
+    // Empty state "Reset all filters" button
+    document.getElementById('reset-all-filters-btn')?.addEventListener('click', () => {
+      const groups = this.app.summaryData?.groups || [];
+      this.app.filterManager.resetAllFilters(groups);
+    });
 
     // Inspector close button
     const closeInspectorBtn = document.getElementById('close-inspector-btn');
     if (closeInspectorBtn) {
       closeInspectorBtn.addEventListener('click', () => {
         this.closeInspector();
+        this.app.graphEngine?.clearHighlight();
       });
     }
 
-    // Search autocomplete
+    // Search autocomplete + clear button + Enter key
+    const searchClearBtn = document.getElementById('search-clear-btn');
     if (this.searchInput) {
-      this.searchInput.addEventListener('input', (e) => this.handleSearchInput(e.target.value));
+      this.searchInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (searchClearBtn) {
+          searchClearBtn.style.display = val.length > 0 ? 'block' : 'none';
+        }
+        this.handleSearchInput(val);
+      });
+      this.searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const firstItem = this.searchResultsDropdown?.querySelector('.search-result-item[data-node-id]');
+          if (firstItem) firstItem.click();
+        }
+      });
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+          this.searchInput.value = '';
+          searchClearBtn.style.display = 'none';
+          this.searchResultsDropdown.style.display = 'none';
+          this.app.graphEngine?.clearHighlight();
+          this.closeInspector();
+          this.searchInput.focus();
+        });
+      }
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-box-container')) {
           this.searchResultsDropdown.style.display = 'none';
@@ -135,6 +171,37 @@ export class UIController {
     if (themeBtn) {
       themeBtn.innerHTML = nextTheme === 'dark' ? '🌙' : '☀️';
     }
+    this.app.graphEngine?.updateMinimap();
+  }
+
+  /**
+   * Keep left sidebar checkboxes, group pills, and slider 100% synced with FilterManager state
+   */
+  syncFilterUI(filterState) {
+    if (!filterState) return;
+    const setChecked = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = !!val;
+    };
+    setChecked('filter-node-person', filterState.nodeTypes.person);
+    setChecked('filter-node-holding', filterState.nodeTypes.holding);
+    setChecked('filter-node-company', filterState.nodeTypes.company);
+    setChecked('filter-link-ownership', filterState.linkTypes.ownership);
+    setChecked('filter-link-circular', filterState.linkTypes.circular);
+    setChecked('filter-link-family', filterState.linkTypes.family);
+    setChecked('filter-link-marriage', filterState.linkTypes.marriage);
+
+    const stakeSlider = document.getElementById('stake-slider');
+    const stakeDisplay = document.getElementById('stake-value-display');
+    if (stakeSlider) stakeSlider.value = filterState.minStake;
+    if (stakeDisplay) stakeDisplay.textContent = `${filterState.minStake}% 이상`;
+
+    const pills = document.querySelectorAll('#group-pill-container .group-pill');
+    pills.forEach(p => {
+      const gid = p.getAttribute('data-group-id');
+      const active = filterState.allGroupsMode || filterState.activeGroups.has(gid);
+      p.classList.toggle('active', active);
+    });
   }
 
   updateKPICounters() {
@@ -159,29 +226,33 @@ export class UIController {
     const container = document.getElementById('group-pill-container');
     if (!container) return;
 
+    this.app.filterManager.registerSummaryGroups(groups);
+
     container.innerHTML = '';
     groups.forEach(g => {
       const pill = document.createElement('div');
       pill.className = 'group-pill active';
       pill.setAttribute('data-group-id', g.id);
+      pill.title = '클릭: 토글 / 더블클릭: 이 그룹만 단독 보기';
       pill.innerHTML = `
         <span class="legend-color-dot" style="background: ${g.color || '#6366f1'}"></span>
         <span>${g.name.split(' ')[0]}</span>
       `;
       pill.addEventListener('click', () => {
-        pill.classList.toggle('active');
         this.app.filterManager.toggleGroup(g.id);
+      });
+      pill.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        this.app.filterManager.soloGroup(g.id);
       });
       container.appendChild(pill);
     });
 
     document.getElementById('select-all-groups-btn')?.addEventListener('click', () => {
-      container.querySelectorAll('.group-pill').forEach(p => p.classList.add('active'));
       this.app.filterManager.selectAllGroups(groups);
     });
 
     document.getElementById('clear-all-groups-btn')?.addEventListener('click', () => {
-      container.querySelectorAll('.group-pill').forEach(p => p.classList.remove('active'));
       this.app.filterManager.clearAllGroups();
     });
   }
@@ -253,11 +324,19 @@ export class UIController {
         const nodeId = item.getAttribute('data-node-id');
         const targetNode = nodes.find(n => n.id === nodeId);
         if (targetNode) {
-          this.showInspector(targetNode);
-          this.app.graphEngine.selectNode(targetNode, true);
+          // Ensure node is visible if filtered out
+          const liveNode = this.app.graphEngine.nodes.find(n => n.id === nodeId);
+          if (!liveNode && this.app.currentViewMode !== 'matrix') {
+            this.app.filterManager.resetAllFilters(this.app.summaryData?.groups || []);
+          }
+          this.app.graphEngine.selectNode(targetNode, true, true);
         }
         this.searchResultsDropdown.style.display = 'none';
-        this.searchInput.value = targetNode.name;
+        if (targetNode) {
+          this.searchInput.value = targetNode.name;
+          const clearBtn = document.getElementById('search-clear-btn');
+          if (clearBtn) clearBtn.style.display = 'block';
+        }
       });
     });
   }
@@ -372,8 +451,7 @@ export class UIController {
         const targetId = card.getAttribute('data-node-id');
         const targetNode = this.app.networkData.nodes.find(n => n.id === targetId);
         if (targetNode) {
-          this.showInspector(targetNode);
-          this.app.graphEngine.selectNode(targetNode, true);
+          this.app.graphEngine.selectNode(targetNode, true, true);
         }
       });
     });
@@ -503,7 +581,7 @@ export class UIController {
             </thead>
             <tbody>
               ${degreeStats.map((item, idx) => `
-                <tr>
+                <tr class="clickable-row" data-jump-node-id="${item.node.id}" title="클릭하여 그래프에서 위치 보기">
                   <td><span class="badge" style="background: rgba(255,255,255,0.08);">${idx + 1}</span></td>
                   <td style="font-weight: 700;">${item.node.name}</td>
                   <td>${item.node.type === 'person' ? '👤 오너' : '🏢 기업'} (${item.node.group})</td>
@@ -518,7 +596,7 @@ export class UIController {
         <!-- 3. Betweenness Centrality (매개 중심성: 가교 역할) -->
         <div class="matrix-card">
           <h3>🌉 매개 중심성(Betweenness Centrality) Top 10</h3>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">재계 생태계에서 서로 다른 가문과 기업을 잇는 핵심 교량 역할</p>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">재계 생태계에서 서로 다른 가문과 기업을 잇는 핵심 교량 역할 (행 클릭 시 그래프 이동)</p>
           <table class="data-table">
             <thead>
               <tr>
@@ -530,7 +608,7 @@ export class UIController {
             </thead>
             <tbody>
               ${betweennessStats.map((item, idx) => `
-                <tr>
+                <tr class="clickable-row" data-jump-node-id="${item.node.id}" title="클릭하여 그래프에서 위치 보기">
                   <td><span class="badge" style="background: rgba(255,255,255,0.08);">${idx + 1}</span></td>
                   <td style="font-weight: 700;">${item.node.name}</td>
                   <td>${item.node.type === 'person' ? '👤 인물' : '👑 지주/핵심사'} (${item.node.group})</td>
@@ -555,7 +633,7 @@ export class UIController {
             </thead>
             <tbody>
               ${billionaires.map((b, idx) => `
-                <tr>
+                <tr class="clickable-row" data-jump-node-id="${b.id}" title="클릭하여 그래프에서 위치 보기">
                   <td><span class="badge" style="background: rgba(255,255,255,0.08);">${idx + 1}</span></td>
                   <td style="font-weight: 700;">${b.name} (${b.generation || ''})</td>
                   <td>${b.title || b.group}</td>
@@ -645,6 +723,23 @@ export class UIController {
 
     document.getElementById('close-matrix-btn')?.addEventListener('click', () => {
       this.app.switchViewMode('holistic');
+      document.querySelectorAll('.tab-btn').forEach(t => {
+        t.classList.toggle('active', t.getAttribute('data-view-mode') === 'holistic');
+      });
+    });
+
+    // Click any entity row in Matrix View to jump straight to that node on the graph!
+    this.matrixView.querySelectorAll('tr[data-jump-node-id]').forEach(row => {
+      row.addEventListener('click', () => {
+        const nodeId = row.getAttribute('data-jump-node-id');
+        document.querySelectorAll('.tab-btn').forEach(t => {
+          t.classList.toggle('active', t.getAttribute('data-view-mode') === 'holistic');
+        });
+        this.app.switchViewMode('holistic');
+        setTimeout(() => {
+          this.app.graphEngine.selectNode(nodeId, true, true);
+        }, 120);
+      });
     });
   }
 }

@@ -1,13 +1,13 @@
 /**
- * 대한민국 대기업 네트워크 시각화 플랫폼 - 메인 애플리케이션 엔트리포인트 (v2.6.0)
+ * 대한민국 대기업 네트워크 시각화 플랫폼 - 메인 애플리케이션 엔트리포인트 (v3.0.0)
  * 100% Client-Side Static & GitHub Pages Ready
  */
 
-import { NetworkGraph } from './network-graph.js?v=2.6.0';
-import { FilterManager } from './filters.js?v=2.6.0';
-import { PathFinder } from './path-finder.js?v=2.6.0';
-import { AnalyticsEngine } from './analytics.js?v=2.6.0';
-import { UIController } from './ui-controller.js?v=2.6.0';
+import { NetworkGraph } from './network-graph.js?v=3.0.0';
+import { FilterManager } from './filters.js?v=3.0.0';
+import { PathFinder } from './path-finder.js?v=3.0.0';
+import { AnalyticsEngine } from './analytics.js?v=3.0.0';
+import { UIController } from './ui-controller.js?v=3.0.0';
 
 class ChaebolApp {
   constructor() {
@@ -22,9 +22,15 @@ class ChaebolApp {
     this.uiController = null;
   }
 
+  hideLoadingOverlay() {
+    const overlay = document.getElementById('canvas-loading-overlay');
+    if (overlay) {
+      overlay.classList.add('hidden');
+    }
+  }
+
   async init() {
     try {
-      console.log('🚀 Loading Chaebol Network Data v2.1.0...');
       await this.loadData();
 
       // Initialize Core Modules
@@ -40,6 +46,7 @@ class ChaebolApp {
         this.graphEngine.setData(filteredData, filterState.viewMode);
         this.analyticsEngine.updateData(filteredData.nodes, filteredData.links);
         this.uiController.updateKPICounters();
+        this.uiController.syncFilterUI(filterState);
       });
 
       this.uiController = new UIController(this);
@@ -53,40 +60,48 @@ class ChaebolApp {
       this.uiController.updateKPICounters();
       this.bindTabNavigation();
 
-      // Initial Graph Render
-      const initialFiltered = this.filterManager.getFilteredData();
-      this.graphEngine.setData(initialFiltered, 'holistic');
-
-      // Check URL Deep Linking parameters (?node=... / ?view=...)
+      // Parse URL Deep Linking parameters (?node=... / ?view=... / ?search=... / ?guide=true)
       const urlParams = new URLSearchParams(window.location.search);
       const initialView = urlParams.get('view');
       const initialNodeId = urlParams.get('node');
+      const initialSearch = urlParams.get('search');
 
-      if (initialView && ['holistic', 'circular', 'dynasty', 'cluster', 'path', 'matrix'].includes(initialView)) {
-        const tabBtn = document.querySelector(`.tab-btn[data-view-mode="${initialView}"]`);
-        if (tabBtn) tabBtn.click();
-      }
-
-      if (initialNodeId) {
-        const targetNode = this.networkData.nodes.find(n => n.id === initialNodeId);
-        if (targetNode) {
-          setTimeout(() => {
-            this.uiController.showInspector(targetNode);
-            this.graphEngine.selectNode(targetNode, true);
-          }, 450);
+      // Allow browser to paint the loading overlay cleanly before synchronous pre-warm layout
+      requestAnimationFrame(() => {
+        if (initialView && ['holistic', 'circular', 'dynasty', 'cluster', 'path', 'matrix'].includes(initialView)) {
+          const tabBtn = document.querySelector(`.tab-btn[data-view-mode="${initialView}"]`);
+          if (tabBtn) tabBtn.click();
+        } else {
+          const initialFiltered = this.filterManager.getFilteredData();
+          this.graphEngine.setData(initialFiltered, 'holistic');
         }
-      }
 
-      // Check if guide modal requested (?guide=true / ?info=true)
-      if (urlParams.get('guide') === 'true' || urlParams.get('info') === 'true') {
-        setTimeout(() => {
-          document.getElementById('seo-guide-modal')?.classList.remove('closed');
-        }, 300);
-      }
+        // Smoothly reveal the pre-warmed, perfectly fitted graph
+        requestAnimationFrame(() => {
+          this.hideLoadingOverlay();
 
-      console.log('✨ Chaebol Network Visualization Engine Ready!');
+          if (initialNodeId) {
+            const targetNode = this.networkData.nodes.find(n => n.id === initialNodeId);
+            if (targetNode) {
+              setTimeout(() => {
+                this.graphEngine.selectNode(targetNode, true, true);
+              }, 120);
+            }
+          } else if (initialSearch && this.uiController.searchInput) {
+            this.uiController.searchInput.value = initialSearch;
+            this.uiController.handleSearchInput(initialSearch);
+          }
+
+          if (urlParams.get('guide') === 'true' || urlParams.get('info') === 'true') {
+            document.getElementById('seo-guide-modal')?.classList.remove('closed');
+          }
+        });
+      });
+
+      console.log('✨ Chaebol Network Visualization Engine v3.0 Ready!');
     } catch (err) {
       console.error('Failed to initialize ChaebolApp:', err);
+      this.hideLoadingOverlay();
       const container = document.getElementById('graph-canvas-container');
       if (container) {
         container.innerHTML = `
@@ -100,11 +115,11 @@ class ChaebolApp {
   }
 
   async loadData() {
-    // Load static JSON files with cache-busting timestamp
-    const t = Date.now();
+    // Use versioned query string so repeat visits leverage browser cache instead of forcing fresh download every load!
+    const v = '3.0.0';
     const [networkRes, summaryRes] = await Promise.all([
-      fetch(`./data/chaebol_network.json?t=${t}`),
-      fetch(`./data/groups_summary.json?t=${t}`)
+      fetch(`./data/chaebol_network.json?v=${v}`),
+      fetch(`./data/groups_summary.json?v=${v}`)
     ]);
 
     if (!networkRes.ok || !summaryRes.ok) {
@@ -131,21 +146,20 @@ class ChaebolApp {
   switchViewMode(mode) {
     this.currentViewMode = mode;
     const matrixContainer = document.getElementById('matrix-view-container');
-    const canvasContainer = document.getElementById('graph-canvas-container');
+    const canvasStage = document.getElementById('canvas-stage');
     const legendBar = document.getElementById('graph-legend-bar');
     const pathBanner = document.getElementById('path-finder-banner');
 
     if (mode === 'matrix') {
       if (matrixContainer) matrixContainer.style.display = 'block';
-      if (canvasContainer) canvasContainer.style.display = 'none';
-      if (legendBar) legendBar.style.display = 'none';
-      if (pathBanner) pathBanner.style.display = 'none';
+      if (canvasStage) canvasStage.style.display = 'none';
+      this.uiController.closeInspector();
       this.uiController.renderMatrixView(this.summaryData, this.networkData);
     } else {
       if (matrixContainer) matrixContainer.style.display = 'none';
-      if (canvasContainer) canvasContainer.style.display = 'block';
+      if (canvasStage) canvasStage.style.display = 'block';
       if (legendBar) legendBar.style.display = 'flex';
-      
+
       if (mode === 'path') {
         if (pathBanner) pathBanner.style.display = 'flex';
       } else {

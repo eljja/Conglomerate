@@ -27,16 +27,73 @@
 }
 
 [data-theme="light"] {
-  --bg-primary: #f3f4f6;
+  --bg-primary: #f1f5f9;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #e5e7eb;
-  --bg-glass: rgba(255, 255, 255, 0.9);
-  --border-color: #e5e7eb;
-  --border-glow: rgba(59, 130, 246, 0.3);
+  --bg-tertiary: #e2e8f0;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+  --border-color: #cbd5e1;
+  --border-glow: rgba(59, 130, 246, 0.35);
   
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+}
+
+[data-theme="light"] .logo-text h1 {
+  background: linear-gradient(90deg, #0f172a, #334155);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .kpi-ticker-bar {
+  background: rgba(248, 250, 252, 0.92);
+}
+
+[data-theme="light"] #graph-canvas-container {
+  background: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
+}
+
+[data-theme="light"] .minimap-container {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme="light"] .minimap-header {
+  background: rgba(15, 23, 42, 0.06);
+  color: #475569;
+}
+
+[data-theme="light"] .graph-tooltip-box {
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.16);
+}
+
+[data-theme="light"] .tooltip-sub {
+  color: #475569;
+}
+
+[data-theme="light"] .tooltip-desc {
+  color: #334155;
+}
+
+[data-theme="light"] .node-label {
+  fill: #0f172a !important;
+}
+
+[data-theme="light"] .node-label-bg {
+  stroke: #f8fafc !important;
+}
+
+[data-theme="light"] .node-sublabel {
+  fill: #475569 !important;
+}
+
+[data-theme="light"] .link-label-bg {
+  fill: rgba(255, 255, 255, 0.92) !important;
+}
+
+[data-theme="light"] .link-label-text {
+  fill: #0f172a !important;
 }
 
 * {
@@ -188,9 +245,18 @@ header.app-header {
   height: calc(100vh - 94px);
 }
 
-/* Center Graph Canvas Container */
-#graph-canvas-container {
+/* Center Graph Canvas Stage & Container */
+.canvas-stage {
   flex: 1;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  min-width: 0;
+}
+
+#graph-canvas-container {
+  width: 100%;
+  height: 100%;
   position: relative;
   background: radial-gradient(circle at center, #111827 0%, #080c14 100%);
   overflow: hidden;
@@ -199,6 +265,72 @@ header.app-header {
 
 #graph-canvas-container:active {
   cursor: grabbing;
+}
+
+/* Smooth Loading Overlay */
+.canvas-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 15, 25, 0.86);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 35;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+[data-theme="light"] .canvas-loading-overlay {
+  background: rgba(241, 245, 249, 0.88);
+}
+
+.canvas-loading-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-spinner-ring {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-right-color: #8b5cf6;
+  border-radius: 50%;
+  animation: spinRing 0.8s linear infinite;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.loading-subtext {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+/* Empty Filter State Overlay */
+.canvas-empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 28px 34px;
+  text-align: center;
+  z-index: 25;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
 }
 
 /* Floating Controls (Search, Legend, Zoom) */
@@ -219,7 +351,7 @@ header.app-header {
 
 .search-input {
   width: 100%;
-  padding: 9px 14px 9px 36px;
+  padding: 9px 32px 9px 36px;
   background: var(--bg-glass);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
@@ -229,6 +361,26 @@ header.app-header {
   outline: none;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   transition: all 0.2s ease;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.search-clear-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .search-input:focus {
@@ -321,8 +473,8 @@ header.app-header {
   position: absolute;
   bottom: 16px;
   left: 16px;
-  width: 150px;
-  height: 100px;
+  width: 160px;
+  height: 106px;
   background: rgba(11, 15, 25, 0.85);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
@@ -330,6 +482,12 @@ header.app-header {
   overflow: hidden;
   z-index: 20;
   box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  cursor: crosshair;
+  transition: border-color 0.2s ease;
+}
+
+.minimap-container:hover {
+  border-color: var(--accent-blue);
 }
 
 .minimap-header {
@@ -406,8 +564,39 @@ header.app-header {
   right: 16px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
   z-index: 20;
+}
+
+.zoom-level-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  padding: 3px 7px;
+  border-radius: 8px;
+  min-width: 42px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Smooth fade for Semantic Zoom LOD */
+.link-label-group,
+.node-sublabel {
+  transition: opacity 0.2s ease;
+}
+
+/* Clickable Matrix Rows */
+.data-table tr.clickable-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.data-table tr.clickable-row:hover {
+  background: rgba(59, 130, 246, 0.14);
 }
 
 .canvas-btn {
@@ -566,10 +755,18 @@ aside.filter-sidebar.closed {
     z-index: 50;
   }
 
-  #graph-minimap-container {
-    bottom: 12px;
-    left: 12px;
-    width: 140px;
-    height: 90px;
+  .minimap-container {
+    display: none;
+  }
+
+  .search-box-container {
+    width: 210px;
+  }
+
+  .graph-legend-bar {
+    bottom: 10px;
+    padding: 6px 12px;
+    gap: 10px;
+    max-width: 82vw;
   }
 }

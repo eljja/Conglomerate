@@ -1,6 +1,6 @@
 /**
- * 대한민국 대기업 네트워크 - D3.js 고도화 포스 레이아웃 시각화 엔진 (v2.0 Advanced)
- * 미니맵(Minimap), 스마트 툴팁(Tooltip), 성운 오라(Nebula Aura), 비례 면적/선굵기 지원
+ * 대한민국 대기업 네트워크 - D3.js 고도화 포스 레이아웃 시각화 엔진 (v3.0 High-Performance UX)
+ * 프리워밍(Pre-warming) 무버벅 로딩, 자동 화면 맞춤(Fit-to-Screen), 시맨틱 줌(LOD), 클릭 이동 미니맵 지원
  */
 
 export class NetworkGraph {
@@ -9,26 +9,27 @@ export class NetworkGraph {
     this.options = options;
     this.width = this.container.clientWidth || window.innerWidth;
     this.height = this.container.clientHeight || window.innerHeight;
-    
+
     this.nodes = [];
     this.links = [];
-    this.filteredNodes = [];
-    this.filteredLinks = [];
-    
     this.svg = null;
     this.g = null;
     this.simulation = null;
     this.zoom = null;
     this.currentTransform = d3.zoomIdentity;
-    
+
     this.selectedNodeId = null;
+    this.hoveredNodeId = null;
     this.highlightedPath = null;
     this.viewMode = 'holistic';
     this.sizeScaleEnabled = true;
+    this.hasRenderedOnce = false;
+    this._minimapMeta = null;
+    this._tickCounter = 0;
 
     this.onNodeClick = options.onNodeClick || null;
     this.onLinkClick = options.onLinkClick || null;
-    
+
     // Group Color Palette
     this.groupColors = {
       'samsung': '#3b82f6',
@@ -57,7 +58,7 @@ export class NetworkGraph {
     this.initSVG();
     this.initTooltip();
     this.initMinimap();
-    this.initResizeListener();
+    this.initResizeObserver();
   }
 
   initSVG() {
@@ -72,7 +73,7 @@ export class NetworkGraph {
 
     const defs = this.svg.append('defs');
 
-    // Dynamic marker generator: high-contrast, stroke-proportional, clearly visible
+    // Dynamic marker generator: crisp, stroke-proportional arrowheads
     const createMarker = (id, color) => {
       defs.append('marker')
         .attr('id', id)
@@ -96,34 +97,6 @@ export class NetworkGraph {
     createMarker('arrow-marriage', '#ec4899');
     createMarker('arrow-highlight', '#38bdf8');
 
-    // Drop shadow filter for nodes
-    const filter = defs.append('filter')
-      .attr('id', 'node-shadow')
-      .attr('x', '-20%')
-      .attr('y', '-20%')
-      .attr('width', '140%')
-      .attr('height', '140%');
-    filter.append('feDropShadow')
-      .attr('dx', 0)
-      .attr('dy', 4)
-      .attr('stdDeviation', 6)
-      .attr('flood-color', '#000000')
-      .attr('flood-opacity', 0.4);
-
-    // Neon glow filter for holdings and circular nodes
-    const glow = defs.append('filter')
-      .attr('id', 'neon-glow')
-      .attr('x', '-40%')
-      .attr('y', '-40%')
-      .attr('width', '180%')
-      .attr('height', '180%');
-    glow.append('feGaussianBlur')
-      .attr('stdDeviation', 4.5)
-      .attr('result', 'coloredBlur');
-    const feMerge = glow.append('feMerge');
-    feMerge.append('feMergeNode').attr('in', 'coloredBlur');
-    feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
-
     // Main Graph Container
     this.g = this.svg.append('g').attr('class', 'main-graph-group');
 
@@ -133,12 +106,13 @@ export class NetworkGraph {
     this.linkLabelLayer = this.g.append('g').attr('class', 'link-label-layer');
     this.nodeLayer = this.g.append('g').attr('class', 'node-layer');
 
-    // Zoom & Pan Behavior
+    // Zoom & Pan Behavior (Wide zoom range so huge networks fit effortlessly)
     this.zoom = d3.zoom()
-      .scaleExtent([0.15, 4.0])
+      .scaleExtent([0.08, 4.0])
       .on('zoom', (event) => {
         this.currentTransform = event.transform;
         this.g.attr('transform', event.transform);
+        this.applySemanticZoom(event.transform.k);
         this.updateMinimap();
       });
 
@@ -170,6 +144,27 @@ export class NetworkGraph {
     this.minimapCanvas = document.getElementById('minimap-canvas');
     if (!this.minimapCanvas) return;
     this.minimapCtx = this.minimapCanvas.getContext('2d');
+
+    // Interactive click-to-pan on minimap
+    const navigateFromEvent = (e) => {
+      if (!this._minimapMeta) return;
+      const rect = this.minimapCanvas.getBoundingClientRect();
+      const clickX = ((e.clientX - rect.left) / rect.width) * this.minimapCanvas.width;
+      const clickY = ((e.clientY - rect.top) / rect.height) * this.minimapCanvas.height;
+
+      const { minX, minY, scale } = this._minimapMeta;
+      const worldX = clickX / scale + minX;
+      const worldY = clickY / scale + minY;
+
+      const k = this.currentTransform.k || 1;
+      const transform = d3.zoomIdentity
+        .translate(this.width / 2 - worldX * k, this.height / 2 - worldY * k)
+        .scale(k);
+
+      this.svg.transition().duration(300).ease(d3.easeCubicOut).call(this.zoom.transform, transform);
+    };
+
+    this.minimapCanvas.addEventListener('click', navigateFromEvent);
   }
 
   /**
@@ -214,15 +209,29 @@ export class NetworkGraph {
     return 3.6;
   }
 
-  setData(data, viewMode = 'holistic') {
+  setData(data, viewMode = 'holistic', options = {}) {
     this.viewMode = viewMode;
     this.nodes = JSON.parse(JSON.stringify(data.nodes || []));
     this.links = JSON.parse(JSON.stringify(data.links || []));
+    this.selectedNodeId = null;
+    this.hoveredNodeId = null;
+    this.highlightedPath = null;
 
-    this.render();
+    // Refresh canvas dimensions accurately before layout
+    this.width = this.container.clientWidth || window.innerWidth;
+    this.height = this.container.clientHeight || window.innerHeight;
+    this.svg.attr('viewBox', [0, 0, this.width, this.height]);
+
+    // Toggle Empty State overlay
+    const emptyOverlay = document.getElementById('canvas-empty-state');
+    if (emptyOverlay) {
+      emptyOverlay.style.display = this.nodes.length === 0 ? 'block' : 'none';
+    }
+
+    this.render(options);
   }
 
-  render() {
+  render(options = {}) {
     if (this.simulation) {
       this.simulation.stop();
     }
@@ -230,24 +239,55 @@ export class NetworkGraph {
     const nodes = this.nodes;
     const links = this.links;
 
-    // Simulation forces setup with dynamic node collision based on radii
+    // Pre-cache radii & seed initial coordinates near cluster/group centers for fast, low-tangle convergence
+    const groupCenters = this.getGroupCenters();
+    const cx = this.width / 2;
+    const cy = this.height / 2;
+
+    nodes.forEach((n, i) => {
+      n._r = this.getNodeRadius(n);
+      if (this.viewMode === 'cluster') {
+        const c = groupCenters.get(n.group) || { x: cx, y: cy };
+        const angle = (i * 2.39996); // golden angle spread
+        const rSpread = 25 + (i % 7) * 14;
+        n.x = c.x + Math.cos(angle) * rSpread;
+        n.y = c.y + Math.sin(angle) * rSpread;
+      } else {
+        // Group-seeded gentle radial layout prevents chaotic tangle on tick 0
+        const c = groupCenters.get(n.group) || { x: cx, y: cy };
+        const angle = (i * 2.39996);
+        const rSpread = 20 + (i % 6) * 18;
+        n.x = cx + (c.x - cx) * 0.45 + Math.cos(angle) * rSpread;
+        n.y = cy + (c.y - cy) * 0.45 + Math.sin(angle) * rSpread;
+      }
+    });
+
+    // Clear existing SVG elements when empty
+    if (nodes.length === 0) {
+      this.clusterLayer.selectAll('*').remove();
+      this.linkLayer.selectAll('*').remove();
+      this.linkLabelLayer.selectAll('*').remove();
+      this.nodeLayer.selectAll('*').remove();
+      this.updateMinimap();
+      return;
+    }
+
+    // Force simulation setup (tuned for crisp spacing & fast settling)
     this.simulation = d3.forceSimulation(nodes)
+      .alphaDecay(0.045)
+      .velocityDecay(0.42)
       .force('link', d3.forceLink(links).id(d => d.id).distance(d => {
-        if (d.type === 'circular') return 100;
-        if (d.type === 'family') return 80;
-        if (d.type === 'marriage' || d.type === 'marriage_past') return 95;
+        if (d.type === 'circular') return 105;
+        if (d.type === 'family') return 85;
+        if (d.type === 'marriage' || d.type === 'marriage_past') return 105;
         return 125;
       }).strength(0.75))
-      .force('charge', d3.forceManyBody().strength(d => {
-        const r = this.getNodeRadius(d);
-        return -r * 26;
-      }))
-      .force('center', d3.forceCenter(this.width / 2, this.height / 2).strength(0.08))
-      .force('collide', d3.forceCollide().radius(d => this.getNodeRadius(d) + 18).iterations(3))
-      .force('x', d3.forceX(this.width / 2).strength(0.04))
-      .force('y', d3.forceY(this.height / 2).strength(0.04));
+      .force('charge', d3.forceManyBody().strength(d => -d._r * 22).distanceMax(650))
+      .force('center', d3.forceCenter(cx, cy).strength(0.08))
+      .force('collide', d3.forceCollide().radius(d => d._r + 18).iterations(2))
+      .force('x', d3.forceX(cx).strength(this.viewMode === 'cluster' ? 0.01 : 0.045))
+      .force('y', d3.forceY(cy).strength(this.viewMode === 'cluster' ? 0.01 : 0.045));
 
-    // Specific Layout clustering based on viewMode
     if (this.viewMode === 'cluster') {
       this.simulation.force('cluster', this.forceCluster());
       this.renderClusterBackgrounds();
@@ -256,6 +296,13 @@ export class NetworkGraph {
       if (this.clusterLayer) {
         this.clusterLayer.selectAll('*').remove();
       }
+    }
+
+    // --- Pre-warm Simulation Synchronously Offscreen (Eliminates Initial Explosion Stutter!) ---
+    this.simulation.stop();
+    const preTicks = nodes.length > 60 ? 150 : 90;
+    for (let i = 0; i < preTicks; i++) {
+      this.simulation.tick();
     }
 
     // --- Render Links ---
@@ -268,15 +315,10 @@ export class NetworkGraph {
       .attr('class', 'link-group');
 
     linkEnter.append('path')
-      .attr('class', d => `network-link ${d.type} ${d.highlight_loop ? 'circular-flow-edge' : ''}`)
-      .attr('stroke', d => this.getLinkColor(d))
-      .attr('stroke-width', d => this.getLinkWidth(d))
-      .attr('marker-end', d => this.getMarkerEnd(d))
       .attr('fill', 'none');
 
     const linkElements = linkEnter.merge(linkGroup);
-
-    linkElements.select('path')
+    const linkPaths = linkElements.select('path')
       .attr('class', d => `network-link ${d.type} ${d.highlight_loop ? 'circular-flow-edge' : ''}`)
       .attr('stroke', d => this.getLinkColor(d))
       .attr('stroke-width', d => this.getLinkWidth(d))
@@ -284,7 +326,7 @@ export class NetworkGraph {
 
     // --- Render Link Labels (Badge pill) ---
     const labelGroup = this.linkLabelLayer.selectAll('g.link-label-group')
-      .data(links.filter(l => l.stake || l.label), d => `${d.source.id || d.source}-${d.target.id || d.target}`);
+      .data(links.filter(l => l.stake || l.label), d => `${d.source.id || d.source}-${d.target.id || d.target}-${d.type}`);
 
     labelGroup.exit().remove();
 
@@ -323,7 +365,7 @@ export class NetworkGraph {
       }
     });
 
-    // --- Render Nodes ---
+    // --- Render Nodes (Zero expensive SVG blur/shadow filters -> 60fps silky smooth!) ---
     const nodeGroup = this.nodeLayer.selectAll('g.node-group')
       .data(nodes, d => d.id);
 
@@ -334,39 +376,47 @@ export class NetworkGraph {
       .call(this.drag(this.simulation))
       .on('click', (event, d) => {
         event.stopPropagation();
-        this.selectNode(d);
+        this.selectNode(d, true);
       })
       .on('mouseenter', (event, d) => {
+        this.hoveredNodeId = d.id;
         this.handleNodeHover(d, true);
         this.showTooltip(event, d);
       })
-      .on('mousemove', (event, d) => {
+      .on('mousemove', (event) => {
         this.moveTooltip(event);
       })
-      .on('mouseleave', (event, d) => {
-        this.handleNodeHover(d, false);
+      .on('mouseleave', () => {
+        this.hoveredNodeId = null;
         this.hideTooltip();
+        if (this.selectedNodeId) {
+          const selected = this.nodes.find(n => n.id === this.selectedNodeId);
+          if (selected) {
+            this.handleNodeHover(selected, true);
+            return;
+          }
+        }
+        this.handleNodeHover(null, false);
       });
 
-    // Outer Aura Ring for Holding Companies
+    // Crisp Gold Outer Ring for Holding Companies (No expensive feGaussianBlur filter)
     nodeEnter.filter(d => d.is_holding)
       .append('circle')
       .attr('class', 'holding-aura-ring')
-      .attr('r', d => this.getNodeRadius(d) + 7)
+      .attr('r', d => d._r + 6)
       .attr('fill', 'none')
       .attr('stroke', '#f59e0b')
       .attr('stroke-width', 2.5)
       .attr('stroke-dasharray', '6,3')
-      .attr('filter', 'url(#neon-glow)');
+      .attr('opacity', 0.85);
 
     // Main Circle Node
     nodeEnter.append('circle')
       .attr('class', 'node-shape')
-      .attr('r', d => this.getNodeRadius(d))
+      .attr('r', d => d._r)
       .attr('fill', d => this.getNodeColor(d))
       .attr('stroke', d => d.is_holding ? '#fbbf24' : '#ffffff')
-      .attr('stroke-width', d => d.is_holding ? 3.5 : 2.5)
-      .attr('filter', 'url(#node-shadow)');
+      .attr('stroke-width', d => d.is_holding ? 3.5 : 2.2);
 
     // Inner Icon / Emoji (2x boosted size)
     nodeEnter.append('text')
@@ -374,7 +424,7 @@ export class NetworkGraph {
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .attr('dy', '0.05em')
-      .attr('font-size', d => `${Math.max(22, this.getNodeRadius(d) * 1.05)}px`)
+      .attr('font-size', d => `${Math.max(22, d._r * 1.05)}px`)
       .attr('pointer-events', 'none')
       .text(d => {
         if (d.type === 'person') return '👤';
@@ -385,7 +435,7 @@ export class NetworkGraph {
     // Node Title Label (Below)
     const textGroup = nodeEnter.append('g')
       .attr('class', 'node-label-wrap')
-      .attr('transform', d => `translate(0, ${this.getNodeRadius(d) + 14})`);
+      .attr('transform', d => `translate(0, ${d._r + 14})`);
 
     textGroup.append('text')
       .attr('class', 'node-label-bg')
@@ -416,15 +466,19 @@ export class NetworkGraph {
       .text(d => d.val_trillion ? `${d.val_trillion}조` : (d.industry || d.title || ''));
 
     const nodeElements = nodeEnter.merge(nodeGroup);
+
+    // Update dynamic radii if sizeScaleEnabled changed
+    nodeElements.select('circle.node-shape').attr('r', d => d._r);
+    nodeElements.select('circle.holding-aura-ring').attr('r', d => d._r + 6);
+    nodeElements.select('.node-label-wrap').attr('transform', d => `translate(0, ${d._r + 14})`);
     nodeElements.select('.node-icon')
-      .attr('font-size', d => `${Math.max(22, this.getNodeRadius(d) * 1.05)}px`)
+      .attr('font-size', d => `${Math.max(22, d._r * 1.05)}px`)
       .attr('dominant-baseline', 'central')
       .attr('dy', '0.05em');
 
-    // --- Simulation Tick Handler ---
-    this.simulation.on('tick', () => {
-      // Trim path to stop precisely at node boundaries
-      linkElements.select('path').attr('d', d => {
+    // Helper to paint current coordinates to DOM
+    const updatePositions = () => {
+      linkPaths.attr('d', d => {
         const sx = d.source.x, sy = d.source.y;
         const tx = d.target.x, ty = d.target.y;
         const dx = tx - sx, dy = ty - sy;
@@ -432,8 +486,8 @@ export class NetworkGraph {
 
         if (dist === 0) return `M${sx},${sy}L${tx},${ty}`;
 
-        const sourceR = this.getNodeRadius(d.source) + 1;
-        const targetR = this.getNodeRadius(d.target) + 2;
+        const sourceR = (d.source._r || 24) + 1;
+        const targetR = (d.target._r || 24) + 2;
 
         const startX = sx + (dx * sourceR) / dist;
         const startY = sy + (dy * sourceR) / dist;
@@ -443,7 +497,6 @@ export class NetworkGraph {
         return `M${startX},${startY}L${endX},${endY}`;
       });
 
-      // Position Link Labels
       labelElements.attr('transform', d => {
         const x = (d.source.x + d.target.x) / 2;
         const y = (d.source.y + d.target.y) / 2;
@@ -451,19 +504,177 @@ export class NetworkGraph {
       });
 
       nodeElements.attr('transform', d => `translate(${d.x},${d.y})`);
+    };
 
+    // Paint settled pre-warmed positions immediately!
+    updatePositions();
+
+    // Auto-fit entire network into viewport so 100% is visible immediately!
+    if (!options.skipAutoFit) {
+      const shouldAnimate = this.hasRenderedOnce;
+      this.fitToScreen(shouldAnimate);
+    }
+    this.hasRenderedOnce = true;
+
+    // Gentle live settling ticks (throttled minimap updates)
+    this._tickCounter = 0;
+    this.simulation.on('tick', () => {
+      updatePositions();
+      this._tickCounter++;
+      if (this._tickCounter % 4 === 0) {
+        this.updateMinimap();
+      }
+    });
+
+    this.simulation.on('end', () => {
       this.updateMinimap();
     });
 
-    this.simulation.alpha(1).restart();
+    // Very soft residual motion to feel alive without jank
+    this.simulation.alpha(0.06).restart();
+    this.updateMinimap();
+  }
+
+  /**
+   * Automatically fits the ENTIRE visible network inside the canvas with comfortable margins
+   */
+  fitToScreen(animate = true, padding = 52) {
+    if (!this.nodes || this.nodes.length === 0) return;
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+    this.nodes.forEach(n => {
+      if (n.x === undefined || n.y === undefined) return;
+      const r = (n._r || 28) + 28; // Include label clearance
+      if (n.x - r < minX) minX = n.x - r;
+      if (n.x + r > maxX) maxX = n.x + r;
+      if (n.y - r < minY) minY = n.y - r;
+      if (n.y + r + 14 > maxY) maxY = n.y + r + 14;
+    });
+
+    // Include cluster background rings if in cluster mode
+    if (this.viewMode === 'cluster') {
+      const centers = this.getGroupCenters();
+      const presentGroups = new Set(this.nodes.map(n => n.group));
+      centers.forEach((c, key) => {
+        if (presentGroups.has(key)) {
+          if (c.x - 175 < minX) minX = c.x - 175;
+          if (c.x + 175 > maxX) maxX = c.x + 175;
+          if (c.y - 195 < minY) minY = c.y - 195;
+          if (c.y + 175 > maxY) maxY = c.y + 175;
+        }
+      });
+    }
+
+    if (!isFinite(minX) || !isFinite(maxX)) return;
+
+    const boundsW = Math.max(120, maxX - minX);
+    const boundsH = Math.max(120, maxY - minY);
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+
+    // Reserve visual breathing room for search bar (top) & legend bar (bottom)
+    const topMargin = 62;
+    const bottomMargin = 78;
+    const availW = Math.max(200, this.width - padding * 2);
+    const availH = Math.max(200, this.height - topMargin - bottomMargin);
+
+    const rawScale = Math.min(availW / boundsW, availH / boundsH);
+    const scale = Math.max(0.10, Math.min(1.15, rawScale * 0.94));
+
+    const targetCenterY = topMargin + availH / 2;
+    const tx = this.width / 2 - midX * scale;
+    const ty = targetCenterY - midY * scale;
+
+    const transform = d3.zoomIdentity.translate(tx, ty).scale(scale);
+
+    if (animate) {
+      this.svg.transition()
+        .duration(650)
+        .ease(d3.easeCubicOut)
+        .call(this.zoom.transform, transform);
+    } else {
+      this.svg.call(this.zoom.transform, transform);
+    }
+  }
+
+  /**
+   * Smoothly frame a specific subset of nodes (e.g. Path Finder result)
+   */
+  fitToNodes(nodeIds, animate = true) {
+    const idSet = new Set(nodeIds);
+    const subset = this.nodes.filter(n => idSet.has(n.id) && n.x !== undefined);
+    if (subset.length === 0) return;
+
+    if (subset.length === 1) {
+      this.focusOnNode(subset[0].id, 1.25);
+      return;
+    }
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    subset.forEach(n => {
+      const r = (n._r || 28) + 45;
+      if (n.x - r < minX) minX = n.x - r;
+      if (n.x + r > maxX) maxX = n.x + r;
+      if (n.y - r < minY) minY = n.y - r;
+      if (n.y + r > maxY) maxY = n.y + r;
+    });
+
+    const boundsW = Math.max(200, maxX - minX);
+    const boundsH = Math.max(200, maxY - minY);
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+
+    const availW = Math.max(200, this.width - 140);
+    const availH = Math.max(200, this.height - 180);
+    const scale = Math.max(0.25, Math.min(1.25, Math.min(availW / boundsW, availH / boundsH) * 0.88));
+
+    const transform = d3.zoomIdentity
+      .translate(this.width / 2 - midX * scale, this.height / 2 - midY * scale)
+      .scale(scale);
+
+    if (animate) {
+      this.svg.transition().duration(650).ease(d3.easeCubicOut).call(this.zoom.transform, transform);
+    } else {
+      this.svg.call(this.zoom.transform, transform);
+    }
+  }
+
+  /**
+   * Semantic Zoom (Level of Detail): keep wide overviews ultra-clean, show fine labels when zoomed in
+   */
+  applySemanticZoom(k) {
+    const badge = document.getElementById('zoom-level-badge');
+    if (badge) {
+      badge.textContent = `${Math.round(k * 100)}%`;
+    }
+
+    // Do not override visibility if user is actively inspecting a node or path
+    if (this.hoveredNodeId || this.selectedNodeId || this.highlightedPath) {
+      return;
+    }
+
+    const showLinkLabels = k >= 0.55;
+    const showSublabels = k >= 0.42;
+
+    if (this.linkLabelLayer) {
+      this.linkLabelLayer.selectAll('g.link-label-group')
+        .style('opacity', showLinkLabels ? 1 : 0)
+        .style('pointer-events', showLinkLabels ? 'auto' : 'none');
+    }
+
+    if (this.nodeLayer) {
+      this.nodeLayer.selectAll('text.node-sublabel')
+        .style('opacity', showSublabels ? 1 : 0);
+    }
   }
 
   showTooltip(event, node) {
     if (!this.tooltip) return;
-    
+
     const roleText = node.title || node.industry || node.role || '';
     const valText = node.val_trillion ? `자산/가치: 약 ${node.val_trillion}조 원` : '';
-    const groupName = (node.group || '').toUpperCase();
+    const groupName = this.getGroupDisplayName(node.group);
 
     this.tooltip.innerHTML = `
       <div class="tooltip-header">
@@ -472,7 +683,7 @@ export class NetworkGraph {
       </div>
       <div class="tooltip-sub">${roleText}</div>
       ${valText ? `<div class="tooltip-val">${valText}</div>` : ''}
-      <div class="tooltip-desc">${node.desc ? node.desc.slice(0, 75) + '...' : ''}</div>
+      <div class="tooltip-desc">${node.desc ? (node.desc.length > 80 ? node.desc.slice(0, 80) + '...' : node.desc) : ''}</div>
     `;
     this.tooltip.style.display = 'block';
     this.moveTooltip(event);
@@ -480,8 +691,20 @@ export class NetworkGraph {
 
   moveTooltip(event) {
     if (!this.tooltip) return;
-    const x = event.clientX + 14;
-    const y = event.clientY + 14;
+    const pad = 16;
+    const tipW = this.tooltip.offsetWidth || 260;
+    const tipH = this.tooltip.offsetHeight || 120;
+
+    let x = event.clientX + 14;
+    let y = event.clientY + 14;
+
+    if (x + tipW + pad > window.innerWidth) {
+      x = Math.max(pad, event.clientX - tipW - 14);
+    }
+    if (y + tipH + pad > window.innerHeight) {
+      y = Math.max(pad, event.clientY - tipH - 14);
+    }
+
     this.tooltip.style.left = `${x}px`;
     this.tooltip.style.top = `${y}px`;
   }
@@ -500,9 +723,13 @@ export class NetworkGraph {
 
     ctx.clearRect(0, 0, w, h);
 
-    if (this.nodes.length === 0) return;
+    if (this.nodes.length === 0) {
+      this._minimapMeta = null;
+      return;
+    }
 
-    // Calculate bounding box of all nodes
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     this.nodes.forEach(n => {
       if (n.x < minX) minX = n.x;
@@ -511,7 +738,7 @@ export class NetworkGraph {
       if (n.y > maxY) maxY = n.y;
     });
 
-    const padding = 100;
+    const padding = 120;
     minX -= padding; maxX += padding;
     minY -= padding; maxY += padding;
 
@@ -519,27 +746,32 @@ export class NetworkGraph {
     const dataH = Math.max(100, maxY - minY);
     const scale = Math.min(w / dataW, h / dataH);
 
-    const mapX = (x) => (x - minX) * scale;
-    const mapY = (y) => (y - minY) * scale;
+    // Center drawing in minimap
+    const offsetX = (w - dataW * scale) / 2;
+    const offsetY = (h - dataH * scale) / 2;
+    this._minimapMeta = { minX: minX - offsetX / scale, minY: minY - offsetY / scale, scale };
+
+    const mapX = (x) => (x - minX) * scale + offsetX;
+    const mapY = (y) => (y - minY) * scale + offsetY;
 
     // Draw Links on Minimap
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
     this.links.forEach(l => {
-      if (l.source.x && l.target.x) {
-        ctx.beginPath();
+      if (l.source.x !== undefined && l.target.x !== undefined) {
         ctx.moveTo(mapX(l.source.x), mapY(l.source.y));
         ctx.lineTo(mapX(l.target.x), mapY(l.target.y));
-        ctx.stroke();
       }
     });
+    ctx.stroke();
 
     // Draw Nodes on Minimap
     this.nodes.forEach(n => {
-      if (n.x && n.y) {
+      if (n.x !== undefined && n.y !== undefined) {
         ctx.fillStyle = this.getNodeColor(n);
         ctx.beginPath();
-        ctx.arc(mapX(n.x), mapY(n.y), n.is_holding ? 3.5 : 2, 0, 2 * Math.PI);
+        ctx.arc(mapX(n.x), mapY(n.y), n.is_holding ? 3 : 1.8, 0, 2 * Math.PI);
         ctx.fill();
       }
     });
@@ -558,7 +790,7 @@ export class NetworkGraph {
 
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 1.5;
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.14)';
     ctx.fillRect(vx, vy, vw, vh);
     ctx.strokeRect(vx, vy, vw, vh);
   }
@@ -594,7 +826,7 @@ export class NetworkGraph {
     const totalGroups = groupList.length;
     const centerX = this.width / 2;
     const centerY = this.height / 2;
-    const radius = Math.max(520, Math.min(this.width, this.height) * 0.48);
+    const radius = Math.max(620, Math.min(this.width, this.height) * 0.62);
     const centers = new Map();
 
     groupList.forEach((group, index) => {
@@ -618,8 +850,8 @@ export class NetworkGraph {
     return (alpha) => {
       for (const node of this.nodes) {
         const center = centers.get(node.group) || { x: centerX, y: centerY };
-        node.vx += (center.x - node.x) * 0.15 * alpha;
-        node.vy += (center.y - node.y) * 0.15 * alpha;
+        node.vx += (center.x - node.x) * 0.22 * alpha;
+        node.vy += (center.y - node.y) * 0.22 * alpha;
       }
     };
   }
@@ -629,32 +861,35 @@ export class NetworkGraph {
     this.clusterLayer.selectAll('*').remove();
 
     const centers = this.getGroupCenters();
+    const presentGroups = new Set(this.nodes.map(n => n.group));
+    const activeCenters = Array.from(centers.entries()).filter(([key]) => presentGroups.has(key));
+
     const clusterGroup = this.clusterLayer.selectAll('g.cluster-group')
-      .data(Array.from(centers.entries()), d => d[0])
+      .data(activeCenters, d => d[0])
       .enter()
       .append('g')
       .attr('class', 'cluster-group')
       .attr('transform', d => `translate(${d[1].x}, ${d[1].y})`)
       .attr('pointer-events', 'none');
 
-    // Soft glowing ambient zone circle for each group cluster
+    // Soft ambient zone circle for each active group cluster
     clusterGroup.append('circle')
-      .attr('r', 160)
+      .attr('r', 165)
       .attr('fill', d => d[1].color)
       .attr('opacity', 0.05)
       .attr('stroke', d => d[1].color)
       .attr('stroke-width', 1.5)
       .attr('stroke-dasharray', '5,5')
-      .attr('stroke-opacity', 0.3);
+      .attr('stroke-opacity', 0.35);
 
     // Group territory title
     clusterGroup.append('text')
       .attr('text-anchor', 'middle')
-      .attr('y', -175)
+      .attr('y', -180)
       .attr('fill', d => d[1].color)
-      .attr('font-size', '14px')
+      .attr('font-size', '16px')
       .attr('font-weight', '800')
-      .attr('opacity', 0.9)
+      .attr('opacity', 0.92)
       .attr('letter-spacing', '0.04em')
       .text(d => d[1].name);
   }
@@ -667,7 +902,7 @@ export class NetworkGraph {
     if (d.type === 'circular') return '#f43f5e';
     if (d.type === 'family') return '#a855f7';
     if (d.type === 'marriage' || d.type === 'marriage_past') return '#ec4899';
-    if (d.type === 'ownership_corp' || d.type === 'ownership_person') return '#3b82f6';
+    if (d.type === 'ownership_corp' || d.type === 'ownership_person' || d.type === 'business_alliance') return '#3b82f6';
     return '#64748b';
   }
 
@@ -675,24 +910,23 @@ export class NetworkGraph {
     if (d.type === 'circular') return 'url(#arrow-circular)';
     if (d.type === 'family') return 'url(#arrow-family)';
     if (d.type === 'marriage' || d.type === 'marriage_past') return 'url(#arrow-marriage)';
-    if (d.type === 'ownership_corp' || d.type === 'ownership_person') return 'url(#arrow-ownership)';
-    if (d.type === 'business_alliance') return 'url(#arrow-ownership)';
+    if (d.type === 'ownership_corp' || d.type === 'ownership_person' || d.type === 'business_alliance') return 'url(#arrow-ownership)';
     return 'url(#arrow-ownership)';
   }
 
-  // Hover highlighting
+  // Hover & Selection highlighting
   handleNodeHover(node, isHovering) {
     if (this.highlightedPath) return;
 
-    if (!isHovering) {
+    if (!isHovering || !node) {
       this.nodeLayer.selectAll('g.node-group').attr('opacity', 1);
       this.linkLayer.selectAll('g.link-group').attr('opacity', 1);
       this.linkLabelLayer.selectAll('g.link-label-group').attr('opacity', 1);
+      this.applySemanticZoom(this.currentTransform.k);
       return;
     }
 
     const connectedNodeIds = new Set([node.id]);
-    const connectedLinkIds = new Set();
 
     this.links.forEach(link => {
       const sourceId = link.source.id || link.source;
@@ -700,7 +934,6 @@ export class NetworkGraph {
       if (sourceId === node.id || targetId === node.id) {
         connectedNodeIds.add(sourceId);
         connectedNodeIds.add(targetId);
-        connectedLinkIds.add(`${sourceId}-${targetId}`);
       }
     });
 
@@ -714,38 +947,51 @@ export class NetworkGraph {
         return (sourceId === node.id || targetId === node.id) ? 1 : 0.04;
       });
 
+    // Always reveal connected link percentage badges clearly when hovering/selecting!
     this.linkLabelLayer.selectAll('g.link-label-group')
-      .attr('opacity', d => {
+      .style('opacity', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (sourceId === node.id || targetId === node.id) ? 1 : 0.04;
+        return (sourceId === node.id || targetId === node.id) ? 1 : 0;
       });
   }
 
-  selectNode(node, autoFocus = true) {
-    this.selectedNodeId = node.id;
-    if (autoFocus && node && node.x !== undefined) {
-      this.focusOnNode(node.id);
+  /**
+   * Select a node by live object OR raw node object OR ID string, with reliable camera autofocus
+   */
+  selectNode(nodeOrId, autoFocus = true, triggerCallback = true) {
+    const id = typeof nodeOrId === 'string' ? nodeOrId : (nodeOrId && nodeOrId.id);
+    if (!id) return;
+
+    const liveNode = this.nodes.find(n => n.id === id);
+    this.selectedNodeId = id;
+
+    if (liveNode) {
+      this.handleNodeHover(liveNode, true);
+      if (autoFocus && liveNode.x !== undefined) {
+        this.focusOnNode(id, Math.max(1.15, this.currentTransform.k));
+      }
     }
-    if (typeof this.onNodeClick === 'function') {
-      this.onNodeClick(node);
+
+    if (triggerCallback && typeof this.onNodeClick === 'function') {
+      this.onNodeClick(liveNode || nodeOrId);
     }
   }
 
-  focusOnNode(nodeId, scale = 1.35) {
+  focusOnNode(nodeId, scale = 1.25) {
     const node = this.nodes.find(n => n.id === nodeId);
     if (!node || node.x === undefined || node.y === undefined) return;
 
+    const targetScale = Math.min(2.2, Math.max(0.85, scale));
     this.selectedNodeId = node.id;
     this.handleNodeHover(node, true);
 
     const transform = d3.zoomIdentity
-      .translate(this.width / 2, this.height / 2)
-      .scale(scale)
-      .translate(-node.x, -node.y);
+      .translate(this.width / 2 - node.x * targetScale, this.height / 2 - node.y * targetScale)
+      .scale(targetScale);
 
     this.svg.transition()
-      .duration(700)
+      .duration(650)
       .ease(d3.easeCubicOut)
       .call(this.zoom.transform, transform);
   }
@@ -772,7 +1018,7 @@ export class NetworkGraph {
       .attr('opacity', d => pathNodeSet.has(d.id) ? 1 : 0.1)
       .select('circle.node-shape')
       .attr('stroke', d => pathNodeSet.has(d.id) ? '#38bdf8' : this.getNodeColor(d))
-      .attr('stroke-width', d => pathNodeSet.has(d.id) ? 4.5 : 2.5);
+      .attr('stroke-width', d => pathNodeSet.has(d.id) ? 4.5 : 2.2);
 
     this.linkLayer.selectAll('g.link-group')
       .attr('opacity', d => {
@@ -793,20 +1039,26 @@ export class NetworkGraph {
       });
 
     this.linkLabelLayer.selectAll('g.link-label-group')
-      .attr('opacity', d => {
+      .style('opacity', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 1 : 0.04;
+        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 1 : 0;
       });
+
+    // Automatically frame the discovered path!
+    this.fitToNodes(pathResult.nodeIds, true);
   }
 
   clearHighlight() {
     this.highlightedPath = null;
+    this.selectedNodeId = null;
+    this.hoveredNodeId = null;
+
     this.nodeLayer.selectAll('g.node-group')
       .attr('opacity', 1)
       .select('circle.node-shape')
       .attr('stroke', d => d.is_holding ? '#fbbf24' : '#ffffff')
-      .attr('stroke-width', d => d.is_holding ? 3.5 : 2.5);
+      .attr('stroke-width', d => d.is_holding ? 3.5 : 2.2);
 
     this.linkLayer.selectAll('g.link-group')
       .attr('opacity', 1)
@@ -816,18 +1068,20 @@ export class NetworkGraph {
 
     this.linkLabelLayer.selectAll('g.link-label-group')
       .attr('opacity', 1);
+
+    this.applySemanticZoom(this.currentTransform.k);
   }
 
   zoomIn() {
-    this.svg.transition().duration(300).call(this.zoom.scaleBy, 1.3);
+    this.svg.transition().duration(260).ease(d3.easeCubicOut).call(this.zoom.scaleBy, 1.35);
   }
 
   zoomOut() {
-    this.svg.transition().duration(300).call(this.zoom.scaleBy, 0.7);
+    this.svg.transition().duration(260).ease(d3.easeCubicOut).call(this.zoom.scaleBy, 0.72);
   }
 
   resetZoom() {
-    this.svg.transition().duration(500).call(this.zoom.transform, d3.zoomIdentity);
+    this.fitToScreen(true);
   }
 
   exportPNG() {
@@ -837,13 +1091,14 @@ export class NetworkGraph {
     canvas.width = this.width * 2;
     canvas.height = this.height * 2;
     const ctx = canvas.getContext('2d');
-    
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
     const img = new Image();
     const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      ctx.fillStyle = '#0b0f19';
+      ctx.fillStyle = isLight ? '#f8fafc' : '#0b0f19';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
@@ -856,21 +1111,30 @@ export class NetworkGraph {
     img.src = url;
   }
 
-  initResizeListener() {
-    window.addEventListener('resize', () => {
-      this.width = this.container.clientWidth || window.innerWidth;
-      this.height = this.container.clientHeight || window.innerHeight;
+  initResizeObserver() {
+    const handleResize = () => {
+      const nextW = this.container.clientWidth;
+      const nextH = this.container.clientHeight;
+      if (!nextW || !nextH) return;
+      if (Math.abs(nextW - this.width) < 2 && Math.abs(nextH - this.height) < 2) return;
+
+      this.width = nextW;
+      this.height = nextH;
       this.svg.attr('viewBox', [0, 0, this.width, this.height]);
-      if (this.simulation) {
-        this.simulation.force('center', d3.forceCenter(this.width / 2, this.height / 2));
-        this.simulation.alpha(0.3).restart();
-      }
-    });
+      this.updateMinimap();
+    };
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(handleResize);
+      this._resizeObserver.observe(this.container);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
   }
 
   drag(simulation) {
     function dragstarted(event, d) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
+      if (!event.active) simulation.alphaTarget(0.25).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
