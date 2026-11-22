@@ -7,7 +7,8 @@
   --bg-primary: #0b0f19;
   --bg-secondary: #111827;
   --bg-tertiary: #1f2937;
-  --bg-glass: rgba(17, 24, 39, 0.85);
+  --bg-glass: rgba(17, 24, 39, 0.88);
+  --bg-float: rgba(15, 23, 42, 0.94);
   --border-color: #374151;
   --border-glow: rgba(99, 102, 241, 0.4);
   
@@ -31,6 +32,7 @@
   --bg-secondary: #ffffff;
   --bg-tertiary: #e2e8f0;
   --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-float: rgba(255, 255, 255, 0.96);
   --border-color: #cbd5e1;
   --border-glow: rgba(59, 130, 246, 0.35);
   
@@ -261,10 +263,52 @@ header.app-header {
   background: radial-gradient(circle at center, #111827 0%, #080c14 100%);
   overflow: hidden;
   cursor: grab;
+  contain: layout style paint;
 }
 
 #graph-canvas-container:active {
   cursor: grabbing;
+}
+
+/* GPU Compositor Layer Promotion for Smooth Pan & Zoom */
+#network-svg {
+  display: block;
+  touch-action: none;
+}
+
+.main-graph-group {
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Keep GPU texture cache hot during active pan/zoom */
+#network-svg.is-panning .circular-flow-edge {
+  animation-play-state: paused !important;
+}
+
+#network-svg.is-panning .node-group {
+  pointer-events: none;
+}
+
+/* O(1) Class-Based Semantic Zoom LOD (Zero per-frame DOM loops!) */
+.link-label-layer.lod-hide-links .link-label-group {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.node-layer.lod-hide-sub .node-sublabel {
+  opacity: 0;
+}
+
+/* Highlight / Focus Mode overrides LOD cleanly */
+.link-label-layer.is-focusing .link-label-group {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.link-label-layer.is-focusing .link-label-group.is-active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Smooth Loading Overlay */
@@ -352,15 +396,14 @@ header.app-header {
 .search-input {
   width: 100%;
   padding: 9px 32px 9px 36px;
-  background: var(--bg-glass);
-  backdrop-filter: blur(10px);
+  background: var(--bg-float);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   color: var(--text-primary);
   font-size: 0.84rem;
   outline: none;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .search-clear-btn {
@@ -433,8 +476,7 @@ header.app-header {
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
+  background: var(--bg-float);
   border: 1px solid var(--border-color);
   padding: 8px 18px;
   border-radius: 12px;
@@ -475,8 +517,7 @@ header.app-header {
   left: 16px;
   width: 160px;
   height: 106px;
-  background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(10px);
+  background: var(--bg-float);
   border: 1px solid var(--border-color);
   border-radius: 10px;
   overflow: hidden;
@@ -509,13 +550,12 @@ header.app-header {
 .graph-tooltip-box {
   position: fixed;
   display: none;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(12px);
+  background: var(--bg-float);
   border: 1px solid var(--border-glow);
   padding: 12px 14px;
   border-radius: 10px;
   font-size: 0.82rem;
-  color: #f8fafc;
+  color: var(--text-primary);
   pointer-events: none;
   z-index: 100;
   box-shadow: 0 8px 30px rgba(0,0,0,0.6);
@@ -573,8 +613,7 @@ header.app-header {
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-secondary);
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
+  background: var(--bg-float);
   border: 1px solid var(--border-color);
   padding: 3px 7px;
   border-radius: 8px;
@@ -586,7 +625,7 @@ header.app-header {
 /* Smooth fade for Semantic Zoom LOD */
 .link-label-group,
 .node-sublabel {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.18s ease;
 }
 
 /* Clickable Matrix Rows */
@@ -603,8 +642,7 @@ header.app-header {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
+  background: var(--bg-float);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   display: flex;
@@ -612,7 +650,7 @@ header.app-header {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  transition: all 0.2s ease;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
   font-weight: bold;
 }
 

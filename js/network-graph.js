@@ -25,7 +25,17 @@ export class NetworkGraph {
     this.sizeScaleEnabled = true;
     this.hasRenderedOnce = false;
     this._minimapMeta = null;
+    this._minimapBgCanvas = null;
+    this._minimapBgCtx = null;
     this._tickCounter = 0;
+
+    // GPU Pan/Zoom & O(1) LOD State Cache
+    this._lodHideLinks = null;
+    this._lodHideSub = null;
+    this._lastZoomPct = null;
+    this._zoomBadgeEl = null;
+    this._zoomRafId = null;
+    this._pendingTransform = null;
 
     this.onNodeClick = options.onNodeClick || null;
     this.onLinkClick = options.onLinkClick || null;
@@ -106,14 +116,31 @@ export class NetworkGraph {
     this.linkLabelLayer = this.g.append('g').attr('class', 'link-label-layer');
     this.nodeLayer = this.g.append('g').attr('class', 'node-layer');
 
-    // Zoom & Pan Behavior (Wide zoom range so huge networks fit effortlessly)
+    // Zoom & Pan Behavior (GPU Compositor translate3d + rAF coalescing + zero DOM thrashing)
     this.zoom = d3.zoom()
       .scaleExtent([0.08, 4.0])
+      .on('start', () => {
+        this.svg.classed('is-panning', true);
+        this.hideTooltip();
+      })
       .on('zoom', (event) => {
         this.currentTransform = event.transform;
-        this.g.attr('transform', event.transform);
-        this.applySemanticZoom(event.transform.k);
-        this.updateMinimap();
+        this._pendingTransform = event.transform;
+
+        if (!this._zoomRafId) {
+          this._zoomRafId = requestAnimationFrame(() => {
+            this._zoomRafId = null;
+            const t = this._pendingTransform;
+            if (!t) return;
+            // Promote transform to GPU Compositor Layer
+            this.g.style('transform', `translate3d(${t.x}px, ${t.y}px, 0) scale(${t.k})`);
+            this.applySemanticZoom(t.k);
+            this.drawMinimapViewport();
+          });
+        }
+      })
+      .on('end', () => {
+        this.svg.classed('is-panning', false);
       });
 
     this.svg.call(this.zoom);
@@ -144,6 +171,12 @@ export class NetworkGraph {
     this.minimapCanvas = document.getElementById('minimap-canvas');
     if (!this.minimapCanvas) return;
     this.minimapCtx = this.minimapCanvas.getContext('2d');
+
+    // Offscreen background cache canvas so panning draws ONLY the viewport box!
+    this._minimapBgCanvas = document.createElement('canvas');
+    this._minimapBgCanvas.width = this.minimapCanvas.width;
+    this._minimapBgCanvas.height = this.minimapCanvas.height;
+    this._minimapBgCtx = this._minimapBgCanvas.getContext('2d');
 
     // Interactive click-to-pan on minimap
     const navigateFromEvent = (e) => {
@@ -216,6 +249,9 @@ export class NetworkGraph {
     this.selectedNodeId = null;
     this.hoveredNodeId = null;
     this.highlightedPath = null;
+    if (this.linkLabelLayer) {
+      this.linkLabelLayer.classed('is-focusing', false);
+    }
 
     // Refresh canvas dimensions accurately before layout
     this.width = this.container.clientWidth || window.innerWidth;
@@ -641,31 +677,34 @@ export class NetworkGraph {
   }
 
   /**
-   * Semantic Zoom (Level of Detail): keep wide overviews ultra-clean, show fine labels when zoomed in
+   * O(1) Class-Based Semantic Zoom (LOD): Zero DOM mutations during pure panning!
    */
   applySemanticZoom(k) {
-    const badge = document.getElementById('zoom-level-badge');
-    if (badge) {
-      badge.textContent = `${Math.round(k * 100)}%`;
+    const pct = Math.round(k * 100);
+    if (pct !== this._lastZoomPct) {
+      this._lastZoomPct = pct;
+      if (!this._zoomBadgeEl) {
+        this._zoomBadgeEl = document.getElementById('zoom-level-badge');
+      }
+      if (this._zoomBadgeEl) {
+        this._zoomBadgeEl.textContent = `${pct}%`;
+      }
     }
 
-    // Do not override visibility if user is actively inspecting a node or path
-    if (this.hoveredNodeId || this.selectedNodeId || this.highlightedPath) {
-      return;
+    const hideLinks = k < 0.55;
+    if (hideLinks !== this._lodHideLinks) {
+      this._lodHideLinks = hideLinks;
+      if (this.linkLabelLayer) {
+        this.linkLabelLayer.classed('lod-hide-links', hideLinks);
+      }
     }
 
-    const showLinkLabels = k >= 0.55;
-    const showSublabels = k >= 0.42;
-
-    if (this.linkLabelLayer) {
-      this.linkLabelLayer.selectAll('g.link-label-group')
-        .style('opacity', showLinkLabels ? 1 : 0)
-        .style('pointer-events', showLinkLabels ? 'auto' : 'none');
-    }
-
-    if (this.nodeLayer) {
-      this.nodeLayer.selectAll('text.node-sublabel')
-        .style('opacity', showSublabels ? 1 : 0);
+    const hideSub = k < 0.42;
+    if (hideSub !== this._lodHideSub) {
+      this._lodHideSub = hideSub;
+      if (this.nodeLayer) {
+        this.nodeLayer.classed('lod-hide-sub', hideSub);
+      }
     }
   }
 
@@ -715,28 +754,33 @@ export class NetworkGraph {
     }
   }
 
+  /**
+   * Rebuild offscreen minimap cache (nodes + links) ONLY when geometry or theme changes
+   */
   updateMinimap() {
-    if (!this.minimapCanvas || !this.minimapCtx) return;
-    const ctx = this.minimapCtx;
-    const w = this.minimapCanvas.width;
-    const h = this.minimapCanvas.height;
+    if (!this.minimapCanvas || !this._minimapBgCtx) return;
+    const bgCtx = this._minimapBgCtx;
+    const w = this._minimapBgCanvas.width;
+    const h = this._minimapBgCanvas.height;
 
-    ctx.clearRect(0, 0, w, h);
+    bgCtx.clearRect(0, 0, w, h);
 
     if (this.nodes.length === 0) {
       this._minimapMeta = null;
+      this.minimapCtx.clearRect(0, 0, w, h);
       return;
     }
 
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    this.nodes.forEach(n => {
+    for (let i = 0; i < this.nodes.length; i++) {
+      const n = this.nodes[i];
       if (n.x < minX) minX = n.x;
       if (n.x > maxX) maxX = n.x;
       if (n.y < minY) minY = n.y;
       if (n.y > maxY) maxY = n.y;
-    });
+    }
 
     const padding = 120;
     minX -= padding; maxX += padding;
@@ -746,45 +790,63 @@ export class NetworkGraph {
     const dataH = Math.max(100, maxY - minY);
     const scale = Math.min(w / dataW, h / dataH);
 
-    // Center drawing in minimap
     const offsetX = (w - dataW * scale) / 2;
     const offsetY = (h - dataH * scale) / 2;
-    this._minimapMeta = { minX: minX - offsetX / scale, minY: minY - offsetY / scale, scale };
+    const effectiveMinX = minX - offsetX / scale;
+    const effectiveMinY = minY - offsetY / scale;
+    this._minimapMeta = { minX: effectiveMinX, minY: effectiveMinY, scale };
 
-    const mapX = (x) => (x - minX) * scale + offsetX;
-    const mapY = (y) => (y - minY) * scale + offsetY;
+    const mapX = (x) => (x - effectiveMinX) * scale;
+    const mapY = (y) => (y - effectiveMinY) * scale;
 
-    // Draw Links on Minimap
-    ctx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 0.8;
-    ctx.beginPath();
-    this.links.forEach(l => {
+    // Draw Links once into offscreen cache
+    bgCtx.strokeStyle = isLight ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.15)';
+    bgCtx.lineWidth = 0.8;
+    bgCtx.beginPath();
+    for (let i = 0; i < this.links.length; i++) {
+      const l = this.links[i];
       if (l.source.x !== undefined && l.target.x !== undefined) {
-        ctx.moveTo(mapX(l.source.x), mapY(l.source.y));
-        ctx.lineTo(mapX(l.target.x), mapY(l.target.y));
+        bgCtx.moveTo(mapX(l.source.x), mapY(l.source.y));
+        bgCtx.lineTo(mapX(l.target.x), mapY(l.target.y));
       }
-    });
-    ctx.stroke();
+    }
+    bgCtx.stroke();
 
-    // Draw Nodes on Minimap
-    this.nodes.forEach(n => {
+    // Draw Nodes once into offscreen cache
+    for (let i = 0; i < this.nodes.length; i++) {
+      const n = this.nodes[i];
       if (n.x !== undefined && n.y !== undefined) {
-        ctx.fillStyle = this.getNodeColor(n);
-        ctx.beginPath();
-        ctx.arc(mapX(n.x), mapY(n.y), n.is_holding ? 3 : 1.8, 0, 2 * Math.PI);
-        ctx.fill();
+        bgCtx.fillStyle = this.getNodeColor(n);
+        bgCtx.beginPath();
+        bgCtx.arc(mapX(n.x), mapY(n.y), n.is_holding ? 3 : 1.8, 0, 2 * Math.PI);
+        bgCtx.fill();
       }
-    });
+    }
 
-    // Draw Viewport Box
+    this.drawMinimapViewport();
+  }
+
+  /**
+   * Ultra-fast viewport-only redraw during panning (2 canvas calls instead of 315+!)
+   */
+  drawMinimapViewport() {
+    if (!this.minimapCanvas || !this.minimapCtx || !this._minimapMeta || !this._minimapBgCanvas) return;
+    const ctx = this.minimapCtx;
+    const w = this.minimapCanvas.width;
+    const h = this.minimapCanvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(this._minimapBgCanvas, 0, 0);
+
+    const { minX, minY, scale } = this._minimapMeta;
     const t = this.currentTransform;
     const viewLeft = -t.x / t.k;
     const viewTop = -t.y / t.k;
     const viewRight = (this.width - t.x) / t.k;
     const viewBottom = (this.height - t.y) / t.k;
 
-    const vx = mapX(viewLeft);
-    const vy = mapY(viewTop);
+    const vx = (viewLeft - minX) * scale;
+    const vy = (viewTop - minY) * scale;
     const vw = (viewRight - viewLeft) * scale;
     const vh = (viewBottom - viewTop) * scale;
 
@@ -914,15 +976,16 @@ export class NetworkGraph {
     return 'url(#arrow-ownership)';
   }
 
-  // Hover & Selection highlighting
+  // Hover & Selection highlighting (Class-based, zero conflict with O(1) CSS LOD)
   handleNodeHover(node, isHovering) {
     if (this.highlightedPath) return;
 
     if (!isHovering || !node) {
       this.nodeLayer.selectAll('g.node-group').attr('opacity', 1);
       this.linkLayer.selectAll('g.link-group').attr('opacity', 1);
-      this.linkLabelLayer.selectAll('g.link-label-group').attr('opacity', 1);
-      this.applySemanticZoom(this.currentTransform.k);
+      this.linkLabelLayer.classed('is-focusing', false)
+        .selectAll('g.link-label-group')
+        .classed('is-active', false);
       return;
     }
 
@@ -947,12 +1010,13 @@ export class NetworkGraph {
         return (sourceId === node.id || targetId === node.id) ? 1 : 0.04;
       });
 
-    // Always reveal connected link percentage badges clearly when hovering/selecting!
-    this.linkLabelLayer.selectAll('g.link-label-group')
-      .style('opacity', d => {
+    // Always reveal connected link percentage badges cleanly via CSS class
+    this.linkLabelLayer.classed('is-focusing', true)
+      .selectAll('g.link-label-group')
+      .classed('is-active', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (sourceId === node.id || targetId === node.id) ? 1 : 0;
+        return (sourceId === node.id || targetId === node.id);
       });
   }
 
@@ -1038,11 +1102,12 @@ export class NetworkGraph {
         return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? Math.max(8, this.getLinkWidth(d) + 3) : this.getLinkWidth(d);
       });
 
-    this.linkLabelLayer.selectAll('g.link-label-group')
-      .style('opacity', d => {
+    this.linkLabelLayer.classed('is-focusing', true)
+      .selectAll('g.link-label-group')
+      .classed('is-active', d => {
         const sourceId = d.source.id || d.source;
         const targetId = d.target.id || d.target;
-        return (pathLinkPairSet.has(`${sourceId}->${targetId}`)) ? 1 : 0;
+        return pathLinkPairSet.has(`${sourceId}->${targetId}`);
       });
 
     // Automatically frame the discovered path!
@@ -1066,10 +1131,9 @@ export class NetworkGraph {
       .attr('stroke', d => this.getLinkColor(d))
       .attr('stroke-width', d => this.getLinkWidth(d));
 
-    this.linkLabelLayer.selectAll('g.link-label-group')
-      .attr('opacity', 1);
-
-    this.applySemanticZoom(this.currentTransform.k);
+    this.linkLabelLayer.classed('is-focusing', false)
+      .selectAll('g.link-label-group')
+      .classed('is-active', false);
   }
 
   zoomIn() {
@@ -1086,7 +1150,13 @@ export class NetworkGraph {
 
   exportPNG() {
     const svgEl = document.getElementById('network-svg');
+    // Temporarily mirror GPU CSS transform to SVG attribute so standalone SVG serializer preserves exact viewport
+    const t = this.currentTransform;
+    const prevCssTransform = this.g.style('transform');
+    this.g.style('transform', null).attr('transform', `translate(${t.x},${t.y}) scale(${t.k})`);
     const svgString = new XMLSerializer().serializeToString(svgEl);
+    this.g.attr('transform', null).style('transform', prevCssTransform);
+
     const canvas = document.createElement('canvas');
     canvas.width = this.width * 2;
     canvas.height = this.height * 2;
