@@ -504,19 +504,20 @@
 
 /* Action Floating Drawer Trigger buttons */
 .sidebar-toggle-btn {
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
+  background: var(--bg-float);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  padding: 6px 12px;
+  padding: 6px 11px;
   border-radius: 8px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .sidebar-toggle-btn:hover {

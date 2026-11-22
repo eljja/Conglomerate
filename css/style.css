@@ -128,12 +128,12 @@ body {
 header.app-header {
   height: 60px;
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  gap: 12px;
+  padding: 0 16px;
   z-index: 40;
   flex-shrink: 0;
 }
@@ -141,56 +141,68 @@ header.app-header {
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .logo-badge {
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
+  flex-shrink: 0;
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
 
 .logo-text h1 {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+  white-space: nowrap;
   background: linear-gradient(90deg, #f8fafc, #cbd5e1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .logo-text span {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   display: block;
+  white-space: nowrap;
 }
 
 /* Macro KPI Ticker Sub-Header */
 .kpi-ticker-bar {
   height: 34px;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.92);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 24px;
+  padding: 0 16px;
   font-size: 0.78rem;
   z-index: 39;
-  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.kpi-ticker-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .kpi-item {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .kpi-label {
@@ -210,21 +222,40 @@ header.app-header {
   border-radius: 10px;
   border: 1px solid var(--border-color);
   gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.view-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-btn {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  padding: 6px 12px;
+  padding: 6px 11px;
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+@media (max-width: 1280px) {
+  .logo-text span {
+    display: none;
+  }
+  .tab-btn {
+    padding: 6px 9px;
+    font-size: 0.78rem;
+  }
 }
 
 .tab-btn:hover {
